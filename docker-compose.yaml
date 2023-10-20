@@ -10,3 +10,8 @@ services:
       - /app/node_modules
     stdin_open: true
     tty: true
+  interface_0:
+    build: ./interfaces/Example
+    container_name: example-python-microservice
+    volumes:
+      - ./interfaces/Example:/app

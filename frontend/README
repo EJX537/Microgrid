@@ -1,0 +1,8 @@
+# Docker
+## To run use the following command:
+docker-compose up
+
+# For Dev
+## It is recommended by not require for you to develop in docker
+## Use the following command for development:
+npm run dev

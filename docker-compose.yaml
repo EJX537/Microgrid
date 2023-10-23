@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3'
 services:
   front-end:
     build: ./frontend
@@ -15,3 +15,15 @@ services:
     container_name: example-python-microservice
     volumes:
       - ./interfaces/Example:/app
+  mysql:
+    build:
+      context: ./docker-config
+      dockerfile: Dockerfile
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: sluggrid
+      MYSQL_DATABASE: microgridManager
+      MYSQL_USER: microgridManager
+      MYSQL_PASSWORD: sluggrid
+      

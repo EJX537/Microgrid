@@ -17,6 +17,7 @@
     "react-router-dom": "^6.17.0"
   },
   "devDependencies": {
+    "@ant-design/charts": "^1.4.2",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",

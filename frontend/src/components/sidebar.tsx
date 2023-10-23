@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   AppstoreOutlined,
@@ -11,8 +11,8 @@ import {
   LinkOutlined
 } from '@ant-design/icons';
 
-import { Menu } from 'antd';
-import type { MenuProps } from 'antd';
+import { Menu, MenuProps } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -33,21 +33,21 @@ function getItem(
 }
 
 const items_mock: MenuProps['items'] = [
-  getItem('Dashboard', '1', <AppstoreOutlined />),
+  getItem('Dashboard', '1', <AppstoreOutlined />, undefined, undefined),
   getItem('Device 1', 'sub1', <DesktopOutlined />, [
-    getItem('Data View', '2', <BarChartOutlined />),
-    getItem('Configure', '3', <SettingOutlined />),
-    getItem('Link', '4', <LinkOutlined />)
+    getItem('Data View', '2', <BarChartOutlined />, undefined, undefined),
+    getItem('Configure', '3', <SettingOutlined />, undefined, undefined),
+    getItem('Link', 'link1', <LinkOutlined />, undefined, undefined)
   ]),
   getItem('Device 2', 'sub2', <DesktopOutlined />, [
     getItem('Data View', '5', <BarChartOutlined />),
     getItem('Configure', '6', <SettingOutlined />),
-    getItem('Link', '7', <LinkOutlined />)
+    getItem('Link', 'link2', <LinkOutlined />)
   ]),
   getItem('Device 3', 'sub3', <DesktopOutlined />, [
     getItem('Data View', '8', <BarChartOutlined />),
     getItem('Configure', '9', <SettingOutlined />),
-    getItem('Link', '10', <LinkOutlined />)
+    getItem('Link', 'link3', <LinkOutlined />)
   ]),
   getItem('Add Device', '12', <PlusOutlined />),
   getItem('Backup Cloud', '13', <CloudOutlined />),
@@ -55,13 +55,40 @@ const items_mock: MenuProps['items'] = [
   getItem('Settings', '15', <SettingOutlined />),
 ];
 
-const Sidebar = ({collapsed}: {collapsed: boolean}) => {
+const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
+  const [selectedKey, selectKey] = useState(['1']);
+  const navigate = useNavigate();
+  // When Link is click it does not select it as an active value for the menu
+  const handleOnclick = (e: {key: string} ) => {
+    if (!e.key.includes('link')) {
+      selectKey([e.key]);
+    } else {
+      window.open('http://google.com');
+    }
+    if (!e.key.includes('sub')) {
+      switch (e.key) {
+        case '1':
+          navigate('/');
+          break;
+        case '2':
+          navigate('/a');
+          break;
+        case '3':
+          navigate('/b');
+          break;
+        default:
+          navigate('/');
+          break;
+      }
+    }
+  };
+
   return (
     <div>
       <div className={`bg-gray-400 m-3 py-2 text-center rounded-lg overflow-hidden ${collapsed ? '' : ''}`}>
         Microgrid Manager
       </div>
-      <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} items={items_mock} inlineCollapsed={collapsed} />
+      <Menu theme="dark" mode="inline" selectedKeys={selectedKey} items={items_mock} onClick={handleOnclick}/>
     </div>
   );
 };

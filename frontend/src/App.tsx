@@ -17,8 +17,8 @@ const App: React.FC = () => {
   return (
     <Router>
       <MicrogridProvider>
-        <Layout hasSider className='min-h-screen min-w-screen'>
-          <Sider className='!fixed !h-screen' collapsible collapsed={collapsed} onCollapse={() => setCollapsed(!collapsed)}>
+        <Layout hasSider className='min-h-screen min-w-screen font-serif'>
+          <Sider className='!fixed !h-screen z-50' collapsible collapsed={collapsed} onCollapse={() => setCollapsed(!collapsed)}>
             <Sidebar collapsed={collapsed} />
           </Sider>
 

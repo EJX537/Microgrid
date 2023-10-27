@@ -2,16 +2,12 @@ import { EllipsisOutlined } from '@ant-design/icons';
 import { Pie } from '@ant-design/plots';
 import { Button } from 'antd';
 
-interface Datum {
-  type: string;
-  value: number;
-}
-
 const DemoPie = () => {
   const data = [
     {
       type: 'Running',
       value: 3,
+      color: 'red'
     },
     {
       type: 'Warning',
@@ -23,52 +19,22 @@ const DemoPie = () => {
     },
   ];
 
+
   const config = {
     appendPadding: 10,
     data,
     angleField: 'value',
     colorField: 'type',
-    color: (datum: Datum) => {
-      switch (datum.type) {
-        case 'Running':
-          return '#1f77b4'; // blue
-        case 'Warning':
-          return '#ff7f0e'; // orange
-        case 'Down':
-          return '#c7c7c7'; // green
-        default:
-          return '#c7c7c7'; // gray
-      }
-    },
-    radius: 1,
-    innerRadius: 0.7,
+    color: ['#1f77b4', '#ff7f0e', '#c7c7c7', ],
+    radius: 0.8,
     label: {
-      type: 'inner',
-      offset: '-50%',
-      style: {
-        textAlign: 'center',
-        fontSize: 0,
-      },
+      type: 'outer',
     },
     interactions: [
-      {
-        type: 'element-selected',
-      },
       {
         type: 'element-active',
       },
     ],
-    statistic: {
-      title: false,
-      content: {
-        style: {
-          whiteSpace: 'pre-wrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        },
-        content: '',
-      },
-    },
   };
   return (
     <div className='flex flex-col'>

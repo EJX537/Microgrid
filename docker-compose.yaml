@@ -1,6 +1,6 @@
 version: '3'
 services:
-  front-end:
+  frontend:
     build: ./frontend
     container_name: Dashboard
     ports:
@@ -10,6 +10,16 @@ services:
       - /app/node_modules
     stdin_open: true
     tty: true
+
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+  
   interface_0:
     build: ./interfaces/Example
     container_name: example-python-microservice

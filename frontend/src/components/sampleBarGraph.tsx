@@ -20,7 +20,6 @@ const ExampleGraph = () => {
 
   const config = {
     data,
-    padding: 'auto',
     xField: 'Date',
     yField: 'scales',
     xAxis: {

@@ -1,16 +1,58 @@
-import { Card } from 'antd';
-import ExampleGraph from '../../sampleGraph';
+import { Card, Carousel } from 'antd';
+import ExampleGraph from '../../sampleBarGraph';
 import DemoPie from '../../sampleGraph2';
+import DemoSideBar from '../../sampleSideBarGraph';
+import EnergyUsageChart from './overviewEnergyUsageChart';
 
 const Dashboard = () => {
+
+  const onChange = (currentSlide: number) => {
+    console.log(currentSlide);
+  };
+
   return (
-    <div className='p-4 pt-6 h-fit grid grid-cols-12 gap-2'>
+    <div className='p-4 pt-6 h-full grid grid-cols-12 gap-2 w-full'>
       <div className='bg-gray-200 rounded-md h-14 items-center flex pl-4 col-start-1 col-span-full'>
         Filter
       </div>
+      <div className='h-52 w-full col-start-1 col-span-full'>
+        <div className='bg-gray-400 w-full h-full rounded-md'>
+          <Carousel afterChange={onChange} className='w-full h-52 flex flex-row'>
+            <div className='h-full w-full p-2'>
+              <div className='flex flex-row gap-x-4'>
 
-      <Card className='bg-gray-400 w-full h-48 rounded-md p-2 col-start-1 col-span-full'>
-      </Card>
+                <div className='h-[176px] w-[300px] bg-white p-2 rounded-lg flex flex-col max-w-[300px]'>
+                  <span className=''>
+                    Panel A
+                  </span>
+                  <ExampleGraph />
+                </div>
+                <div className='h-[176px] w-[300px] bg-white p-2 rounded-lg flex flex-row max-w-[300px]'>
+                  <div className='w-1/5'>
+                    Panel B
+                  </div>
+                  <div className='w-4/5 h-full'>
+                    <DemoSideBar/>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className='h-full w-full p-2'>
+              <div className='flex flex-row gap-x-4'>
+
+                <div className='h-[176px] w-[300px] bg-white p-2 rounded-lg flex flex-col max-w-[300px]'>
+
+                  <ExampleGraph />
+                </div>
+                <div className='h-[176px] w-[300px] bg-white p-2 rounded-lg flex flex-col max-w-[300px]'>
+                  <ExampleGraph />
+                </div>
+              </div>
+            </div>
+          </Carousel>
+        </div>
+      </div>
+
 
       <Card className='bg-gray-200 rounded-lg col-start-1 col-span-7'>
         <ExampleGraph />
@@ -21,7 +63,7 @@ const Dashboard = () => {
       </Card>
 
       <Card className=' bg-gray-200 rounded-lg col-start-1 col-span-full'>
-        <ExampleGraph />
+        <EnergyUsageChart/>
       </Card>
     </div>
   );

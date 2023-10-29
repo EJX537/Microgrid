@@ -1,11 +1,11 @@
 import { Card, Carousel } from 'antd';
-import ExampleGraph from '../../sampleBarGraph';
-import DemoPie from '../../sampleGraph2';
-import DemoSideBar from '../../sampleSideBarGraph';
-import EnergyUsageChart from './overviewEnergyUsageChart';
+import DualYAxisAreaChart from './overviewEnergyUsageChart_d3';
+// import ExampleGraph from '../../sampleBarGraph';
+// import DemoPie from '../../sampleGraph2';
+// import DemoSideBar from '../../sampleSideBarGraph';
+// import EnergyUsageChart from './overviewEnergyUsageChart';
 
 const Dashboard = () => {
-
   const onChange = (currentSlide: number) => {
     console.log(currentSlide);
   };
@@ -25,14 +25,12 @@ const Dashboard = () => {
                   <span className=''>
                     Panel A
                   </span>
-                  <ExampleGraph />
                 </div>
                 <div className='h-[176px] w-[300px] bg-white p-2 rounded-lg flex flex-row max-w-[300px]'>
                   <div className='w-1/5'>
                     Panel B
                   </div>
                   <div className='w-4/5 h-full'>
-                    <DemoSideBar/>
                   </div>
                 </div>
               </div>
@@ -41,11 +39,8 @@ const Dashboard = () => {
               <div className='flex flex-row gap-x-4'>
 
                 <div className='h-[176px] w-[300px] bg-white p-2 rounded-lg flex flex-col max-w-[300px]'>
-
-                  <ExampleGraph />
                 </div>
                 <div className='h-[176px] w-[300px] bg-white p-2 rounded-lg flex flex-col max-w-[300px]'>
-                  <ExampleGraph />
                 </div>
               </div>
             </div>
@@ -55,16 +50,14 @@ const Dashboard = () => {
 
 
       <Card className='bg-gray-200 rounded-lg col-start-1 col-span-7'>
-        <ExampleGraph />
       </Card>
 
       <Card className='bg-gray-200 rounded-lg col-start-8 col-span-full h-full w-full'>
-        <DemoPie />
       </Card>
 
-      <Card className=' bg-gray-200 rounded-lg col-start-1 col-span-full'>
-        <EnergyUsageChart/>
-      </Card>
+      <div className='bg-gray-50 rounded-lg col-start-1 col-span-full h-full w-full'>
+        <DualYAxisAreaChart />
+      </div>
     </div>
   );
 };

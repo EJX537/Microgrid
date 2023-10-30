@@ -13,7 +13,7 @@ const EnergyUsageChart = () => {
 	}, []);
 
 	return (
-		<div className='h-full w-full flex flex-col p-4'>
+		<div className='h-full w-full flex flex-col min-h-[500px]'>
 			<div className='text-lg'>
 				Energy Generation
 			</div>
@@ -35,7 +35,7 @@ const EnergyUsageChart = () => {
 				</Radio.Group>
 				<DatePicker value={dateTime} format={dateFormat} onChange={(date) => setDateTime(date)}/>
 			</div>
-			<div className='h-full'>
+			<div className='p-4 h-full'>
 				<DualYAxisAreaChart />
 			</div>
 		</div>

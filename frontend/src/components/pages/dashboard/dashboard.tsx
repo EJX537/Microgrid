@@ -44,7 +44,6 @@ const Dashboard = () => {
 				</div>
 			</div>
 
-
 			<Card className='bg-gray-200 rounded-lg col-start-1 col-span-7'>
 			</Card>
 

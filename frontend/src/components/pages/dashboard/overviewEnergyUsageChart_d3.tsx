@@ -55,7 +55,7 @@ const DualYAxisAreaChart: React.FC = () => {
 			.attr('width', width)
 			.attr('height', height)
 			.attr('viewBox', [0, 0, width, height].join(' '))
-			.attr('style', 'width: 100%; height: 100%; overflow: visible; font: 10px sans-serif; padding: 0px;');
+			.attr('style', 'width: 100%; height: 90%; overflow: visible; font: 10px sans-serif; padding: 0px;');
 
 		// Declare the x (horizontal position) scale.
 		const x = d3.scaleUtc()
@@ -109,7 +109,7 @@ const DualYAxisAreaChart: React.FC = () => {
 		svg.append('path')
 			.datum(data2)
 			.attr('fill', 'none')
-			.attr('stroke', 'orange')
+			.attr('stroke', 'green')
 			.attr('stroke-width', 1.5)
 			.attr('d', line);
 
@@ -171,7 +171,7 @@ const DualYAxisAreaChart: React.FC = () => {
 
 		// Legend
 		const legend = svg.append('g')
-			.attr('transform', `translate(${(marginLeft)}, ${height + marginBottom})`);
+			.attr('transform', `translate(${(marginLeft)}, ${height + marginBottom + 5})`);
 
 			const legendItem = legend.selectAll('.legendItem')
 			.data(sources) // Replace with your data labels
@@ -182,7 +182,7 @@ const DualYAxisAreaChart: React.FC = () => {
 			.attr('x', (d, i) => i * 100) // Adjust as needed
 			.attr('width', 18)
 			.attr('height', 18)
-			.style('fill', (d, i) => i === 0 ? 'steelblue' : 'orange'); // Replace with your color scale
+			.style('fill', (d, i) => d === 'eGuage' ? 'steelblue' : d === 'Battery' ? 'green' : 'orange'); // Replace with your color scale
 
 		legendItem.append('text')
 			.attr('x', (d, i) => i * 100 + 24) // Adjust as needed
@@ -191,11 +191,11 @@ const DualYAxisAreaChart: React.FC = () => {
 			.style('text-anchor', 'start')
 			.text((d) => d); // Replace with your label
 
-	}, [svgRef]);
+	}, [svgRef, parentRef]);
 
 	// Return the SVG element.
 	return (
-		<div className='h-full w-full' ref={parentRef}>
+		<div className='h-full w-full flex-1' ref={parentRef}>
 			<svg ref={svgRef} />
 		</div>
 	);

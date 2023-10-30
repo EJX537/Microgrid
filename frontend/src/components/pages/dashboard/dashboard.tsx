@@ -1,9 +1,5 @@
 import { Card, Carousel } from 'antd';
-import DualYAxisAreaChart from './overviewEnergyUsageChart_d3';
-// import ExampleGraph from '../../sampleBarGraph';
-// import DemoPie from '../../sampleGraph2';
-// import DemoSideBar from '../../sampleSideBarGraph';
-// import EnergyUsageChart from './overviewEnergyUsageChart';
+import EnergyUsageChart from './energyChart';
 
 const Dashboard = () => {
 	const onChange = (currentSlide: number) => {
@@ -56,7 +52,7 @@ const Dashboard = () => {
 			</Card>
 
 			<div className='bg-gray-50 rounded-lg col-start-1 col-span-full h-full w-full'>
-				<DualYAxisAreaChart />
+				<EnergyUsageChart />
 			</div>
 		</div>
 	);

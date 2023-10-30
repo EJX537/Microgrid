@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 
 interface DataTypeWattHour {
 	date: Date;
+	source: string;
 	watt: number;
 }
 
@@ -21,13 +22,18 @@ for (let i = 1; i < 18; i++) {
 }
 
 const data1: DataTypeWattHour[] = dateTime.map((entry) => ({
-	date: entry, watt: Math.floor(Math.random() * 11001) - 3000
+	date: entry, watt: Math.floor(Math.random() * 11001) - 3000, source: 'eGuage'
 }));
 
+const data3: DataTypeWattHour[] = dateTime.map((entry) => ({
+	date: entry, watt: Math.floor(Math.random() * 11001) - 3000, source: 'PowerVue'
+}));
 
 const data2: DataTypePercentHour[] = dateTime.map((entry) => ({
 	date: entry, percent: Math.floor(Math.random() * 101)
 }));
+
+const data = [...data1, ...data3];
 
 const DualYAxisAreaChart: React.FC = () => {
 	const svgRef = useRef<SVGSVGElement | null>(null);
@@ -49,15 +55,15 @@ const DualYAxisAreaChart: React.FC = () => {
 			.attr('width', width)
 			.attr('height', height)
 			.attr('viewBox', [0, 0, width, height].join(' '))
-			.attr('style', 'max-width: 100%; height: auto; overflow: visible; font: 10px sans-serif;');
+			.attr('style', 'width: 100%; height: 100%; overflow: visible; font: 10px sans-serif; padding: 0px;');
 
 		// Declare the x (horizontal position) scale.
 		const x = d3.scaleUtc()
 			.domain(d3.extent(dateTime, d => d) as [Date, Date])
 			.range([marginLeft, width - marginRight]);
 
-		const yMax = Math.ceil((d3.max(data1, d => d.watt) ?? 0) / 2000) * 2000;
-		const yMin = Math.floor((d3.min(data1, d => d.watt) ?? 0) / 2000) * 2000;
+		const yMax = Math.ceil((d3.max(data, d => d.watt) ?? 0) / 2000) * 2000;
+		const yMin = Math.floor((d3.min(data, d => d.watt) ?? 0) / 2000) * 2000;
 
 		// Declare the y (vertical position) scale.
 		const y1 = d3.scaleLinear()
@@ -69,31 +75,43 @@ const DualYAxisAreaChart: React.FC = () => {
 			.domain([0, 100])
 			.range([height - marginBottom, marginTop]);
 
-		// Create an area generator for data1
-		const area1 = d3.area<DataTypeWattHour>()
-			.x(d => x(d.date))
-			.y0(y1(0))
-			.y1(d => y1(d.watt));
+		const sources = d3.union(data.map(d => d.source), ['Battery']);
 
-		// Append data1 area to the SVG
-		svg.append('path')
-			.datum(data1)
-			.attr('fill', 'steelblue')
-			.attr('d', area1);
+		const series = d3.stack<DataTypeWattHour>()
+			.keys(d3.union(data.map(d => d.source)))
+			.value(([, D], key) => D.get(key).watt)(d3.index(data, d => d.date, d => d.source));
 
+		const area = d3.area<{ data: [DataTypeWattHour], '0': number, '1': number }>()
+			.x(d => x(d.data[0]) as number)
+			.y0(d => y1(d[0]) as number)
+			.y1(d => y1(d[1]) as number);
+
+		const color = d3.scaleOrdinal()
+			.domain(series.map(d => d.key))
+			.range(d3.schemeTableau10);
+
+		// Append area to the SVG
+		svg.append('g')
+			.selectAll('path')
+			.data(series)
+			.join('path')
+			.attr('fill', d => color(d.key) as string)
+			.attr('d', d => area(d) as string || '')
+			.append('title')
+			.text(d => d.key);
 
 		// Create a line generator for data2
-		const line2 = d3.line<DataTypePercentHour>()
+		const line = d3.line<DataTypePercentHour>()
 			.x(d => x(d.date))
 			.y(d => y2(d.percent));
 
-		// Append data2 line to the SVG
+		// Append line to the SVG
 		svg.append('path')
 			.datum(data2)
 			.attr('fill', 'none')
 			.attr('stroke', 'orange')
 			.attr('stroke-width', 1.5)
-			.attr('d', line2);
+			.attr('d', line);
 
 		// Add the x-axis.
 		svg.append('g')
@@ -130,8 +148,6 @@ const DualYAxisAreaChart: React.FC = () => {
 				.attr('text-anchor', 'start')
 				.text('(%)'));
 
-
-
 		// For each tick...
 		y1.ticks(Math.ceil((yMax - yMin) / 2000)).forEach(tickValue => {
 			// Append a line to the SVG
@@ -144,7 +160,6 @@ const DualYAxisAreaChart: React.FC = () => {
 				.attr('y2', y1(tickValue));
 		});
 
-
 		// Add a horizontal line at y=0.
 		svg.append('line')
 			.style('stroke', 'black')
@@ -154,13 +169,33 @@ const DualYAxisAreaChart: React.FC = () => {
 			.attr('y1', y1(0))
 			.attr('y2', y1(0));
 
+		// Legend
+		const legend = svg.append('g')
+			.attr('transform', `translate(${(marginLeft)}, ${height + marginBottom})`);
+
+			const legendItem = legend.selectAll('.legendItem')
+			.data(sources) // Replace with your data labels
+			.enter().append('g')
+			.attr('class', 'legendItem');
+
+		legendItem.append('rect')
+			.attr('x', (d, i) => i * 100) // Adjust as needed
+			.attr('width', 18)
+			.attr('height', 18)
+			.style('fill', (d, i) => i === 0 ? 'steelblue' : 'orange'); // Replace with your color scale
+
+		legendItem.append('text')
+			.attr('x', (d, i) => i * 100 + 24) // Adjust as needed
+			.attr('y', 9)
+			.attr('dy', '.35em')
+			.style('text-anchor', 'start')
+			.text((d) => d); // Replace with your label
+
 	}, [svgRef]);
-
-
 
 	// Return the SVG element.
 	return (
-		<div className='h-full w-full p-2' ref={parentRef}>
+		<div className='h-full w-full' ref={parentRef}>
 			<svg ref={svgRef} />
 		</div>
 	);

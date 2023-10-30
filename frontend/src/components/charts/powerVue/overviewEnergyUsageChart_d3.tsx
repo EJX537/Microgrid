@@ -15,7 +15,7 @@ interface DataTypePercentHour {
 const date = new Date();
 date.setHours(0, 0, 0, 0);
 const dateTime: Date[] = [date];
-for (let i = 1; i < 18; i++) {
+for (let i = 1; i < 60; i++) {
 	const time = new Date(date.getTime());
 	time.setHours(i);
 	dateTime.push(time);
@@ -26,12 +26,26 @@ const data1: DataTypeWattHour[] = dateTime.map((entry) => ({
 }));
 
 const data3: DataTypeWattHour[] = dateTime.map((entry) => ({
-	date: entry, watt: Math.floor(Math.random() * 11001) - 3000, source: 'PowerVue'
+	date: entry, watt: Math.floor(Math.random() * 8001) - 3000, source: 'PowerVue'
 }));
 
-const data2: DataTypePercentHour[] = dateTime.map((entry) => ({
-	date: entry, percent: Math.floor(Math.random() * 101)
-}));
+let lastPercent = Math.floor(Math.random() * 101);
+
+const data2: DataTypePercentHour[] = dateTime.map((entry) => {
+	// Generate a random number between -1 and 1
+	const variation = Math.floor(Math.random() * 3) - 1;
+
+	// Add the variation to the last percent
+	lastPercent += variation;
+
+	// Clamp the percent between 0 and 100
+	lastPercent = Math.max(0, Math.min(100, lastPercent));
+
+	return {
+		date: entry,
+		percent: lastPercent
+	};
+});
 
 const data = [...data1, ...data3];
 
@@ -81,7 +95,7 @@ const DualYAxisAreaChart: React.FC = () => {
 			.keys(d3.union(data.map(d => d.source)))
 			.value(([, D], key) => D.get(key).watt)(d3.index(data, d => d.date, d => d.source));
 
-		const area = d3.area<{ data: [DataTypeWattHour], '0': number, '1': number }>()
+		const area = d3.area<{ data: [DataTypeWattHour], '0': Date, '1': number }>()
 			.x(d => x(d.data[0]) as number)
 			.y0(d => y1(d[0]) as number)
 			.y1(d => y1(d[1]) as number);
@@ -91,7 +105,7 @@ const DualYAxisAreaChart: React.FC = () => {
 			.range(d3.schemeTableau10);
 
 		// Append area to the SVG
-		svg.append('g')
+		const path = svg.append('g')
 			.selectAll('path')
 			.data(series)
 			.join('path')
@@ -104,6 +118,18 @@ const DualYAxisAreaChart: React.FC = () => {
 		const line = d3.line<DataTypePercentHour>()
 			.x(d => x(d.date))
 			.y(d => y2(d.percent));
+
+		// For each tick...
+		y1.ticks(Math.ceil((yMax - yMin) / 2000)).forEach(tickValue => {
+			// Append a line to the SVG
+			svg.append('line')
+				.style('stroke', 'darkblue') // Set the line color
+				.style('stroke-width', 0.5) // Set the line width
+				.attr('x1', marginLeft) // Set the starting x-coordinate
+				.attr('x2', width - marginRight) // Set the ending x-coordinate
+				.attr('y1', y1(tickValue)) // Set the starting and ending y-coordinate
+				.attr('y2', y1(tickValue));
+		});
 
 		// Append line to the SVG
 		svg.append('path')
@@ -148,50 +174,29 @@ const DualYAxisAreaChart: React.FC = () => {
 				.attr('text-anchor', 'start')
 				.text('(%)'));
 
-		// For each tick...
-		y1.ticks(Math.ceil((yMax - yMin) / 2000)).forEach(tickValue => {
-			// Append a line to the SVG
-			svg.append('line')
-				.style('stroke', 'darkblue') // Set the line color
-				.style('stroke-width', 0.5) // Set the line width
-				.attr('x1', marginLeft) // Set the starting x-coordinate
-				.attr('x2', width - marginRight) // Set the ending x-coordinate
-				.attr('y1', y1(tickValue)) // Set the starting and ending y-coordinate
-				.attr('y2', y1(tickValue));
-		});
-
-		// Add a horizontal line at y=0.
-		svg.append('line')
-			.style('stroke', 'black')
-			.style('stroke-width', 1)
-			.attr('x1', marginLeft)
-			.attr('x2', width - marginRight)
-			.attr('y1', y1(0))
-			.attr('y2', y1(0));
-
 		// Legend
 		const legend = svg.append('g')
 			.attr('transform', `translate(${(marginLeft)}, ${height + marginBottom + 5})`);
 
-			const legendItem = legend.selectAll('.legendItem')
-			.data(sources) // Replace with your data labels
+		const legendItem = legend.selectAll('.legendItem')
+			.data(sources)
 			.enter().append('g')
 			.attr('class', 'legendItem');
 
 		legendItem.append('rect')
-			.attr('x', (d, i) => i * 100) // Adjust as needed
+			.attr('x', (d, i) => i * 100)
 			.attr('width', 18)
 			.attr('height', 18)
-			.style('fill', (d, i) => d === 'eGuage' ? 'steelblue' : d === 'Battery' ? 'green' : 'orange'); // Replace with your color scale
+			.style('fill', (d, i) => d === 'eGuage' ? 'steelblue' : d === 'Battery' ? 'green' : 'orange');// Todo: Color Better
 
 		legendItem.append('text')
-			.attr('x', (d, i) => i * 100 + 24) // Adjust as needed
+			.attr('x', (d, i) => i * 100 + 24)
 			.attr('y', 9)
 			.attr('dy', '.35em')
 			.style('text-anchor', 'start')
-			.text((d) => d); // Replace with your label
+			.text((d) => d);
 
-	}, [svgRef, parentRef]);
+	}, [svgRef]);
 
 	// Return the SVG element.
 	return (

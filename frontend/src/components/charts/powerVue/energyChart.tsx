@@ -13,7 +13,7 @@ const EnergyUsageChart = () => {
 	}, []);
 
 	return (
-		<div className='h-full w-full flex flex-col min-h-[500px]'>
+		<div className='h-full w-full flex flex-col min-h-[500px] p-2'>
 			<div className='text-lg'>
 				Energy Generation
 			</div>

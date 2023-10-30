@@ -1,5 +1,6 @@
 import { Card, Carousel } from 'antd';
-import EnergyUsageChart from './energyChart';
+import EnergyUsageChart from '../../charts/powerVue/energyChart';
+import EnergyGenerationChart from '../../charts/eneryGeneratopn/energyGenerationChart';
 
 const Dashboard = () => {
 	const onChange = (currentSlide: number) => {
@@ -15,8 +16,7 @@ const Dashboard = () => {
 				<div className='bg-gray-400 w-full h-full rounded-md'>
 					<Carousel afterChange={onChange} className='w-full h-52 flex flex-row'>
 						<div className='h-full w-full p-2'>
-							<div className='flex flex-row gap-x-4'>
-
+							<div className='flex flex-row gap-x-4 justify-evenly'>
 								<div className='h-[176px] w-[300px] bg-white p-2 rounded-lg flex flex-col max-w-[300px]'>
 									<span className=''>
 										Panel A
@@ -33,8 +33,8 @@ const Dashboard = () => {
 						</div>
 						<div className='h-full w-full p-2'>
 							<div className='flex flex-row gap-x-4'>
-
 								<div className='h-[176px] w-[300px] bg-white p-2 rounded-lg flex flex-col max-w-[300px]'>
+
 								</div>
 								<div className='h-[176px] w-[300px] bg-white p-2 rounded-lg flex flex-col max-w-[300px]'>
 								</div>
@@ -44,11 +44,12 @@ const Dashboard = () => {
 				</div>
 			</div>
 
-			<Card className='bg-gray-200 rounded-lg col-start-1 col-span-7'>
-			</Card>
+			<div className='rounded-lg col-start-1 col-span-7 p-4'>
+				<EnergyGenerationChart/>
+			</div>
 
-			<Card className='bg-gray-200 rounded-lg col-start-8 col-span-full h-full w-full'>
-			</Card>
+			<div className='bg-gray-200 rounded-lg col-start-8 col-span-full'>
+			</div>
 
 			<div className='bg-gray-50 rounded-lg col-start-1 col-span-full h-full w-full'>
 				<EnergyUsageChart />

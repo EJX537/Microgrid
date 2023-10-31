@@ -1,4 +1,4 @@
-import { Card, Carousel } from 'antd';
+import { Carousel } from 'antd';
 import EnergyUsageChart from '../../charts/powerVue/energyChart';
 import EnergyGenerationChart from '../../charts/eneryGeneratopn/energyGenerationChart';
 

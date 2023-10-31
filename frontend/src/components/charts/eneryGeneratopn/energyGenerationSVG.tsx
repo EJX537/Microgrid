@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { DataSteam } from './energyGenerationChart';
+import { useWindow } from '../../context/useWindowContext';
 
 interface EnergyGenerationSVGProps {
   data: DataSteam
@@ -9,7 +10,7 @@ interface EnergyGenerationSVGProps {
 const EnergyGenerationSVG: React.FC<EnergyGenerationSVGProps> = (props) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const parentRef = useRef<HTMLDivElement | null>(null);
-
+  const {height, width} = useWindow();
   useEffect(() => {
     if (!svgRef.current || !parentRef.current) {
       return;
@@ -62,9 +63,10 @@ const EnergyGenerationSVG: React.FC<EnergyGenerationSVGProps> = (props) => {
       .style('font-size', `${size / 17}px`)
       .text('Power (W)');
 
-  }, [props]);
+    return () => { svg.selectAll('*').remove(); };
+  }, [props, height, width]);
 
-	// Return the SVG element.
+  // Return the SVG element.
   return (
     <div className='h-full w-full flex-1 flex' ref={parentRef}>
       <svg ref={svgRef} className='h-full w-full' />

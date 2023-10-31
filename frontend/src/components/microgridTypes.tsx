@@ -5,6 +5,11 @@ export interface MicrogridState {
 	setUser: Dispatch<React.SetStateAction<string>>;
 }
 
+export interface WindowSizeContextProps {
+  width: number;
+  height: number;
+}
+
 export interface ProviderProps {
 	children: ReactNode;
 }

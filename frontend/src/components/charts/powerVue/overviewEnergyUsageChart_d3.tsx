@@ -1,5 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
+import { useWindow } from '../../context/useWindowContext';
 
 interface DataTypeWattHour {
 	date: Date;
@@ -52,6 +53,7 @@ const data = [...data1, ...data3];
 const DualYAxisAreaChart: React.FC = () => {
 	const svgRef = useRef<SVGSVGElement | null>(null);
 	const parentRef = useRef<HTMLDivElement | null>(null);
+	const { height, width } = useWindow();
 
 	const marginTop = 20;
 	const marginRight = 20;
@@ -62,19 +64,19 @@ const DualYAxisAreaChart: React.FC = () => {
 		if (!svgRef.current || !parentRef.current) {
 			return;
 		}
-		const width = parentRef.current.offsetWidth;
-		const height = parentRef.current.offsetHeight;
+		const width_p = parentRef.current.offsetWidth;
+		const height_p = parentRef.current.offsetHeight;
 
 		const svg = d3.select(svgRef.current)
-			.attr('width', width)
-			.attr('height', height)
-			.attr('viewBox', [0, 0, width, height].join(' '))
+			.attr('width', width_p)
+			.attr('height', height_p)
+			.attr('viewBox', [0, 0, width_p, height_p].join(' '))
 			.attr('style', 'width: 100%; height: 90%; overflow: visible; font: 10px sans-serif; padding: 0px;');
 
 		// Declare the x (horizontal position) scale.
 		const x = d3.scaleUtc()
 			.domain(d3.extent(dateTime, d => d) as [Date, Date])
-			.range([marginLeft, width - marginRight]);
+			.range([marginLeft, width_p - marginRight]);
 
 		const yMax = Math.ceil((d3.max(data, d => d.watt) ?? 0) / 2000) * 2000;
 		const yMin = Math.floor((d3.min(data, d => d.watt) ?? 0) / 2000) * 2000;
@@ -82,12 +84,12 @@ const DualYAxisAreaChart: React.FC = () => {
 		// Declare the y (vertical position) scale.
 		const y1 = d3.scaleLinear()
 			.domain([yMin, yMax])
-			.range([height - marginBottom, marginTop]);
+			.range([height_p - marginBottom, marginTop]);
 
 		// Declare the y (vertical position) scale.
 		const y2 = d3.scaleLinear()
 			.domain([0, 100])
-			.range([height - marginBottom, marginTop]);
+			.range([height_p - marginBottom, marginTop]);
 
 		const sources = d3.union(data.map(d => d.source), ['Battery']);
 
@@ -105,7 +107,7 @@ const DualYAxisAreaChart: React.FC = () => {
 			.range(d3.schemeTableau10);
 
 		// Append area to the SVG
-		const path = svg.append('g')
+		svg.append('g')
 			.selectAll('path')
 			.data(series)
 			.join('path')
@@ -126,7 +128,7 @@ const DualYAxisAreaChart: React.FC = () => {
 				.style('stroke', 'darkblue') // Set the line color
 				.style('stroke-width', 0.5) // Set the line width
 				.attr('x1', marginLeft) // Set the starting x-coordinate
-				.attr('x2', width - marginRight) // Set the ending x-coordinate
+				.attr('x2', width_p - marginRight) // Set the ending x-coordinate
 				.attr('y1', y1(tickValue)) // Set the starting and ending y-coordinate
 				.attr('y2', y1(tickValue));
 		});
@@ -141,7 +143,7 @@ const DualYAxisAreaChart: React.FC = () => {
 
 		// Add the x-axis.
 		svg.append('g')
-			.attr('transform', `translate(0,${height})`)
+			.attr('transform', `translate(0,${height_p})`)
 			.call(d3.axisBottom(x).tickFormat((d) => {
 				if (d instanceof Date) {
 					return d3.timeFormat('%H:%M')(d);
@@ -165,7 +167,7 @@ const DualYAxisAreaChart: React.FC = () => {
 
 		// Add the y-axis 2.
 		svg.append('g')
-			.attr('transform', `translate(${width - marginRight},0)`)
+			.attr('transform', `translate(${width_p - marginRight},0)`)
 			.call(d3.axisRight(y2).ticks(Math.ceil((yMax - yMin) / 2000)).tickSize(0))
 			.call(g => g.select('.domain').remove())
 			.call(g => g.append('text')
@@ -176,7 +178,7 @@ const DualYAxisAreaChart: React.FC = () => {
 
 		// Legend
 		const legend = svg.append('g')
-			.attr('transform', `translate(${(marginLeft)}, ${height + marginBottom + 5})`);
+			.attr('transform', `translate(${(marginLeft)}, ${height_p + marginBottom + 5})`);
 
 		const legendItem = legend.selectAll('.legendItem')
 			.data(sources)
@@ -187,7 +189,7 @@ const DualYAxisAreaChart: React.FC = () => {
 			.attr('x', (d, i) => i * 100)
 			.attr('width', 18)
 			.attr('height', 18)
-			.style('fill', (d, i) => d === 'eGuage' ? 'steelblue' : d === 'Battery' ? 'green' : 'orange');// Todo: Color Better
+			.style('fill', (d, i) => d === 'eGuage' ? 'steelblue' : d === 'Battery' ? 'green' : 'orange'); // Todo: Color Better
 
 		legendItem.append('text')
 			.attr('x', (d, i) => i * 100 + 24)
@@ -195,8 +197,8 @@ const DualYAxisAreaChart: React.FC = () => {
 			.attr('dy', '.35em')
 			.style('text-anchor', 'start')
 			.text((d) => d);
-
-	}, [svgRef]);
+		return () => { svg.selectAll('*').remove(); };
+	}, [svgRef, height, width]);
 
 	// Return the SVG element.
 	return (

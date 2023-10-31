@@ -1,4 +1,7 @@
+import { useContext } from 'react';
 import EnergyGenerationSVG from './energyGenerationSVG';
+import { useWindow } from '../../context/useWindowContext';
+import { useMicrogrid } from '../../context/useMicrogridContext';
 
 export interface DataSteam {
 	currentWatt: number;

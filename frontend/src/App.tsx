@@ -19,13 +19,14 @@ const App: React.FC = () => {
 			<WindowSizeProvider>
 				<MicrogridProvider>
 					<Layout hasSider className='min-h-screen min-w-screen font-serif'>
+
 						<Sider className='!fixed !h-screen z-50' collapsible collapsed={collapsed} onCollapse={() => setCollapsed(!collapsed)}>
 							<Sidebar collapsed={collapsed} />
 						</Sider>
 
 						<Layout style={{ transition: 'margin-left .2s', marginLeft: collapsed ? 80 : 200 }} className='min-h-screen !min-w-[600px] w-full'>
 
-							<Header className='p-0 bg-white !h-14 z-50 fixed w-full'>
+							<Header className='p-0 bg-white !h-14 z-50 !fixed w-full'>
 								<HeaderContent collapsed={collapsed} setCollapsed={setCollapsed} />
 							</Header>
 

@@ -1,30 +1,29 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { DataSteam } from './energyGenerationChart';
-import { useWindow } from '../../context/useWindowContext';
 
 interface EnergyGenerationSVGProps {
-  data: DataSteam
+  data: DataSteam;
+  height: number;
+  width: number;
 }
 
 const EnergyGenerationSVG: React.FC<EnergyGenerationSVGProps> = (props) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const parentRef = useRef<HTMLDivElement | null>(null);
-  const {height, width} = useWindow();
   useEffect(() => {
-    if (!svgRef.current || !parentRef.current) {
-      return;
-    }
-    const width = parentRef.current.offsetWidth;
-    const height = parentRef.current.offsetHeight;
+		const { width, height, data } = props;
+		if (!svgRef.current || !width || !height || !data) return;
+
     const size = Math.min(width, height);
     const dataStream = props.data;
     const percentage = dataStream.currentWatt / 5000;
+
     const svg = d3.select(svgRef.current)
       .attr('width', size)
       .attr('height', size)
       .attr('viewBox', [-size / 2, -size / 2, size, size].join(' '))
       .attr('style', 'width: 100%; height: 100%; overflow: visible; font: 10px sans-serif; padding: 0px;');
+
     const radius = size / 2;
     const arc = d3.arc()
       .innerRadius(radius - size / 10)
@@ -36,42 +35,42 @@ const EnergyGenerationSVG: React.FC<EnergyGenerationSVGProps> = (props) => {
     svg.append('path')
       .datum({ startAngle: 2 * Math.PI, endAngle: 2.725 * Math.PI })
       .style('fill', '#D3D3D3')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .attr('d', arc as any);
 
     // Green arc
     svg.append('path')
       .datum({ startAngle: percentage * 2 * Math.PI, endAngle: 2 * Math.PI })
       .style('fill', '#4CAF50')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .attr('d', arc as any);
 
     // Text elements
     svg.append('text')
       .attr('text-anchor', 'middle')
-      .attr('dy', `-${size / 7}px`)
-      .style('font-size', `${size / 17}px`)
+      .attr('dy', `-${size / 5}px`)
+      .style('font-size', `${size / 12}px`)
       .text(`${percentage * 100}%`);
 
     svg.append('text')
       .attr('text-anchor', 'middle')
-      .style('font-size', `${size / 7}px`)
+      .style('font-size', `${size / 8}px`)
       .style('fill', 'green')
-      .text(`${dataStream.currentWatt}`);
+      .text(`${dataStream.currentWatt} (W)`);
 
     svg.append('text')
       .attr('text-anchor', 'middle')
-      .attr('dy', `${size / 11}px`)
-      .style('font-size', `${size / 17}px`)
-      .text('Power (W)');
+      .attr('dy', `${size / 5}px`)
+      .style('font-size', `${size / 10}px`)
+      .style('fill', 'green')
+      .text('On Grid');
+
 
     return () => { svg.selectAll('*').remove(); };
-  }, [props, height, width]);
+  }, [props]);
 
   // Return the SVG element.
-  return (
-    <div className='h-full w-full flex-1 flex' ref={parentRef}>
-      <svg ref={svgRef} className='h-full w-full' />
-    </div>
-  );
+  return <svg ref={svgRef} className='h-full w-full' />;
 };
 
 export default EnergyGenerationSVG;

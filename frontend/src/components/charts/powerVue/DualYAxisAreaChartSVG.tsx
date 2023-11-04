@@ -12,7 +12,7 @@ interface DualYAxisAreaChartSVGProps {
 
 const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = (props: DualYAxisAreaChartSVGProps) => {
 	const svgRef = useRef<SVGSVGElement | null>(null);
-	
+
 	const div = d3.select(props.parent.current).append('div')
 		.attr('class', 'tooltip absolute bg-slate-50 rounded-sm p-2',)
 		.style('opacity', 0);
@@ -87,6 +87,7 @@ const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = (props: Dual
 			.attr('stroke', colorScale('battery'))
 			.attr('stroke-width', 1.5)
 			.attr('d', line);
+			
 		// For each tick...
 		y1.ticks(6).forEach(tickValue => {
 			// Append a line to the SVG
@@ -217,15 +218,13 @@ const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = (props: Dual
 				.style('top', (d3.pointer(event)[1] - 100) + 'px');
 		};
 
-		console.log(colorScale('eGauge'));
-
 		const pointerleft = () => {
 			svg.selectAll('.vertical-line').remove(); // Remove all lines with class 'vertical-line'
 			dot.attr('display', 'none');
 			div.transition()
 				.duration(500)
 				.style('opacity', 0);
-				
+
 			div.style('left', (-1000) + 'px')
 				.style('top', (-1000) + 'px');
 		};
@@ -234,7 +233,7 @@ const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = (props: Dual
 		svg
 			.on('pointermove', pointermoved)
 			.on('pointerleave', pointerleft)
-			.on('touchstart', event => event.preventDefault());
+			.on('touchstart', () => {}, { passive: true });
 
 		return () => { svg.selectAll('*').remove(); };
 	}, [svgRef, props, div]);

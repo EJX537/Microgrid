@@ -1,4 +1,3 @@
-
 import { Carousel } from 'antd';
 import EnergyGenerationChart from '../../components/charts/powerVue/eneryGeneration/energyGenerationChart';
 import { useEffect, useState, useRef } from 'react';

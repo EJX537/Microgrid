@@ -4,7 +4,6 @@ import { useWindow } from '../../context/useWindowContext';
 
 export interface DataSteam {
 	currentWatt: number;
-	revenue: number;
 }
 
 interface DataRequest_Once {
@@ -17,7 +16,6 @@ interface DataRequest_Once {
 
 const mockDataStream: DataSteam = {
 	currentWatt: 3189,
-	revenue: 4.15
 };
 
 const mockData: DataRequest_Once = {
@@ -45,7 +43,7 @@ const EnergyGenerationChart = () => {
 	return (
 		<div className='w-full flex flex-col h-auto flex-grow'>
 			<div className='px-2 pt-2 h-full max-h-[300px]' ref={parentRef}>
-				<EnergyGenerationSVG data={mockDataStream} height={dimensions.height} width={dimensions.width}/>
+				<EnergyGenerationSVG data={mockDataStream} height={dimensions.height} width={dimensions.width} capacity={mockData.capacity}/>
 			</div>
 			<div className='px-2 flex justify-evenly'>
 				<div className='flex items-center gap-2'>

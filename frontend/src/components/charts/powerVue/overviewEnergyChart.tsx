@@ -29,7 +29,11 @@ const data3: DataTypeWattHour[] = dateTime.map((entry) => ({
 	dateTime: entry, watt: Math.floor(Math.random() * 8001) - 3000, source: 'PowerVue'
 }));
 
-const data = [...data1, ...data2, ...data3];
+const data = {
+	'eGuage': data1,
+	'battery': data2,
+	'PowerVue': data3
+};
 
 const EnergyUsageChart = () => {
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -45,8 +49,8 @@ const EnergyUsageChart = () => {
 	}, [parentRef, width, height]);
 
 	return (
-		<div className='p-4 flex-grow' ref={parentRef}>
-			<DualYAxisAreaChartSVG height={dimensions.height} width={dimensions.width} data={data} capacity={5000}/>
+		<div className='p-4 flex-grow relative' ref={parentRef}>
+			<DualYAxisAreaChartSVG parent={parentRef} height={dimensions.height} width={dimensions.width} data={data} capacity={5000}/>
 		</div>
 	);
 };

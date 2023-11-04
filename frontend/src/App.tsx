@@ -5,9 +5,10 @@ import RoutesProvider from './components/routes/routes';
 import MicrogridProvider from './components/context/contextProvider';
 import WindowSizeProvider from './components/context/windowContext';
 
-import { Layout } from 'antd';
+import { Breadcrumb, Layout } from 'antd';
 import React, { useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { HomeOutlined } from '@ant-design/icons';
 
 const { Header, Content, Footer, Sider } = Layout;
 const App: React.FC = () => {
@@ -29,8 +30,18 @@ const App: React.FC = () => {
 							<Header className='p-0 bg-white !h-14 z-50 !fixed w-full'>
 								<HeaderContent collapsed={collapsed} setCollapsed={setCollapsed} />
 							</Header>
-
-							<Content className='mt-16 h-full bg-white w-full'>
+							<Breadcrumb className='mt-16 p-4 pl-6'
+								items={[
+									{
+										href: '/',
+										title: <>
+											<HomeOutlined />
+											<span>Dashboard</span>
+										</>
+									},
+								]}
+							/>
+							<Content className='h-full bg-white w-full'>
 								<RoutesProvider />
 							</Content>
 

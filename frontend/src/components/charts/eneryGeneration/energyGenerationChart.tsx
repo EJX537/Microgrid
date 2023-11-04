@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import EnergyGenerationSVG from './energyGenerationSVG';
-import { useWindow } from '../../context/useWindowContext';
 
 export interface DataSteam {
 	currentWatt: number;
@@ -29,7 +28,6 @@ const mockData: DataRequest_Once = {
 const EnergyGenerationChart = () => {
 	const parentRef = useRef<HTMLDivElement | null>(null);
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-	const { width, height } = useWindow();
 
 	useEffect(() => {
 		if (parentRef.current) {
@@ -38,7 +36,7 @@ const EnergyGenerationChart = () => {
 				height: parentRef.current.offsetHeight
 			});
 		}
-	}, [parentRef, width, height]);
+	}, [parentRef]);
 
 	return (
 		<div className='w-full flex flex-col h-auto flex-grow'>

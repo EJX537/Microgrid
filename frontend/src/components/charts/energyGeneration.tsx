@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { DatePicker, Radio, RadioChangeEvent } from 'antd';
 import dayjs from 'dayjs';
-import EnergyUsageChart from '../../charts/powerVue/overviewEnergyChart';
+import EnergyUsageChart from './powerVue/overviewEnergyChart';
 
 const EnergyUsage = () => {
 	const [data, setData] = useState([]);

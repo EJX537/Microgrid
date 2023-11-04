@@ -28,8 +28,6 @@ const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = (props: Dual
 
 		const batteryData: DataTypeWattHour[] = data?.battery;
 
-		console.log(batteryData);
-
 		const otherData: DataTypeWattHour[] = d3.merge(Object.values(data).filter(d => d !== batteryData));
 
 		const svg = d3.select(svgRef.current)

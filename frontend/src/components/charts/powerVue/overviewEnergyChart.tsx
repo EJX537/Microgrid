@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useWindow } from '../../context/useWindowContext';
 import DualYAxisAreaChartSVG from './DualYAxisAreaChartSVG';
 
 export interface DataTypeWattHour {
@@ -38,7 +37,6 @@ const data = {
 const EnergyUsageChart = () => {
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 	const parentRef = useRef<HTMLDivElement | null>(null);
-	const { width, height } = useWindow();
 	useEffect(() => {
 		if (parentRef.current) {
 			setDimensions({
@@ -46,7 +44,7 @@ const EnergyUsageChart = () => {
 				height: parentRef.current.offsetHeight
 			});
 		}
-	}, [parentRef, width, height]);
+	}, [parentRef]);
 
 	return (
 		<div className='p-4 flex-grow relative' ref={parentRef}>

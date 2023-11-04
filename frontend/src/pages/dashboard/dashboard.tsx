@@ -1,10 +1,9 @@
 
 import { Carousel } from 'antd';
-import EnergyGenerationChart from '../../charts/eneryGeneration/energyGenerationChart';
+import EnergyGenerationChart from '../../components/charts/eneryGeneration/energyGenerationChart';
 import { useEffect, useState, useRef } from 'react';
-import { useWindow } from '../../context/useWindowContext';
-import PanelChart from '../../charts/eGauge/panelChart';
-import EnergyUsage from './energyGeneration';
+import PanelChart from '../../components/charts/eGauge/panelChart';
+import EnergyUsage from '../../components/charts/energyGeneration';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
 
 const charts = [
@@ -44,7 +43,6 @@ const charts = [
 const Dashboard = () => {
 	const [divs, setDivs] = useState<JSX.Element[]>([]);
 	const carouselRef = useRef<HTMLDivElement>(null);
-	const { width, height } = useWindow();
 
 	useEffect(() => {
 		if (carouselRef.current) {
@@ -60,7 +58,7 @@ const Dashboard = () => {
 			}
 			setDivs(newDivArray);
 		}
-	}, [width, height]);
+	}, []);
 
 	return (
 		<div className='p-4 pt-6 h-full grid grid-cols-12 gap-2 w-full'>

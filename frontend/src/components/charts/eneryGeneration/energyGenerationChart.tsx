@@ -1,11 +1,8 @@
-import { useContext } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import EnergyGenerationSVG from './energyGenerationSVG';
-import { useWindow } from '../../context/useWindowContext';
-import { useMicrogrid } from '../../context/useMicrogridContext';
 
 export interface DataSteam {
 	currentWatt: number;
-	revenue: number;
 }
 
 interface DataRequest_Once {
@@ -18,7 +15,6 @@ interface DataRequest_Once {
 
 const mockDataStream: DataSteam = {
 	currentWatt: 3189,
-	revenue: 4.15
 };
 
 const mockData: DataRequest_Once = {
@@ -30,14 +26,22 @@ const mockData: DataRequest_Once = {
 };
 
 const EnergyGenerationChart = () => {
+	const parentRef = useRef<HTMLDivElement | null>(null);
+	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+	useEffect(() => {
+		if (parentRef.current) {
+			setDimensions({
+				width: parentRef.current.offsetWidth,
+				height: parentRef.current.offsetHeight
+			});
+		}
+	}, [parentRef]);
+
 	return (
-		<div className='w-full h-full flex flex-col'>
-			<div className='text-lg pl-2'>
-				Current Status
-			</div>
-			<div className='border-t border-black h-0.5 my-2' />
-			<div className='px-2 pt-2 h-full max-h-[300px]'>
-				<EnergyGenerationSVG data={mockDataStream} />
+		<div className='w-full flex flex-col h-auto flex-grow'>
+			<div className='px-2 pt-2 h-full max-h-[300px]' ref={parentRef}>
+				<EnergyGenerationSVG data={mockDataStream} height={dimensions.height} width={dimensions.width} capacity={mockData.capacity}/>
 			</div>
 			<div className='px-2 flex justify-evenly'>
 				<div className='flex items-center gap-2'>

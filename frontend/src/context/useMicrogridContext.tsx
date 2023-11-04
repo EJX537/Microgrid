@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { MicrogridContext } from './contextProvider';
-import { MicrogridState } from '../microgridTypes';
+import { MicrogridState } from '../interfaces/microgridContextTypes';
 
 export const useMicrogrid = (): MicrogridState => {
   const microgridState = useContext(MicrogridContext);

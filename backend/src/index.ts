@@ -47,13 +47,26 @@ app.get('/', (req: Request, res: Response) => {
 //   });
 // }
 
+interface eGaugeData {
+  source: string;
+  dateTime: Date;
+  value: number;
+  unit: string;
+}
+
 app.get("/time", (request, response)=>{
   response.setHeader("Content-Type", "text/event-stream");
   periodic(response);
 });
 
 function periodic(res: Response){
-  res.write("data: " + `hello!${new Date()}\n\n`)
+  const data: eGaugeData = {
+    source: "Kitchen",
+    dateTime: new Date(),
+    value: Math.random() * 3000,
+    unit: "W",
+  }
+  res.write(`data: ${JSON.stringify(data)}\n\n`);
   setTimeout(()=>periodic(res), 1000);
 }
 

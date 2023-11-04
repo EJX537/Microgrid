@@ -1,11 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import PanelChartSVG, { PanelChartSVGData } from './panelChartSVG';
-import * as d3 from 'd3';
+import PanelChartSVG from './panelChartSVG';
+import { readSSEResponse } from './hooks/eGaugeDataRequester';
 
-const PanelChart = () => {
+import { eGaugeData } from './interface/eGaugeTypes';
+// const event = ;
+
+interface PanelChartProps {
+	source: string;
+}
+
+const PanelChart: React.FC<PanelChartProps> = ({ source }) => {
 	const parentRef = useRef<HTMLDivElement | null>(null);
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-	const [data, setData] = useState<PanelChartSVGData[]>([]);
+	const [data, setData] = useState<eGaugeData[]>([]);
 	const [target, setTarget] = useState('');
 
 	useEffect(() => {
@@ -18,21 +25,21 @@ const PanelChart = () => {
 	}, [parentRef]);
 
 	useEffect(() => {
-		d3.csv('./data.csv').then((data: any[]) => {
-			const parsedData = data.map((d) => ({
-				dateTime: new Date((d['Date & Time'])),
-				value: d['Panel3 (Kitchen) [kW]'] as number,
-				unit: 'kW'
-			}));
-			setData(parsedData);
-			setTarget('kW');
-		});
-	}, []);
-
+		setTarget('W');
+		const eventSource = readSSEResponse(new URL(source));
+		eventSource.onmessage = (event) => {
+			const parsedData: eGaugeData = JSON.parse(event.data);
+			parsedData.dateTime = new Date(parsedData.dateTime);
+			setData(prevData => [...prevData, parsedData]);
+		};
+		return () => {
+			eventSource.close();
+		};
+	}, [source]);
 
 	return (
-		<div className='w-full flex-grow' ref={parentRef}>
-			<PanelChartSVG height={dimensions.height} width={dimensions.width} data={data} unit={target}/>
+		<div className='w-full flex-grow relative' ref={parentRef}>
+			<PanelChartSVG height={dimensions.height} width={dimensions.width} data={data} unit={target} parent={parentRef}/>
 		</div>
 	);
 };

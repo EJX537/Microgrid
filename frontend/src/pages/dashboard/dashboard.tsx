@@ -1,10 +1,10 @@
-
 import { Carousel } from 'antd';
-import EnergyGenerationChart from '../../components/charts/eneryGeneration/energyGenerationChart';
+import EnergyGenerationChart from '../../components/charts/powerVue/eneryGeneration/energyGenerationChart';
 import { useEffect, useState, useRef } from 'react';
 import PanelChart from '../../components/charts/eGauge/panelChart';
-import EnergyUsage from '../../components/charts/energyGeneration';
+import EnergyUsage from '../../components/charts/powerVue/energyGeneration';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
+import { useMicrogrid } from '../../context/useMicrogridContext';
 
 const charts = [
 	<div key='1' className='h-[346px] w-[380px] bg-white rounded-md p-2 flex flex-col group'>
@@ -16,7 +16,7 @@ const charts = [
 				<SettingOutlined />
 			</button>
 		</div>
-		<PanelChart />
+		<PanelChart source='http://localhost:8080/time' />
 	</div>,
 	<div key='2' className='h-[346px] w-[380px] bg-white rounded-md p-2 flex flex-col group'>
 		<div className='h-auto px-2 text-base font-mediums flex justify-between mb-2 items-center'>
@@ -43,9 +43,10 @@ const charts = [
 const Dashboard = () => {
 	const [divs, setDivs] = useState<JSX.Element[]>([]);
 	const carouselRef = useRef<HTMLDivElement>(null);
-
+	const { windowSize } = useMicrogrid();
 	useEffect(() => {
 		if (carouselRef.current) {
+			let noPlus = false;
 			const newDivArray: JSX.Element[] = [];
 			const divsPerSlide = (Math.floor(carouselRef.current.offsetWidth / 386));
 			for (let i = 0; i < charts.length; i += divsPerSlide) {
@@ -53,12 +54,21 @@ const Dashboard = () => {
 				if (divsInThisSlide.length < divsPerSlide) {
 					const fillerDivs = Array.from({ length: divsPerSlide - divsInThisSlide.length }, (_, index) => <div key={`filler-${index}`} className='h-[346px] w-[380px] flex justify-center items-center'> <button className='h-16 w-16 bg-white rounded-full'><PlusOutlined /></button> </div>);
 					divsInThisSlide = [...divsInThisSlide, ...fillerDivs];
+					noPlus = true;
 				}
 				newDivArray.push(<div key={`slide-${i}`} className='h-[358px] !flex flex-row justify-evenly p-2 pt-3'>{divsInThisSlide}</div>);
 			}
+			if (newDivArray.length === 1 && !noPlus) {
+				let divsInThisSlide: JSX.Element[] = [];
+				for (let i = 0; i < charts.length; i += divsPerSlide) {
+					const fillerDivs = Array.from({ length: divsPerSlide - divsInThisSlide.length }, (_, index) => <div key={`filler-${index}`} className='h-[346px] w-[380px] flex justify-center items-center'> <button className='h-16 w-16 bg-white rounded-full'><PlusOutlined /></button> </div>);
+					divsInThisSlide = [...divsInThisSlide, ...fillerDivs];
+				}
+				newDivArray.push(<div key={`slide-${2}`} className='h-[358px] !flex flex-row justify-evenly p-2 pt-3'>{divsInThisSlide}</div>);
+			}
 			setDivs(newDivArray);
 		}
-	}, []);
+	}, [windowSize.width]);
 
 	return (
 		<div className='p-4 pt-6 h-full grid grid-cols-12 gap-2 w-full'>

@@ -43,9 +43,9 @@ const EnergyGenerationChart = () => {
 			<div className='px-2 pt-2 h-full max-h-[300px]' ref={parentRef}>
 				<EnergyGenerationSVG data={mockDataStream} height={dimensions.height} width={dimensions.width} capacity={mockData.capacity}/>
 			</div>
-			<div className='px-2 flex justify-evenly'>
+			<div className='px-2 flex justify-evenly gap-2'>
 				<div className='flex items-center gap-2'>
-					<div className='h-12 w-12 border rounded-full flex justify-center items-center'>
+					<div className='h-10 w-10 border rounded-full flex justify-center items-center'>
 						icon
 					</div>
 					<div className='flex flex-col '>
@@ -57,9 +57,8 @@ const EnergyGenerationChart = () => {
 						</span>
 					</div>
 				</div>
-
 				<div className='flex items-center gap-2'>
-					<div className='h-12 w-12 border rounded-full flex justify-center items-center'>
+					<div className='h-10 w-10 border rounded-full flex justify-center items-center'>
 						icon
 					</div>
 					<div className='flex flex-col'>

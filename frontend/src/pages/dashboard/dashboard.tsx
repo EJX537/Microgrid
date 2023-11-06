@@ -5,6 +5,7 @@ import PanelChart from '../../components/charts/eGauge/panelChart';
 import EnergyUsage from '../../components/charts/powerVue/energyGeneration';
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import { useMicrogrid } from '../../context/useMicrogridContext';
+import { weatherIcons, waterTank, hvac } from './svgImports';
 
 const charts = [
 	<div key='1' className='h-[346px] w-[380px] bg-white rounded-md p-2 flex flex-col group'>
@@ -58,7 +59,7 @@ const Dashboard = () => {
 				}
 				newDivArray.push(<div key={`slide-${i}`} className='h-[358px] !flex flex-row justify-evenly p-2 pt-3'>{divsInThisSlide}</div>);
 			}
-			if (newDivArray.length === 1 && !noPlus) {
+			if (!noPlus) {
 				let divsInThisSlide: JSX.Element[] = [];
 				for (let i = 0; i < charts.length; i += divsPerSlide) {
 					const fillerDivs = Array.from({ length: divsPerSlide - divsInThisSlide.length }, (_, index) => <div key={`filler-${index}`} className='h-[346px] w-[380px] flex justify-center items-center'> <button className='h-16 w-16 bg-white rounded-full'><PlusOutlined /></button> </div>);
@@ -72,8 +73,10 @@ const Dashboard = () => {
 
 	return (
 		<div className='p-4 pt-6 h-full grid grid-cols-12 gap-2 w-full'>
-			<div className='rounded-md h-14 items-center flex pl-4 col-start-1 col-span-full justify-evenly shadow-sm'>
-				Filter:
+			<div className='rounded-md h-10 items-center flex pl-4 col-start-1 col-span-full justify-evenly shadow-sm p-2'>
+				<span>
+					Filter:
+				</span>
 				<button>
 					Simple view
 				</button>
@@ -91,7 +94,7 @@ const Dashboard = () => {
 				</div>
 			</div>
 
-			<div className='rounded-lg col-start-1 col-span-7 p-4 flex flex-col shadow-sm group'>
+			<div className='rounded-lg col-start-1 xl:col-span-5 col-span-6 p-4 flex flex-col shadow-sm group'>
 				<div className='text-lg px-2 justify-between flex'>
 					<span>
 						Solar & Battery Status
@@ -104,8 +107,24 @@ const Dashboard = () => {
 				<EnergyGenerationChart />
 			</div>
 
-			<div className='rounded-lg col-start-8 col-span-full shadow-sm flex flex-col p-4'>
-				<div className='text-lg px-2 justify-between flex'>
+			<div className='rounded-lg xl:col-start-6 col-start-7 col-span-full shadow-sm flex flex-col p-4 justify-evenly pointer-events-none transition-all duration-300 ease-in-out transform hover:scale-105 group'>
+				<div className='text-lg px-2 justify-between flex items-center p-4 bg-slate-50 rounded-md pointer-events-auto hover:flex-grow hover:items-start transition-all duration-300 ease-in-out transform hover:scale-100 hover:bg-slate-200'>
+					<img src={weatherIcons['sunny']} className='rounded-full h-10 w-10 flex items-center justify-center' />
+					<span>
+						20°
+					</span>
+				</div>
+				<div className='text-lg px-2 justify-between flex items-center p-4 bg-slate-50 rounded-md pointer-events-auto hover:flex-grow hover:items-start transition-all duration-300 ease-in-out transform hover:scale-100 hover:bg-slate-200'>
+					<img src={waterTank} className='rounded-full h-10 w-10 flex items-center justify-center' />
+					<span>
+						78C°
+					</span>
+				</div>
+				<div className='text-lg px-2 justify-between flex items-center p-4 bg-slate-50 rounded-md pointer-events-auto hover:flex-grow hover:items-start transition-all duration-300 ease-in-out transform hover:scale-100 hover:bg-slate-200'>
+					<img src={hvac} className='h-10 w-10 flex items-center justify-center' />
+					<span className='pr-4'>
+						On
+					</span>
 				</div>
 			</div>
 

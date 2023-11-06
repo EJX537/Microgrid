@@ -9,7 +9,7 @@ export interface MicrogridState {
 	user: string;
 	setUser: Dispatch<React.SetStateAction<string>>;
 	collapsed: boolean;
-	setCollapsed: Dispatch<React.SetStateAction<boolean>>;
+	toggleCollapsed: () => void;
 	windowSize: WindowSize;
 }
 

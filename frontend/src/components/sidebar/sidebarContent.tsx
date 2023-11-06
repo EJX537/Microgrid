@@ -4,7 +4,7 @@ import {
 	AppstoreOutlined,
 	BarChartOutlined,
 	CloudOutlined,
-	TeamOutlined,
+	FileTextOutlined,
 	PlusOutlined,
 	DesktopOutlined,
 	SettingOutlined,
@@ -16,13 +16,13 @@ import { useNavigate } from 'react-router-dom';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
-function getItem(
+const getItem = (
 	label: React.ReactNode,
 	key: React.Key,
 	icon?: React.ReactNode,
 	children?: MenuItem[],
 	type?: 'group',
-): MenuItem {
+): MenuItem => {
 	return {
 		key,
 		icon,
@@ -30,16 +30,16 @@ function getItem(
 		label,
 		type,
 	} as MenuItem;
-}
+};
 
 const items_mock: MenuProps['items'] = [
 	getItem('Dashboard', '1', <AppstoreOutlined />, undefined, undefined),
-	getItem('Device 1', 'sub1', <DesktopOutlined />, [
+	getItem('Sol-Ark', 'sub1', <DesktopOutlined />, [
 		getItem('Data View', '2', <BarChartOutlined />, undefined, undefined),
 		getItem('Configure', '3', <SettingOutlined />, undefined, undefined),
 		getItem('Link', 'link1', <LinkOutlined />, undefined, undefined)
 	]),
-	getItem('Device 2', 'sub2', <DesktopOutlined />, [
+	getItem('eGauge', 'sub2', <DesktopOutlined />, [
 		getItem('Data View', '5', <BarChartOutlined />),
 		getItem('Configure', '6', <SettingOutlined />),
 		getItem('Link', 'link2', <LinkOutlined />)
@@ -51,7 +51,7 @@ const items_mock: MenuProps['items'] = [
 	]),
 	getItem('Add Device', '12', <PlusOutlined />),
 	getItem('Backup Cloud', '13', <CloudOutlined />),
-	getItem('???', '14', <TeamOutlined />),
+	getItem('Log', '14', <FileTextOutlined />),
 	getItem('Settings', '15', <SettingOutlined />),
 ];
 

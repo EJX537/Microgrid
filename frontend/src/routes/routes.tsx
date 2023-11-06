@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Dashboard from '../pages/dashboard/dashboard';
-import DeviceOneSettings from '../pages/dashboard/deviceOneSettings'
 import Page404 from '../page404';
+import DeviceOneSettings from '../pages/dashboard/deviceOneSettings';
 
 const RoutesProvider = () => {
 	return (

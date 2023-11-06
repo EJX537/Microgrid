@@ -19,12 +19,6 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-  
-  interface_0:
-    build: ./interfaces/Example
-    container_name: example-python-microservice
-    volumes:
-      - ./interfaces/Example:/app
   mysql:
     build:
       context: ./docker-config
@@ -36,4 +30,16 @@ services:
       MYSQL_DATABASE: microgridManager
       MYSQL_USER: microgridManager
       MYSQL_PASSWORD: sluggrid
-      
+    volumes:
+      - mysql-data:/var/lib/mysql
+  interface_0:
+    build: ./interfaces/Example
+    container_name: example-python-microservice
+    volumes:
+      - ./interfaces/Example:/app
+
+volumes:
+  mysql-data:
+
+# services:
+

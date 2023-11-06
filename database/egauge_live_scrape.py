@@ -1,5 +1,6 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
+import time
 
 # Set up a web driver (e.g., Firefox)
 driver = webdriver.Firefox()
@@ -7,16 +8,6 @@ driver = webdriver.Firefox()
 # Open the website
 url = 'http://egauge18646.egaug.es/check.html'  # Replace with the URL of the website you want to scrape
 driver.get(url)
-
-# Wait for dynamic content to load (you may need to adjust the sleep duration)
-import time
-time.sleep(20)
-
-# Get the updated HTML after dynamic content is loaded
-updated_html = driver.page_source
-
-# Parse the updated HTML with BeautifulSoup
-soup = BeautifulSoup(updated_html, 'html.parser')
 
 # Define the list of element IDs you want to extract
 element_ids = [
@@ -51,20 +42,27 @@ element_ids = [
     'value11',
 ]
 
-# Create a dictionary to store the extracted values
-extracted_values = {}
+while True:
+    # Get the updated HTML after dynamic content is loaded
+    updated_html = driver.page_source
 
-# Iterate through the element IDs and extract their text
-for element_id in element_ids:
-    element = soup.find('span', id=element_id)
-    if element:
-        extracted_values[element_id] = element.get_text()
-    else:
-        extracted_values[element_id] = 'Element not found'
+    # Parse the updated HTML with BeautifulSoup
+    soup = BeautifulSoup(updated_html, 'html.parser')
 
-# Close the web driver
-driver.quit()
+    # Create a dictionary to store the extracted values
+    extracted_values = {}
 
-# Print the extracted values
-for element_id, value in extracted_values.items():
-    print(f"{element_id}: {value}")
+    # Iterate through the element IDs and extract their text
+    for element_id in element_ids:
+        element = soup.find('span', id=element_id)
+        if element:
+            extracted_values[element_id] = element.get_text()
+        else:
+            extracted_values[element_id] = 'Element not found'
+
+    # Print the extracted values
+    for element_id, value in extracted_values.items():
+        print(f"{element_id}: {value}")
+
+    # Wait for one second before scraping again
+    time.sleep(10)

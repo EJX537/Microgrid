@@ -1,11 +1,11 @@
 import { Routes, Route } from 'react-router-dom';
-import Dashboard from '../pages/dashboard/dashboard';
-import Page404 from '../pages/page404/page404';
+import { Dashboard, DeviceOneSettings, Page404 } from '../pages';
 
 const RoutesProvider = () => {
 	return (
 		<Routes>
 			<Route path="/" element={<Dashboard />} />
+			<Route path = "/b" element={<DeviceOneSettings/>} />
 			<Route path="*" element={<Page404 />} />
 		</Routes>
 	);

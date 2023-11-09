@@ -34,7 +34,7 @@ const data = {
 	'PowerVue': data3
 };
 
-const EnergyUsageChart = () => {
+const BatteryChart = () => {
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 	const parentRef = useRef<HTMLDivElement | null>(null);
 	useEffect(() => {
@@ -53,4 +53,4 @@ const EnergyUsageChart = () => {
 	);
 };
 
-export default EnergyUsageChart;
+export default BatteryChart;

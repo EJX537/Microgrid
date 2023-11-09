@@ -3,13 +3,13 @@ import MicrogridProvider from './context/contextProvider';
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
-import {Core } from './layouts/index';
+import {CoreLayout } from './layouts/index';
 
 const App: React.FC = () => {
 	return (
 		<Router>
 			<MicrogridProvider>
-				<Core />
+				<CoreLayout />
 			</MicrogridProvider>
 		</Router>
 	);

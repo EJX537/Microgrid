@@ -12,5 +12,4 @@ interface eGaugeData {
 	unit: string;
 }
 
-
 export type { requestBetweenPeriods, eGaugeData };

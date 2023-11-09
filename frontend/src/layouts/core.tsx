@@ -4,7 +4,8 @@ import { Content, Footer } from 'antd/es/layout/layout';
 import RoutesProvider from '../routes/routes';
 import { useMicrogrid } from '../context/useMicrogridContext';
 
-const Core = () => {
+// Fixed sidebar on left and fixed header on top
+const CoreLayout = () => {
 	const { collapsed } = useMicrogrid();
 	return (
 		<Layout hasSider className='min-h-screen min-w-screen font-serif'>
@@ -21,4 +22,4 @@ const Core = () => {
 	);
 };
 
-export default Core;
+export default CoreLayout;

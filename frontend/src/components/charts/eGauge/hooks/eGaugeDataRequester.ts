@@ -1,4 +1,4 @@
-import { eGaugeData, requestBetweenPeriods } from '../interface/eGaugeTypes';
+import { eGaugeData, requestBetweenPeriods } from '../eGaugeTypes';
 
 const onloadRequest = (props: requestBetweenPeriods): eGaugeData[] | Error => {
 	const { source, startDate, endDate, target } = props;

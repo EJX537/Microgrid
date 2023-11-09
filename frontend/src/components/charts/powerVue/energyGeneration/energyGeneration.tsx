@@ -13,21 +13,21 @@ const EnergyUsage = () => {
 	const handleActive = (event: RadioChangeEvent) => {
 		setActive(event.target.value);
 		switch (event.target.value) {
-			case 'date':
-				setDateFormat('YYYY-MM-DD');
-				setDateTime(dayjs().startOf('day'));
-				break;
-			case 'month':
-				setDateFormat('YYYY-MM');
-				setDateTime(dayjs().startOf('month'));
-				break;
-			case 'year':
-				setDateFormat('YYYY');
-				setDateTime(dayjs().startOf('year'));
-				break;
-			case 'total':
-				setDateFormat('----');
-				break;
+		case 'date':
+			setDateFormat('YYYY-MM-DD');
+			setDateTime(dayjs().startOf('day'));
+			break;
+		case 'month':
+			setDateFormat('YYYY-MM');
+			setDateTime(dayjs().startOf('month'));
+			break;
+		case 'year':
+			setDateFormat('YYYY');
+			setDateTime(dayjs().startOf('year'));
+			break;
+		case 'total':
+			setDateFormat('----');
+			break;
 		}
 	};
 

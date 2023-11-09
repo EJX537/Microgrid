@@ -19,6 +19,7 @@ module.exports = {
     'eqeqeq': ['error', 'always'],
     'no-var': 'error',
     'quotes': ['error', 'single'],
-    'eol-last': ['error', 'always']
+    'eol-last': ['error', 'always'],
+		'indent': ['error', 'tab']
   },
 }

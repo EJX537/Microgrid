@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import * as d3 from 'd3';
-import { eGaugeData } from './interface/eGaugeTypes';
+import { eGaugeData } from './eGaugeTypes';
 
 
 interface PanelChartSVGProps {
@@ -13,7 +13,7 @@ interface PanelChartSVGProps {
 
 const PanelChartSVG: React.FC<PanelChartSVGProps> = (props: PanelChartSVGProps) => {
 	const svgRef = useRef<SVGSVGElement | null>(null);
-
+	const { width, height, data, unit } = props;
 
 	let div = d3.select(props.parent.current).select('.tooltip') as d3.Selection<HTMLDivElement, unknown, null, undefined>;
 	if (div.empty()) {
@@ -21,19 +21,18 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = (props: PanelChartSVGProps) 
 			.attr('class', 'tooltip absolute bg-slate-50 rounded-sm p-2',)
 			.style('opacity', 0) as d3.Selection<HTMLDivElement, unknown, null, undefined>;
 	}
+
 	const marginTop = 20;
 	const marginRight = 30;
 	const marginBottom = 30;
 	const marginLeft = 40;
-
-	const { width, height, data, unit } = props;
 
 	const y = useMemo(() => d3.scaleLinear()
 		.domain([0, d3.max(data, d => d.value) as number])
 		.range([height - marginBottom, marginTop]), [data, height]);
 
 	useEffect(() => {
-		if (!svgRef.current || !width || !height || data.length === 0 || !unit) return;
+		if (!svgRef.current || data.length === 0 || !unit) return;
 
 		const svg = d3.select(svgRef.current)
 			.attr('width', width)

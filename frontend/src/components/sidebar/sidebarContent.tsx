@@ -67,18 +67,18 @@ const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
 		}
 		if (!e.key.includes('sub')) {
 			switch (e.key) {
-				case '1':
-					navigate('/');
-					break;
-				case '2':
-					navigate('/a');
-					break;
-				case '3':
-					navigate('/b');
-					break;
-				default:
-					navigate('/');
-					break;
+			case '1':
+				navigate('/');
+				break;
+			case '2':
+				navigate('/a');
+				break;
+			case '3':
+				navigate('/b');
+				break;
+			default:
+				navigate('/');
+				break;
 			}
 		}
 	};

@@ -3,17 +3,19 @@ import { Breadcrumb } from 'antd';
 
 const BreadcrumbComponent = () => {
 	return (
-		<Breadcrumb className='mt-16 p-4 pl-6'
-			items={[
-				{
-					href: '/',
-					title: <>
-						<HomeOutlined />
-						<span>Dashboard</span>
-					</>
-				},
-			]}
-		/>
+		<div className='mt-16 pl-6'>
+			<Breadcrumb className='my-2'
+				items={[
+					{
+						href: '/',
+						title: <>
+							<HomeOutlined />
+							<span>Dashboard</span>
+						</>
+					},
+				]}
+			/>
+		</div>
 	);
 };
 

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import PanelChartSVG from './panelChartSVG';
 import { readSSEResponse } from './hooks/eGaugeDataRequester';
 
-import { eGaugeData } from './interface/eGaugeTypes';
+import { eGaugeData } from './eGaugeTypes';
 // const event = ;
 
 interface PanelChartProps {

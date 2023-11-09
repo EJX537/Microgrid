@@ -1,14 +1,12 @@
 import React, { createContext, useEffect, useState } from 'react';
-import { ProviderProps, WindowSizeContextProps } from '../microgridTypes';
+import { MicrogridState, ProviderProps } from '../interfaces/microgridContextTypes';
 
-// Create the context
-export const WindowSizeContext = createContext<WindowSizeContextProps>({
-  width: window.innerWidth,
-  height: window.innerHeight,
-});
+export const MicrogridContext = createContext<MicrogridState | undefined>(undefined);
 
-// Create the provider component
-export const WindowSizeProvider: React.FC<ProviderProps> = ({ children }) => {
+const MicrogridProvider: React.FC<ProviderProps> = ({ children }) => {
+  const [user, setUser] = useState('root');
+  const [collapsed, setCollapsed] = useState(false);
+
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -29,11 +27,13 @@ export const WindowSizeProvider: React.FC<ProviderProps> = ({ children }) => {
     };
   }, []);
 
+
   return (
-    <WindowSizeContext.Provider value={windowSize}>
+    <MicrogridContext.Provider
+      value={{ user, setUser, collapsed, setCollapsed, windowSize }}>
       {children}
-    </WindowSizeContext.Provider>
+    </MicrogridContext.Provider>
   );
 };
 
-export default WindowSizeProvider;
+export default MicrogridProvider;

@@ -3,7 +3,4 @@
 @tailwind utilities;
 
 @layer components {
-	.hide-axis path {
-		@apply stroke-none;
-	}
 }

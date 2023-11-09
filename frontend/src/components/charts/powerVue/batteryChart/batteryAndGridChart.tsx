@@ -100,11 +100,11 @@ const BatteryChart: React.FC<BatteryChartProps> = ({ config, setConfig }) => {
 				<div className='flex items-center gap-2'>
 					<img src={timer} className='flex items-center h-10 w-10' />
 					<div className='flex flex-col '>
-						<span className='text-green-400 text-lg'>
-							24hrs
-						</span>
+						<Tooltip className='text-green-400 text-lg' title='Target Battery Charge: 90%'>
+							Low Risk
+						</Tooltip>
 						<span>
-							Total Time
+							Mode
 						</span>
 					</div>
 				</div>

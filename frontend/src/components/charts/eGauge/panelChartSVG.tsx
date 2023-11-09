@@ -79,7 +79,7 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = (props: PanelChartSVGProps) 
 		// Add the y-axis, remove the domain line, add grid lines and a label.
 		svg.append('g')
 			.attr('transform', `translate(${marginLeft},0)`)
-			.call(d3.axisLeft(y).ticks(height / 60))
+			.call(d3.axisLeft(y).ticks(height / 50))
 			.attr('font-size', '14px')
 			.call(g => g.select('.domain').remove())
 			.call(g => g.selectAll('.tick line').clone()

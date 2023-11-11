@@ -9,6 +9,9 @@ interface ChartCarouselProps {
 	width?: number;
 }
 
+const PADDINGY = 16;
+const PADDINGX = 5;
+
 const ChartCarousel: React.FC<ChartCarouselProps> = ({ height = 300, width = 330 }) => {
 	const [divs, setDivs] = useState<JSX.Element[]>([]);
 	const carouselRef = useRef<HTMLDivElement>(null);
@@ -36,8 +39,8 @@ const ChartCarousel: React.FC<ChartCarouselProps> = ({ height = 300, width = 330
 
 	useEffect(() => {
 		if (carouselRef.current) {
-			const heightWithGap = height + 16;
-			const widthWithGap = width + 5;
+			const heightWithGap = height + PADDINGY;
+			const widthWithGap = width + PADDINGX;
 			let noPlus = false;
 			const newDivArray: JSX.Element[] = [];
 			const divsPerSlide = Math.max(1, Math.floor(carouselWidth / widthWithGap));
@@ -47,7 +50,7 @@ const ChartCarousel: React.FC<ChartCarouselProps> = ({ height = 300, width = 330
 			configKeys.forEach((key, index) => {
 				divsInThisSlide.push(<PanelChart key={index} name={key} />);
 				if (divsInThisSlide.length === divsPerSlide) {
-					newDivArray.push(<div key={`slide-${index}`} className='h-[316px] !flex flex-row justify-evenly p-2 pt-3'>{divsInThisSlide}</div>);
+					newDivArray.push(<div key={`slide-${index}`} className={`h-[${heightWithGap}px] !flex flex-row justify-evenly p-2 pt-3`}>{divsInThisSlide}</div>);
 					divsInThisSlide = [];
 				}
 			});
@@ -55,14 +58,14 @@ const ChartCarousel: React.FC<ChartCarouselProps> = ({ height = 300, width = 330
 				const fillerCount = divsPerSlide - divsInThisSlide.length;
 				if (fillerCount > 0) {
 					const fillerDivs = Array.from({ length: fillerCount }, (_, index) =>
-						<div key={`filler-${index}`} className='h-[300px] w-[330px] flex justify-center items-center group'>
+						<div key={`filler-${index}`} className={`h-[${height}px] w-[${width}px] flex justify-center items-center group`}>
 							<button className='h-16 w-16 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out'><PlusOutlined /></button>
 						</div>
 					);
 					divsInThisSlide = [...divsInThisSlide, ...fillerDivs];
 					noPlus = true;
 				}
-				newDivArray.push(<div key={`slide-${configKeys.length}`} className='h-[316px] !flex flex-row justify-evenly p-2 pt-3'>{divsInThisSlide}</div>);
+				newDivArray.push(<div key={`slide-${configKeys.length}`} className={`h-[${heightWithGap}px] !flex flex-row justify-evenly p-2 pt-3`}>{divsInThisSlide}</div>);
 			}
 
 			if (!noPlus) {
@@ -78,7 +81,7 @@ const ChartCarousel: React.FC<ChartCarouselProps> = ({ height = 300, width = 330
 	}, [carouselWidth, config, height, width]);
 
 	return (
-		<div className='h-90 w-full col-start-1 col-span-full bg-gray-200 rounded-md shadow-sm py-2' ref={carouselRef}>
+		<div className='h-[360px] w-full col-start-1 col-span-full bg-gray-200 rounded-md shadow-sm py-2' ref={carouselRef}>
 			<div className='w-full h-full'>
 				<div className='carousel-parent'>
 					<Carousel className='w-full h-[345px] sm:gap-1 gap-2'>

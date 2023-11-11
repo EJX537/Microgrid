@@ -43,11 +43,6 @@ element_ids = [
     'value11',
 ]
 
-# db_host = 'localhost'  # Assuming the MySQL container runs on the same machine
-# db_user = 'microgridManager'
-# db_password = 'sluggrid'
-# db_name = 'microgridManager'
-
 # MySQL database connection settings
 db_config = {
     'host': 'localhost',
@@ -60,17 +55,27 @@ db_config = {
 conn = mysql.connector.connect(**db_config)
 cursor = conn.cursor()
 
+# Drop the existing table
+drop_table_query = "DROP TABLE IF EXISTS scraped_data;"
+cursor.execute(drop_table_query)
+conn.commit()
+
+
 # Create table if not exists
 create_table_query = """
-CREATE TABLE IF NOT EXISTS egauge_live_scraped_data (
+CREATE TABLE IF NOT EXISTS scraped_data (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    element_id VARCHAR(50),
-    value VARCHAR(255)
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 """
 cursor.execute(create_table_query)
 conn.commit()
+
+# Add columns for each element_id
+for element_id in element_ids:
+    add_column_query = f"ALTER TABLE scraped_data ADD COLUMN {element_id} VARCHAR(255);"
+    cursor.execute(add_column_query)
+    conn.commit()
 
 while True:
     try:
@@ -80,7 +85,12 @@ while True:
         # Parse the updated HTML with BeautifulSoup
         soup = BeautifulSoup(updated_html, 'html.parser')
 
-        # Iterate through the element IDs and insert their text into the database
+        # Insert data into the database
+        insert_query = "INSERT INTO scraped_data () VALUES ();"
+        cursor.execute(insert_query)
+        conn.commit()
+
+        # Update data for each element_id
         for element_id in element_ids:
             element = soup.find('span', id=element_id)
             if element:
@@ -88,10 +98,8 @@ while True:
             else:
                 value = 'Element not found'
 
-            # Insert data into the database
-            insert_query = "INSERT INTO scraped_data (element_id, value) VALUES (%s, %s)"
-            data = (element_id, value)
-            cursor.execute(insert_query, data)
+            update_query = f"UPDATE scraped_data SET {element_id} = %s WHERE id = LAST_INSERT_ID();"
+            cursor.execute(update_query, (value,))
             conn.commit()
 
         print("Scraping and database insertion successful.")

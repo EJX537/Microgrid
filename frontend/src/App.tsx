@@ -1,4 +1,4 @@
-import MicrogridProvider from './context/contextProvider';
+import MicrogridProvider from './context/microgridProvider';
 
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';

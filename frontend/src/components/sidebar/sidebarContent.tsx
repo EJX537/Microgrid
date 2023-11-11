@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
 	AppstoreOutlined,
@@ -33,53 +33,57 @@ const getItem = (
 };
 
 const items_mock: MenuProps['items'] = [
-	getItem('Dashboard', '1', <AppstoreOutlined />, undefined, undefined),
-	getItem('Sol-Ark', 'sub1', <DesktopOutlined />, [
-		getItem('Data View', '2', <BarChartOutlined />, undefined, undefined),
-		getItem('Configure', '3', <SettingOutlined />, undefined, undefined),
-		getItem('Link', 'link1', <LinkOutlined />, undefined, undefined)
+	getItem('Dashboard', '/dashboard', <AppstoreOutlined />, undefined, undefined),
+	getItem('Sol-Ark', 'Sol-Ark', <DesktopOutlined />, [
+		getItem('Data View', '/sol-ark/data%20view', <BarChartOutlined />, undefined, undefined),
+		getItem('Configure', '/sol-ark/config', <SettingOutlined />, undefined, undefined),
+		getItem('Link', 'Sol-Ark OUTLINK', <LinkOutlined />, undefined, undefined)
 	]),
-	getItem('eGauge', 'sub2', <DesktopOutlined />, [
-		getItem('Data View', '5', <BarChartOutlined />),
-		getItem('Configure', '6', <SettingOutlined />),
-		getItem('Link', 'link2', <LinkOutlined />)
+	getItem('eGauge', 'eGauge', <DesktopOutlined />, [
+		getItem('Data View', '/egauge/data%20view', <BarChartOutlined />),
+		getItem('Configure', '/egauge/config', <SettingOutlined />),
+		getItem('Link', 'eGauge OUTLINK', <LinkOutlined />)
 	]),
-	getItem('Device 3', 'sub3', <DesktopOutlined />, [
-		getItem('Data View', '8', <BarChartOutlined />),
-		getItem('Configure', '9', <SettingOutlined />),
-		getItem('Link', 'link3', <LinkOutlined />)
-	]),
-	getItem('Add Device', '12', <PlusOutlined />),
-	getItem('Backup Cloud', '13', <CloudOutlined />),
-	getItem('Log', '14', <FileTextOutlined />),
-	getItem('Settings', '15', <SettingOutlined />),
+	getItem('Add Device', '/add%20device', <PlusOutlined />),
+	getItem('Backup Cloud', '/backup%20cloud', <CloudOutlined />),
+	getItem('Log', '/Log', <FileTextOutlined />),
+	getItem('Settings', '/Settings', <SettingOutlined />),
 ];
 
 const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
-	const [selectedKey, selectKey] = useState(['1']);
 	const navigate = useNavigate();
+	const [selectedKey, selectKey] = useState(['']);
+	const pathname = window.location.pathname.toLowerCase();
+
+	useEffect(() => {
+		selectKey([pathname]);
+	}, [pathname]);
+
 	// When Link is click it does not select it as an active value for the menu
-	const handleOnclick = (e: {key: string} ) => {
-		if (!e.key.includes('link')) {
-			selectKey([e.key]);
-		} else {
+	const handleOnclick = (e: { key: string }) => {
+		if (e.key.includes('OUTLINK')) {
 			window.open('http://google.com');
+			return;
 		}
-		if (!e.key.includes('sub')) {
-			switch (e.key) {
-			case '1':
-				navigate('/');
-				break;
-			case '2':
-				navigate('/a');
-				break;
-			case '3':
-				navigate('/b');
-				break;
-			default:
-				navigate('/');
-				break;
-			}
+		switch (e.key) {
+		case 'Dashboard':
+			navigate('/');
+			return;
+		case 'Add Device':
+			navigate('/addDevice');
+			return;
+		case 'Backup Cloud':
+			navigate('/backupCloud');
+			return;
+		case 'Log':
+			navigate('/log');
+			return;
+		case 'Setting':
+			navigate('/settings');
+			return;
+		default:
+			navigate(`${e.key}`);
+			break;
 		}
 	};
 
@@ -88,7 +92,7 @@ const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
 			<div className={`bg-gray-400 m-3 py-2 text-center rounded-lg overflow-hidden ${collapsed ? '' : ''}`}>
 				Microgrid Manager
 			</div>
-			<Menu theme="dark" mode="inline" selectedKeys={selectedKey} items={items_mock} onClick={handleOnclick}/>
+			<Menu theme="dark" mode="inline" selectedKeys={selectedKey} items={items_mock} onClick={handleOnclick} />
 		</div>
 	);
 };

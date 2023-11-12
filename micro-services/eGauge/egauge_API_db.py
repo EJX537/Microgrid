@@ -159,7 +159,8 @@ def insert_or_update(table_name, nested_data, column_names):
         # Get value in the first item in dictionary
         newValue = next(iter(value.values()))
 
-        values += ", " + str(newValue)
+        # Create update_set
+        values += "'" + str(newValue) + "', "
         update_set = ", ".join(
             [
                 f"{column} = VALUES({column})"
@@ -167,11 +168,14 @@ def insert_or_update(table_name, nested_data, column_names):
                 if column != "time"
             ]
         )
+    # Trim out the period and space
+    values = values[:-2]
 
     print("\n\n\n\n\n\n\n")
     print(columns)
     print(values)
     # Include the 'time' column separately in values and update_set
+
     columns += ", time"
     values += ", " + ", ".join(["%s"] * len(value.keys()))
     update_set += ", time = VALUES(time)"

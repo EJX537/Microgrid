@@ -46,8 +46,8 @@ const items_mock: MenuProps['items'] = [
 	]),
 	getItem('Add Device', '/add%20device', <PlusOutlined />),
 	getItem('Backup Cloud', '/backup%20cloud', <CloudOutlined />),
-	getItem('Log', '/Log', <FileTextOutlined />),
-	getItem('Settings', '/Settings', <SettingOutlined />),
+	getItem('Log', '/log', <FileTextOutlined />),
+	getItem('Settings', '/settings', <SettingOutlined />),
 ];
 
 const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
@@ -78,7 +78,7 @@ const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
 		case 'Log':
 			navigate('/log');
 			return;
-		case 'Setting':
+		case 'Settings':
 			navigate('/settings');
 			return;
 		default:

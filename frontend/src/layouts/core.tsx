@@ -8,14 +8,14 @@ import { useMicrogrid } from '../context/useMicrogridContext';
 const CoreLayout = () => {
 	const { collapsed } = useMicrogrid();
 	return (
-		<Layout hasSider className='h-screen w-screen font-serif'>
+		<Layout hasSider className='min-h-screen h-auto w-full font-serif'>
 			<SidebarComponent />
-			<Layout style={{ transition: 'margin-left .2s', marginLeft: collapsed ? 80 : 200 }} className='h-full !min-w-[600px] w-full flex flex-col'>
+			<Layout style={{ transition: 'margin-left .2s', marginLeft: collapsed ? 80 : 200 }} className='min-h-screen !min-w-[600px] w-full flex flex-col justify-between'>
 				<HeaderComponent />
-				<Content className='h-full bg-white w-full'>
+				<Content className='h-full bg-white w-full mt-16'>
 					<RoutesProvider />
 				</Content>
-				<Footer className=''> Microgird Designs™©</Footer>
+				<Footer> Microgird Designs™©</Footer>
 			</Layout>
 		</Layout>
 	);

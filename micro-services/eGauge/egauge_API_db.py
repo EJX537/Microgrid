@@ -135,22 +135,27 @@ cursor = connection.cursor()
 
 # Function to insert or update data in the table
 def insert_or_update(table_name, nested_data, column_names):
-    print("THIS IS WHAT NESTED_DATA IS\n", nested_data)
-    print("This is the type of nested_data\n", type(nested_data))
+    # print("THIS IS WHAT NESTED_DATA IS\n", nested_data)
+    # print("This is the type of nested_data\n", type(nested_data))
+
+    # Wrap column names with backticks to handle special characters
+    columns = ", ".join(
+        [
+            f"`{col.replace('*', '_').replace('-', 'neg').replace('+', 'pos').replace('/', 'div').replace(' ', '_')}`"
+            for col in column_names
+            if col != "time"
+        ]
+    )
+
+    # Create values
+    values = ""
     for key, value in nested_data.items():
         # If the value is not a dictionary, convert it into a dictionary with a single key
         if not isinstance(value, dict):
             value = {key: value}
 
-        # Wrap column names with backticks to handle special characters
-        columns = ", ".join(
-            [
-                f"`{col.replace('*', '_').replace('-', 'neg').replace('+', 'pos').replace('/', 'div').replace(' ', '_')}`"
-                for col in column_names
-                if col != "time"
-            ]
-        )
-        values = ", ".join(["%s" for _ in value.values()])
+        print(value)
+        values += ", ".join(value)
         update_set = ", ".join(
             [
                 f"{column} = VALUES({column})"
@@ -159,31 +164,32 @@ def insert_or_update(table_name, nested_data, column_names):
             ]
         )
 
-        # Include the 'time' column separately in values and update_set
-        # Include the 'time' column separately in values and update_set
-        columns += ", time"
-        values += ", " + ", ".join(["%s"] * len(value.keys()))
-        update_set += ", time = VALUES(time)"
+    print("\n\n\n\n\n\n\n")
+    print(columns)
+    # Include the 'time' column separately in values and update_set
+    columns += ", time"
+    values += ", " + ", ".join(["%s"] * len(value.keys()))
+    update_set += ", time = VALUES(time)"
 
-        # Use ON DUPLICATE KEY UPDATE to handle updates
-        query = f"INSERT INTO {table_name} ({columns}) VALUES ({values}) ON DUPLICATE KEY UPDATE {update_set}"
+    # Use ON DUPLICATE KEY UPDATE to handle updates
+    query = f"INSERT INTO {table_name} ({columns}) VALUES ({values}) ON DUPLICATE KEY UPDATE {update_set}"
 
-        # Print the SQL query
-        print("SQL Query:", query)
+    # Print the SQL query
+    # print("SQL Query:", query)
 
-        # Extract the values from the nested dictionary and convert them to a tuple
-        data_tuple = tuple(
-            [-value if col.startswith("-") else value for col, value in value.items()]
-            + [datetime.now()]
-        )
+    # Extract the values from the nested dictionary and convert them to a tuple
+    data_tuple = tuple(
+        [-value if col.startswith("-") else value for col, value in value.items()]
+        + [datetime.now()]
+    )
 
-        # Execute the query
-        try:
-            cursor.execute(query, data_tuple)
-            connection.commit()
-            print("Data inserted successfully.")
-        except Exception as e:
-            print(f"Error inserting data: {e}")
+    # Execute the query
+    try:
+        cursor.execute(query, data_tuple)
+        connection.commit()
+        print("Data inserted successfully.")
+    except Exception as e:
+        print(f"Error inserting data: {e}")
 
 
 # Check if the 'cumulative' table exists

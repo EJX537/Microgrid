@@ -155,7 +155,11 @@ def insert_or_update(table_name, nested_data, column_names):
             value = {key: value}
 
         print(value)
-        values += ", ".join(value)
+
+        # Get value in the first item in dictionary
+        newValue = next(iter(value.values()))
+
+        values += ", " + str(newValue)
         update_set = ", ".join(
             [
                 f"{column} = VALUES({column})"
@@ -166,6 +170,7 @@ def insert_or_update(table_name, nested_data, column_names):
 
     print("\n\n\n\n\n\n\n")
     print(columns)
+    print(values)
     # Include the 'time' column separately in values and update_set
     columns += ", time"
     values += ", " + ", ".join(["%s"] * len(value.keys()))
@@ -200,36 +205,36 @@ if not table_exists:
     cursor.execute(
         """
         CREATE TABLE cumulative (
-            S10_L2 DECIMAL(18, 6),
-            S7_L1 DECIMAL(18, 6),
-            S8_L2 DECIMAL(18, 6),
-            S9_L1 DECIMAL(18, 6),
-            S1_L1 DECIMAL(18, 6),
-            S11_L1 DECIMAL(18, 6),
-            S12_L2 DECIMAL(18, 6),
-            S2_L2 DECIMAL(18, 6),
-            S3_L1 DECIMAL(18, 6),
             S4_L2 DECIMAL(18, 6),
-            S5_L1 DECIMAL(18, 6),
+            S3_L1 DECIMAL(18, 6),
             S6_L2 DECIMAL(18, 6),
+            S5_L1 DECIMAL(18, 6),
+            S2_L2 DECIMAL(18, 6),
+            S1_L1 DECIMAL(18, 6),
+            S8_L2 DECIMAL(18, 6),
+            S7_L1 DECIMAL(18, 6),
+            S10_L2 DECIMAL(18, 6),
+            S9_L1 DECIMAL(18, 6),
+            S12_L2 DECIMAL(18, 6),
+            S11_L1 DECIMAL(18, 6),
             time TIMESTAMP,
             PRIMARY KEY (time)
         )
     """
     )
 columns_list_cumulative = [
-    "S10_L2",
-    "S7_L1",
-    "S8_L2",
-    "S9_L1",
-    "S1_L1",
-    "S11_L1",
-    "S12_L2",
-    "S2_L2",
-    "S3_L1",
     "S4_L2",
-    "S5_L1",
+    "S3_L1",
     "S6_L2",
+    "S5_L1",
+    "S2_L2",
+    "S1_L1",
+    "S8_L2",
+    "S7_L1",
+    "S10_L2",
+    "S9_L1",
+    "S12_L2",
+    "S11_L1",
 ]
 
 # Insert or update data in the 'cumulative' table
@@ -244,18 +249,18 @@ if not table_exists:
     cursor.execute(
         """
         CREATE TABLE rate (
-            S10_L2 DECIMAL(18, 6),
-            S7_L1 DECIMAL(18, 6),
-            S8_L2 DECIMAL(18, 6),
-            S9_L1 DECIMAL(18, 6),
-            S1_L1 DECIMAL(18, 6),
-            S11_L1 DECIMAL(18, 6),
-            S12_L2 DECIMAL(18, 6),
-            S2_L2 DECIMAL(18, 6),
-            S3_L1 DECIMAL(18, 6),
             S4_L2 DECIMAL(18, 6),
-            S5_L1 DECIMAL(18, 6),
+            S3_L1 DECIMAL(18, 6),
             S6_L2 DECIMAL(18, 6),
+            S5_L1 DECIMAL(18, 6),
+            S2_L2 DECIMAL(18, 6),
+            S1_L1 DECIMAL(18, 6),
+            S8_L2 DECIMAL(18, 6),
+            S7_L1 DECIMAL(18, 6),
+            S10_L2 DECIMAL(18, 6),
+            S9_L1 DECIMAL(18, 6),
+            S12_L2 DECIMAL(18, 6),
+            S11_L1 DECIMAL(18, 6),
             time TIMESTAMP,
             PRIMARY KEY (time)
         )
@@ -263,18 +268,18 @@ if not table_exists:
     )
 
 columns_list_rate = [
-    "S10_L2",
-    "S7_L1",
-    "S8_L2",
-    "S9_L1",
-    "S1_L1",
-    "S11_L1",
-    "S12_L2",
-    "S2_L2",
-    "S3_L1",
     "S4_L2",
-    "S5_L1",
+    "S3_L1",
     "S6_L2",
+    "S5_L1",
+    "S2_L2",
+    "S1_L1",
+    "S8_L2",
+    "S7_L1",
+    "S10_L2",
+    "S9_L1",
+    "S12_L2",
+    "S11_L1",
 ]
 
 # Insert or update data in the 'rate' table

@@ -8,6 +8,7 @@ import battery from '../../../../assets/battery.svg';
 import timer from '../../../../assets/timer.svg';
 
 import { Config, DataRequest_Once, DataSteam } from './batteryChartTypes';
+import { useMicrogrid } from '../../../../context/useMicrogridContext';
 
 const mockDataStream: DataSteam = {
 	currentWatt: 13189,
@@ -19,12 +20,6 @@ const mockData: DataRequest_Once = {
 	capacity: 15000,
 };
 
-interface BatteryChartProps {
-	config: Config
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	setConfig: React.Dispatch<React.SetStateAction<any>>
-}
-
 type TooltipInfo = {
 	warning: string;
 	danger: string;
@@ -35,11 +30,12 @@ type TooltipInfo = {
 const tooltipInfo: TooltipInfo = {
 	'warning': 'The yellow when battery is at __% capacity',
 	'danger': 'The red when battery is at __% capacity',
-	'animationSpeed': 'The speed at which the battery animation plays in ms',
+	'animationSpeed': 'The speed at which the battery animation plays in ms (between 1000 and 10000)',
 };
 
-const BatteryChart: React.FC<BatteryChartProps> = ({ config, setConfig }) => {
+const BatteryChart = () => {
 	const parentRef = useRef<HTMLDivElement | null>(null);
+	const { config, setConfig } = useMicrogrid();
 	const [configState, setConfigState] = useState({} as Config);
 	const [showConfig, setShowConfig] = useState(false);
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -57,7 +53,7 @@ const BatteryChart: React.FC<BatteryChartProps> = ({ config, setConfig }) => {
 		const isValid = Object.values(configState).every((value) => value !== undefined && value !== null);
 		const isWarningValid = configState.warning >= 0 && configState.warning <= 1;
 		const isDangerValid = configState.danger >= 0 && configState.danger <= 1;
-		const isAnimationSpeedValid = configState.animationSpeed >= 0 && configState.animationSpeed <= 10000;
+		const isAnimationSpeedValid = configState.animationSpeed >= 1000 && configState.animationSpeed <= 10000;
 		if (isValid && isWarningValid && isDangerValid && isAnimationSpeedValid) {
 			setConfig({ ...config, batteryChartConfigs: configState });
 			setConfigState({} as Config);
@@ -77,13 +73,13 @@ const BatteryChart: React.FC<BatteryChartProps> = ({ config, setConfig }) => {
 				<span>
 					Solar & Battery Status
 				</span>
-				<button className='transition-opacity opacity-0 group-hover:opacity-100' onClick={() => { setShowConfig(!showConfig); setConfigState(config); }}>
+				<button className='transition-opacity opacity-0 group-hover:opacity-100' onClick={() => { setShowConfig(!showConfig); setConfigState(config.batteryChartConfigs); }}>
 					<SettingOutlined />
 				</button>
 			</div>
 			<div className='border-t border-black h-0.5 my-2' />
 			<div className='px-2 pt-2 h-full max-h-[300px]' ref={parentRef}>
-				<BatteryCapacitySVG data={mockDataStream} height={dimensions.height} width={dimensions.width} capacity={mockData.capacity} config={config} />
+				<BatteryCapacitySVG data={mockDataStream} height={dimensions.height} width={dimensions.width} capacity={mockData.capacity} config={config.batteryChartConfigs} />
 			</div>
 			<div className='px-2 flex justify-evenly gap-2'>
 				<div className='flex items-center gap-2'>
@@ -100,7 +96,7 @@ const BatteryChart: React.FC<BatteryChartProps> = ({ config, setConfig }) => {
 				<div className='flex items-center gap-2'>
 					<img src={timer} className='flex items-center h-10 w-10' />
 					<div className='flex flex-col '>
-						<Tooltip className='text-green-400 text-lg' title='Target Battery Charge: 90%'>
+						<Tooltip className='text-green-400 text-lg' title='Target Battery Charge: 100%'>
 							Low Risk
 						</Tooltip>
 						<span>

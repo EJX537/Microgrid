@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import * as d3 from 'd3';
-import { eGaugeData } from './eGaugeTypes';
+import { Config, eGaugeData } from './eGaugeTypes';
 
 
 interface PanelChartSVGProps {
@@ -9,15 +9,15 @@ interface PanelChartSVGProps {
 	width: number;
 	data: eGaugeData[];
 	unit: string;
+	config: Config;
 }
 
-const PanelChartSVG: React.FC<PanelChartSVGProps> = (props: PanelChartSVGProps) => {
+const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit, parent, config }) => {
 	const svgRef = useRef<SVGSVGElement | null>(null);
-	const { width, height, data, unit } = props;
 
-	let div = d3.select(props.parent.current).select('.tooltip') as d3.Selection<HTMLDivElement, unknown, null, undefined>;
+	let div = d3.select(parent.current).select('.tooltip') as d3.Selection<HTMLDivElement, unknown, null, undefined>;
 	if (div.empty()) {
-		div = d3.select(props.parent.current).append('div')
+		div = d3.select(parent.current).append('div')
 			.attr('class', 'tooltip absolute bg-slate-50 rounded-sm p-2',)
 			.style('opacity', 0) as d3.Selection<HTMLDivElement, unknown, null, undefined>;
 	}
@@ -26,6 +26,22 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = (props: PanelChartSVGProps) 
 	const marginRight = 30;
 	const marginBottom = 30;
 	const marginLeft = 40;
+
+	const timeRangeLimit = useMemo(() => {
+		const [value, unit] = config.period.split(' ');
+		let valueInMs;
+		if (unit === 'minute') {
+			valueInMs = parseInt(value) * 60 * 1000;
+		} else if (unit === 'hour') {
+			valueInMs = parseInt(value) * 60 * 60 * 1000;
+		} else {
+			valueInMs = parseInt(value) * 1000;
+		}
+		return valueInMs;
+	}, [config.period]);
+
+	// Define the mousemove function.
+	const formatTime = d3.timeFormat('%H:%M:%S');
 
 	const y = useMemo(() => d3.scaleLinear()
 		.domain([0, d3.max(data, d => d.value) as number])
@@ -40,7 +56,7 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = (props: PanelChartSVGProps) 
 			.attr('viewBox', [0, 0, width, height].join(' '))
 			.attr('style', 'width: 100%; height: 100%; overflow: visible; font: 10px sans-serif; padding: 4px;');
 
-		const filteredData = props.data.filter(d => d.dateTime !== undefined && d.dateTime.getTime() >= new Date().getTime() - 90 * 1000);
+		const filteredData = data.filter(d => d.dateTime !== undefined && d.dateTime.getTime() >= new Date().getTime() - timeRangeLimit);
 
 		const xDomain = d3.extent(filteredData, d => d.dateTime) as [Date, Date];
 
@@ -57,9 +73,9 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = (props: PanelChartSVGProps) 
 		const timeRange = xDomain[1].getTime() - xDomain[0].getTime();
 		const tickInterval = timeRange / 3; // Divide by 4 to get 5 ticks
 		const tickValues = [
-			new Date(xDomain[0].getTime() + tickInterval * .5),
+			new Date(xDomain[0].getTime() + tickInterval * 0.25),
 			new Date(xDomain[0].getTime() + tickInterval * 1.5),
-			new Date(xDomain[0].getTime() + tickInterval * 2.5),
+			new Date(xDomain[0].getTime() + tickInterval * 2.75),
 		];
 
 		const xAxis = d3.axisBottom(x)
@@ -90,7 +106,7 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = (props: PanelChartSVGProps) 
 				.attr('y', 10)
 				.attr('fill', 'currentColor')
 				.attr('text-anchor', 'start')
-				.text(`(${props.unit})`));
+				.text(`(${unit})`));
 
 		// Append a path for the line.
 		svg.append('path')
@@ -103,9 +119,6 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = (props: PanelChartSVGProps) 
 		// Append a group for the dot and text.
 		const dot = svg.append('g')
 			.attr('display', 'none');
-
-		// Define the mousemove function.
-		const formatTime = d3.timeFormat('%H:%M:%S');
 
 		const pointermoved = (event: React.PointerEvent<SVGSVGElement>) => {
 			svg.selectAll('.vertical-line').remove(); // Remove existing line
@@ -156,7 +169,7 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = (props: PanelChartSVGProps) 
 			.on('touchstart', () => { }, { passive: true });
 
 		return () => { svg.selectAll('*').remove(); };
-	}, [data, div, height, props.data, props.unit, unit, width, y]);
+	}, [data, div, height, unit, width, y, timeRangeLimit, formatTime]);
 
 	return (<svg ref={svgRef} />);
 };

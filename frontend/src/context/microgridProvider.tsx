@@ -23,7 +23,6 @@ const dashboardConfigMock = {
 	energyUsageConfigs: {} as EnergyGenerationConfig,
 };
 
-
 const MicrogridProvider: React.FC<ProviderProps> = ({ children }) => {
 	const [user, setUser] = useState('root');
 	const [config, setConfig] = useState(dashboardConfigMock);

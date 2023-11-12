@@ -1,5 +1,5 @@
 import React from 'react';
-import { Widget, WidgetComponent } from '../../interfaces/JSXTypes';
+import { Widget, WidgetComponent } from '../interfaces/JSXTypes';
 
 interface WidgetLayoutProps {
 	widgets: React.ReactElement<Widget, WidgetComponent>[];

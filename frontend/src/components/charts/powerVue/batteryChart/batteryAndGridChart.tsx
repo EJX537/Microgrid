@@ -78,7 +78,7 @@ const BatteryChart = () => {
 				</button>
 			</div>
 			<div className='border-t border-black h-0.5 my-2' />
-			<div className='px-2 pt-2 h-full max-h-[300px]' ref={parentRef}>
+			<div className='px-2 pt-2 h-full max-h-[350px]' ref={parentRef}>
 				<BatteryCapacitySVG data={mockDataStream} height={dimensions.height} width={dimensions.width} capacity={mockData.capacity} config={config.batteryChartConfigs} />
 			</div>
 			<div className='px-2 flex justify-evenly gap-2'>

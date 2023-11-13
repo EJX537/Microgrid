@@ -44,11 +44,11 @@ const BatteryChart = () => {
 				height: parentRef.current.offsetHeight
 			});
 		}
-	}, [parentRef]);
+	}, [parentRef?.current?.offsetWidth, parentRef?.current?.offsetHeight]);
 
 	return (
-		<div className='p-4 flex-grow relative' ref={parentRef}>
-			<DualYAxisAreaChartSVG parent={parentRef} height={dimensions.height} width={dimensions.width} data={data} capacity={5000}/>
+		<div className='p-4 h-[550px] relative' ref={parentRef}>
+			<DualYAxisAreaChartSVG parent={parentRef} height={dimensions.height} width={dimensions.width} data={data} capacity={5000} />
 		</div>
 	);
 };

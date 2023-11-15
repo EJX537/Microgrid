@@ -36,7 +36,7 @@ const WeatherWidget: React.FC<Widget> = () => {
 	const [itemsCount, setItemsCount] = useState(0);
 
 	useEffect(() => {
-		fetch('https://api.weather.gov/gridpoints/MTR/93,67/forecast', {mode: 'no-cors'})
+		fetch('https://api.weather.gov/gridpoints/MTR/93,67/forecast')
 			.then(response => response.json())
 			.then(data => setWeatherData(data.properties.periods));
 	}, []);
@@ -66,7 +66,7 @@ const WeatherWidget: React.FC<Widget> = () => {
 				<div className='border-t border-black h-0.5 my-2' />
 				<div className='flex flex-row h-auto w-full justify-evenly' ref={parentRef}>
 					{weatherData.splice(1, itemsCount * 2).filter((_, index) => index % 2 === 0).map((data, index) => (
-						<div key={index} className='flex flex-col justify-center items-center text-center w-20 text-sm'>
+						<div key={index} className='flex flex-col max-h-[136px] overflow-hidden  justify-center h-full items-center text-center w-20 text-sm'>
 							<img src={data.icon} className='h-20 w-20' />
 							<p>
 								{new Date(data.startTime).toLocaleDateString('en-US', { weekday: 'long' })}

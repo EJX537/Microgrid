@@ -5,7 +5,7 @@ import { useMicrogrid } from '../../context/useMicrogridContext';
 const SidebarComponent = () => {
 	const {collapsed, toggleCollapsed} = useMicrogrid();
 	return (
-		<Sider className='!fixed !h-screen z-50' collapsible collapsed={collapsed} onCollapse={() => toggleCollapsed()}>
+		<Sider className='!fixed h-full z-50' collapsible collapsed={collapsed} onCollapse={() => toggleCollapsed()}>
 			<Sidebar collapsed={collapsed} />
 		</Sider>
 	);

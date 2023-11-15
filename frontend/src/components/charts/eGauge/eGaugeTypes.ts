@@ -4,6 +4,7 @@ interface requestBetweenPeriods {
 	endDate: string;
 	target?: URL;
 }
+
 interface eGaugeData {
 	source: string;
 	dateTime: Date;
@@ -12,9 +13,12 @@ interface eGaugeData {
 }
 
 interface Config {
-	startDate: string;
-	endDate: string;
+	period: string;
 	source: string;
 }
 
-export type { requestBetweenPeriods, eGaugeData, Config };
+type ConfigMap = {
+	[name: string]: Config;
+};
+
+export type { requestBetweenPeriods, eGaugeData, Config, ConfigMap };

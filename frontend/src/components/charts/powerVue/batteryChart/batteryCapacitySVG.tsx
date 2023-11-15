@@ -28,7 +28,7 @@ const BatteryCapacitySVG: React.FC<batteryCapacitySVGProps> = (props) => {
 		const startAngle = rootAngle + Math.PI * startPercentage * 1.5;
 		const endAngle = rootAngle + Math.PI * endPercentage * 1.5;
 		animateArc.transition()
-			.duration(4000)
+			.duration(config.animationSpeed)
 			.attrTween('d', (d: { startAngle: number; endAngle: number; }) => {
 				const i = d3.interpolate(startAngle, endAngle);
 				return (t: number) => {
@@ -38,14 +38,14 @@ const BatteryCapacitySVG: React.FC<batteryCapacitySVGProps> = (props) => {
 				};
 			})
 			.on('end', () => animateProjectedArc(startPercentage, endPercentage, animateArc));
-	}, [arc, rootAngle]);
+	}, [arc, rootAngle, config.animationSpeed]);
 
 	// Do the same for animateProjectedArcReverse
 	const animateProjectedArcReverse = useCallback((startPercentage: number, endPercentage: number, animateArc: d3.Selection<SVGPathElement, { startAngle: number; endAngle: number; }, null, undefined>) => {
 		const startAngle = rootAngle + Math.PI * startPercentage * 1.5;
 		const endAngle = rootAngle + Math.PI * endPercentage * 1.5;
 		animateArc.transition()
-			.duration(4000)
+			.duration(config.animationSpeed)
 			.attrTween('d', (d: { startAngle: number; endAngle: number; }) => {
 				const i = d3.interpolate(endAngle, startAngle);
 				return (t: number) => {
@@ -55,7 +55,7 @@ const BatteryCapacitySVG: React.FC<batteryCapacitySVGProps> = (props) => {
 				};
 			})
 			.on('end', () => animateProjectedArcReverse(startPercentage, endPercentage, animateArc));
-	}, [arc, rootAngle]);
+	}, [arc, rootAngle, config.animationSpeed]);
 
 	const getArcAngles = (percentage: number) => {
 		const startAngle = Math.PI * 1.25;

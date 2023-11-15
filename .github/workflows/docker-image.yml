@@ -16,4 +16,4 @@ jobs:
       with:
         ref: test-deployment
     - name: Build the Docker image
-      run: docker-compose build . --file dockercompose.yaml Microgrid-Manager:$(date +%s)
+      run: docker-compose build

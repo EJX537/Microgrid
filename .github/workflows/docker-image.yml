@@ -2,6 +2,8 @@ name: Microgrid Manager
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ "test-deployment" ]
   pull_request:
     branches: [ "test-deployment" ]
 

@@ -10,6 +10,33 @@ import json
 import time
 
 
+# Specify eGauge details - This is what lets us connect to our
+# particular meter
+meter_dev = os.getenv("EGDEV", "http://egauge18646.egaug.es")
+meter_user = os.getenv("EGUSR", "ppridge1")
+meter_password = os.getenv("EGPWD", "ppridge")
+
+dev = webapi.device.Device(meter_dev, webapi.JWTAuth(meter_user, meter_password))
+
+ # Request values for all available sensors: built-in environmental
+# sensors, all line inputs, and all sensors.
+sensors = ["env=all", "l=all", "s=all"]
+
+# Request all available sections: the sensor values themselves as well
+# as derived real energy and apparent energy sections.
+sections = [Local.SECTION_ENERGY]
+# Request all available metrics for each sensor/energy: the rate
+# (e.g., power), the accumulated value (e.g., energy), as well as the
+
+# sensor's type (physical unit).
+metrics = [Local.METRIC_RATE, Local.METRIC_CUMUL, Local.METRIC_TYPE]
+
+# Request all available sensor measurements: normal (RMS value), mean,
+# and frequency:
+measurements = ["normal", "mean", "freq"]
+
+#This assembles the query string to make sure we get all the sections we want
+query_string = "&".join(sections + metrics)
 
 # Function to create a MySQL connection
 def create_connection():
@@ -141,31 +168,6 @@ def insert_or_update_cumulative(table_name, nested_data, column_names):
 
 
 while True:
-    # Specify eGauge details
-    meter_dev = os.getenv("EGDEV", "http://egauge18646.egaug.es")
-    meter_user = os.getenv("EGUSR", "ppridge1")
-    meter_password = os.getenv("EGPWD", "ppridge")
-
-    dev = webapi.device.Device(meter_dev, webapi.JWTAuth(meter_user, meter_password))
-
-    # Request values for all available sensors: built-in environmental
-    # sensors, all line inputs, and all sensors.
-    sensors = ["env=all", "l=all", "s=all"]
-
-    # Request all available sections: the sensor values themselves as well
-    # as derived real energy and apparent energy sections.
-    sections = [Local.SECTION_ENERGY]
-
-    # Request all available metrics for each sensor/energy: the rate
-    # (e.g., power), the accumulated value (e.g., energy), as well as the
-    # sensor's type (physical unit).
-    metrics = [Local.METRIC_RATE, Local.METRIC_CUMUL, Local.METRIC_TYPE]
-
-    # Request all available sensor measurements: normal (RMS value), mean,
-    # and frequency:
-    measurements = ["normal", "mean", "freq"]
-
-    query_string = "&".join(sections + metrics)
 
     # Fetch the sensor values from the meter:
     local = Local(dev, query_string)
@@ -177,10 +179,11 @@ while True:
     # THIS IS WHAT DATA THE SQL QUERIES WILL LOOP THROUGH
     data = json.loads(
         string_version
-    )  # You can adjust the 'indent' parameter for formatting
-    # print("check that we got it to become a json", type(json_string));
-    # new_dict = dict(json_string) # make it back into a dictionary
+    )  
 
+
+    #I am keeping these debug prints in on purpose
+    #because if something goes wrong it will let us tell what is wrong
     cumulative = {}
     rate = {}
     for key, values in data["energy"].items():
@@ -297,4 +300,4 @@ while True:
     # Close the MySQL connection
     cursor.close()
     connection.close()
-    time.sleep(30)
+    time.sleep(5)

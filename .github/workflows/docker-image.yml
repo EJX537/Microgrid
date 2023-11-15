@@ -1,0 +1,14 @@
+name: Microgrid Manager
+
+on:
+  pull_request:
+    branches: [ "test-deployment" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+		
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker-compose build . --file dockercompose.yaml Microgrid-Manager:$(date +%s)

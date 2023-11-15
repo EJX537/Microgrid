@@ -19,10 +19,11 @@ jobs:
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
     - name: Build and push Docker image
       run: |
+        REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
         docker-compose build
-        docker tag frontend docker.pkg.github.com/${{ github.repository_lower }}/frontend:latest
-        docker push docker.pkg.github.com/${{ github.repository_lower }}/frontend:latest
-        docker tag backend docker.pkg.github.com/${{ github.repository_lower }}/backend:latest
-        docker push docker.pkg.github.com/${{ github.repository_lower }}/backend:latest
-        docker tag mysql docker.pkg.github.com/${{ github.repository_lower }}/mysql:latest
-        docker push docker.pkg.github.com/${{ github.repository_lower }}/mysql:latest
+        docker tag frontend docker.pkg.github.com/$REPO_LOWER/frontend:latest
+        docker push docker.pkg.github.com/$REPO_LOWER/frontend:latest
+        docker tag backend docker.pkg.github.com/$REPO_LOWER/backend:latest
+        docker push docker.pkg.github.com/$REPO_LOWER/backend:latest
+        docker tag mysql docker.pkg.github.com/$REPO_LOWER/mysql:latest
+        docker push docker.pkg.github.com/$REPO_LOWER/mysql:latest

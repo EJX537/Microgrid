@@ -12,7 +12,7 @@ import { useMicrogrid } from '../../../../context/useMicrogridContext';
 
 const mockDataStream: DataSteam = {
 	currentWatt: 13189,
-	projectedWatt: 14000,
+	projectedWatt: 10000,
 	onGrid: true,
 };
 

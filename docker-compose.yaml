@@ -32,14 +32,6 @@ services:
       MYSQL_PASSWORD: sluggrid
     volumes:
       - mysql-data:/var/lib/mysql
-  interface_0:
-    build: ./interfaces/Example
-    container_name: example-python-microservice
-    volumes:
-      - ./interfaces/Example:/app
 
 volumes:
   mysql-data:
-
-# services:
-

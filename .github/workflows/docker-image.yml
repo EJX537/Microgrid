@@ -20,9 +20,9 @@ jobs:
     - name: Build and push Docker image
       run: |
         docker-compose build
-        docker tag frontend docker.pkg.github.com/${{ github.repository }}/frontend:latest
-        docker push docker.pkg.github.com/${{ github.repository }}/frontend:latest
-        docker tag backend docker.pkg.github.com/${{ github.repository }}/backend:latest
-        docker push docker.pkg.github.com/${{ github.repository }}/backend:latest
-        docker tag mysql docker.pkg.github.com/${{ github.repository }}/mysql:latest
-        docker push docker.pkg.github.com/${{ github.repository }}/mysql:latest
+        docker tag frontend docker.pkg.github.com/${{ github.repository_lower }}/frontend:latest
+        docker push docker.pkg.github.com/${{ github.repository_lower }}/frontend:latest
+        docker tag backend docker.pkg.github.com/${{ github.repository_lower }}/backend:latest
+        docker push docker.pkg.github.com/${{ github.repository_lower }}/backend:latest
+        docker tag mysql docker.pkg.github.com/${{ github.repository_lower }}/mysql:latest
+        docker push docker.pkg.github.com/${{ github.repository_lower }}/mysql:latest

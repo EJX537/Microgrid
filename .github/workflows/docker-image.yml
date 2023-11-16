@@ -25,5 +25,5 @@ jobs:
       run: |
         REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
         docker-compose build frontend
-        docker tag frontend ghcr.io/$REPO_LOWER/frontend:latest
+        docker tag microgrid_frontend ghcr.io/$REPO_LOWER/frontend:latest
         docker push ghcr.io/$REPO_LOWER/frontend:latest

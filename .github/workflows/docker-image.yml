@@ -20,10 +20,6 @@ jobs:
     - name: Build and push Docker image
       run: |
         REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
-        docker-compose build
+        docker-compose build frontend
         docker tag frontend docker.pkg.github.com/$REPO_LOWER/frontend:latest
         docker push docker.pkg.github.com/$REPO_LOWER/frontend:latest
-        docker tag backend docker.pkg.github.com/$REPO_LOWER/backend:latest
-        docker push docker.pkg.github.com/$REPO_LOWER/backend:latest
-        docker tag mysql docker.pkg.github.com/$REPO_LOWER/mysql:latest
-        docker push docker.pkg.github.com/$REPO_LOWER/mysql:latest

@@ -14,7 +14,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 cd /opt
 
 # Download the docker-compose.yaml file
-sudo curl -O https://example.com/path/to/docker-compose.yaml
+sudo curl -O https://raw.githubusercontent.com/EJX537/Microgrid/test-deployment/dist/docker-compose.yaml?token=GHSAT0AAAAAACIQRAAZF4U65XABKU6ZAYLSZKVPOQQ
 
 # Run the services
 sudo docker-compose up -d

@@ -23,8 +23,8 @@ jobs:
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
     - name: Build and push Docker images
       run: |
-        docker-compose build frontend backend mysql
-        docker tag frontend docker.io/${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+        docker-compose build
+        docker tag microgrid_frontend docker.io/${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
         docker tag backend docker.io/${{ secrets.DOCKERHUB_USERNAME }}/backend:latest
         docker tag mysql docker.io/${{ secrets.DOCKERHUB_USERNAME }}/mysql:latest
         docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest

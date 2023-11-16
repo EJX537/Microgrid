@@ -29,4 +29,4 @@ jobs:
         docker tag microgrid_mysql docker.io/${{ secrets.DOCKERHUB_USERNAME }}/mysql:latest
         docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
         docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/backend:latest
-        docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/mysql:latest
+

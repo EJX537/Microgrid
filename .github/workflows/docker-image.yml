@@ -16,10 +16,14 @@ jobs:
       with:
         ref: test-deployment
     - name: Login to GitHub Container Registry
-      run: echo "${{ secrets.Microgird_Manager }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push Docker image
       run: |
         REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
         docker-compose build frontend
-        docker tag microgrid_frontend docker.pkg.github.com/$REPO_LOWER/frontend:latest
-        docker push docker.pkg.github.com/$REPO_LOWER/frontend:latest
+        docker tag frontend ghcr.io/$REPO_LOWER/frontend:latest
+        docker push ghcr.io/$REPO_LOWER/frontend:latest

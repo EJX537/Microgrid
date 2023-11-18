@@ -33,13 +33,12 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
   interface_0:
-    build: ./micro-services/eGauge
-    container_name: egauge_API_db
+    build: ./interfaces/Example
+    container_name: example-python-microservice
     volumes:
-      - ./micro-services/eGauge:/app
+      - ./interfaces/Example:/app
 
 volumes:
   mysql-data:
 
 # services:
-

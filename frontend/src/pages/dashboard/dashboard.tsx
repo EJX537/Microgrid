@@ -4,13 +4,15 @@ import ChartCarousel from './chartCarousel';
 import EnergyUsage from '../../components/charts/powerVue/energyGeneration/energyGeneration';
 import { Widget, WidgetComponent } from '../../interfaces/JSXTypes';
 import { BatteryChart } from '../../components';
+import WaterTankWidget from '../../components/widget/waterTank';
+import HVACWidget from '../../components/widget/hvac';
 
 // Dashboard is grid composed of 12 columns.
 const Dashboard = () => {
 	const widgets: React.ReactElement<Widget, WidgetComponent>[] = [
 		<WeatherWidget />,
-		<WeatherWidget />,
-		<WeatherWidget />,
+		<WaterTankWidget />,
+		<HVACWidget />,
 	];
 	return (
 		<div className='p-4 h-full grid grid-cols-12 gap-2 w-full'>

@@ -42,8 +42,12 @@ else
 	exit 1
 fi
 
-# Download the docker-compose.yaml file
+# Download the docker-compose.yaml file and the update.sh file
 curl -O https://raw.githubusercontent.com/EJX537/Microgrid/test-deployment/dist/docker-compose.yaml
+curl -O https://raw.githubusercontent.com/EJX537/Microgrid/test-deployment/dist/update.sh
+
+# Make the update.sh file executable
+chmod +x update.sh
 
 # Run the services
 docker-compose up -d

@@ -51,7 +51,48 @@ def job(latitude, longitude):
         # Append the dictionary to the result list
         result_list.append(period_dict)
 
-    return result_list
+    # Store data into database
+    # Connect to MySQL
+    conn = mysql.connector.connect(
+        host="your_mysql_host",
+        user="your_mysql_user",
+        password="your_mysql_password",
+        database="your_mysql_database",
+    )
+
+    # Create a cursor
+    cursor = conn.cursor()
+
+    # Create a table if not exists
+    create_table_query = """
+    CREATE TABLE IF NOT EXISTS weather_data (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        start_time DATETIME,
+        temperature INT,
+        short_forecast VARCHAR(255)
+    )
+    """
+    cursor.execute(create_table_query)
+
+    # Insert data into the table
+    insert_query = """
+    INSERT INTO weather_data (start_time, temperature, short_forecast) VALUES (%s, %s, %s)
+    """
+
+    for period in result_list:
+        cursor.execute(
+            insert_query,
+            (period["start_time"], period["temperature"], period["short_forecast"]),
+        )
+
+    # Commit the changes
+    conn.commit()
+
+    # Close the cursor and connection
+    cursor.close()
+    conn.close()
+
+    return
 
 
 def main():
@@ -59,8 +100,8 @@ def main():
     latitude = "93"
     longitude = "67"
 
-    forecast = job(latitude, longitude)
-    print(forecast)
+    # FOR TEST ONLY
+    job(latitude, longitude)
     return
 
     # Schedule job every 12 hours

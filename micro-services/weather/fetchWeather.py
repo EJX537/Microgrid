@@ -50,7 +50,8 @@ def job(latitude, longitude):
 
         # Append the dictionary to the result list
         result_list.append(period_dict)
-    print(result_list)
+
+    return result_list
 
 
 def main():
@@ -58,7 +59,8 @@ def main():
     latitude = "93"
     longitude = "67"
 
-    job(latitude, longitude)
+    forecast = job(latitude, longitude)
+    print(forecast)
     return
 
     # Schedule job every 12 hours

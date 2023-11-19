@@ -8,7 +8,6 @@ import {
 import { useMicrogrid } from '../../context/useMicrogridContext';
 import { useState } from 'react';
 
-
 const content_process = (
 	<div className='w-full flex flex-col gap-2'>
 		<p>

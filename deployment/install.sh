@@ -12,7 +12,7 @@ if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ "$OSTYPE" == "c
 	choco install -y docker docker-compose
 
 	# Create a new directory in the /Program\ Files directory
-	mkdir "\Program Files\Microgrid Manager"
+	mkdir -p "\Program Files\Microgrid Manager"
 
 	# Change to the /Program\ Files directory
 	cd "\Program Files\Microgrid Manager"

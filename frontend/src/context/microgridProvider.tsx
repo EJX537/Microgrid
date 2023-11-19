@@ -7,11 +7,7 @@ export const MicrogridContext = createContext<MicrogridState | undefined>(undefi
 const dashboardConfigMock = {
 	chartCarouselConfigs: {
 		'Kitchen': {
-			source: 'http://localhost:8080/time',
-			period: '30 seconds',
-		} as eGaugeConfig,
-		'HVAC': {
-			source: 'http://localhost:8080/time',
+			source: 'http://localhost:8080/eGauge?source=Kitchen',
 			period: '30 seconds',
 		} as eGaugeConfig,
 	} as eGaugeConfigMap,

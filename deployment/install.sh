@@ -20,7 +20,8 @@ if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ "$OSTYPE" == "c
 	choco install -y docker-desktop
 
 	# Define the full path of the docker-compose executable
-	# DOCKER_COMPOSE="C:\ProgramData\Docker\cli-plugins\docker-compose.exe"
+	#DOCKER_COMPOSE="C:\Program Files\Docker\Docker\resources\bin\docker-compose.exe"
+  export PATH=$PATH:"C:\Program Files\Docker\Docker\resources\bin"
 
 	# Create a new directory in the /Program\ Files directory
 	mkdir -p "\Program Files\Microgrid Manager"
@@ -54,16 +55,23 @@ else
 fi
 
 # Download the docker-compose.yaml file and the update.sh file
-curl -O https://raw.githubusercontent.com/EJX537/Microgrid/test-deployment/dist/docker-compose.yaml
-curl -O https://raw.githubusercontent.com/EJX537/Microgrid/test-deployment/dist/update.sh
+curl -O -k https://raw.githubusercontent.com/EJX537/Microgrid/test-deployment/dist/docker-compose.yaml
+curl -O -k https://raw.githubusercontent.com/EJX537/Microgrid/test-deployment/dist/update.sh
 
 # Make the update.sh file executable
 chmod +x update.sh
 
 # Run the services
 if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+	start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+	echo "Waiting for Docker to start..."
+	while ! docker system info > /dev/null 2>&1; do
+    sleep 1
+	done
+	echo "Docker is now running. Proceeding with docker-compose up..."
 	docker-compose up -d
-	#"$DOCKER_COMPOSE" up -d
+	# "$DOCKER_COMPOSE" up -d
+
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	docker-compose up -d
 else

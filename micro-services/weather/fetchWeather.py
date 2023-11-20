@@ -54,10 +54,10 @@ def job(latitude, longitude):
     # Store data into database
     # Connect to MySQL
     conn = mysql.connector.connect(
-        host="your_mysql_host",
-        user="your_mysql_user",
-        password="your_mysql_password",
-        database="your_mysql_database",
+        host="localhost",
+        user="microgridManager",
+        password="sluggrid",
+        database="microgridManager",
     )
 
     # Create a cursor

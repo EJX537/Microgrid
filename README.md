@@ -18,6 +18,8 @@ With Git bash:
 curl -O https://raw.githubusercontent.com/EJX537/Microgrid/main/deployment/install.sh && ./install.sh
 ```
 
+If there is a ssl error, run it with flag -k
+
 Download the file from [github](https://github.com/EJX537/Microgrid/blob/main/deployment/install.sh)
 
 or download it in powershell using:

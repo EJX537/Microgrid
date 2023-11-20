@@ -13,6 +13,11 @@ CSE 115D Project
 
 ### Windows
 
+With Git bash:
+```bash
+curl -O https://raw.githubusercontent.com/EJX537/Microgrid/main/deployment/install.sh && ./install.sh ^C
+```
+
 Download the file from [github](https://github.com/EJX537/Microgrid/blob/main/deployment/install.sh)
 
 or download it in powershell using:

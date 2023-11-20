@@ -20,7 +20,7 @@ if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ "$OSTYPE" == "c
 	choco install -y docker-desktop
 
 	# Define the full path of the docker-compose executable
-	DOCKER_COMPOSE="C:\ProgramData\Docker\cli-plugins\docker-compose.exe"
+	# DOCKER_COMPOSE="C:\ProgramData\Docker\cli-plugins\docker-compose.exe"
 
 	# Create a new directory in the /Program\ Files directory
 	mkdir -p "\Program Files\Microgrid Manager"
@@ -62,7 +62,8 @@ chmod +x update.sh
 
 # Run the services
 if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
-	"$DOCKER_COMPOSE" up -d
+	docker-compose up -d
+	#"$DOCKER_COMPOSE" up -d
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	docker-compose up -d
 else

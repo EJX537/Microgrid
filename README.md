@@ -15,7 +15,7 @@ CSE 115D Project
 
 With Git bash:
 ```bash
-curl -O https://raw.githubusercontent.com/EJX537/Microgrid/main/deployment/install.sh && ./install.sh ^C
+curl -O https://raw.githubusercontent.com/EJX537/Microgrid/main/deployment/install.sh && ./install.sh
 ```
 
 Download the file from [github](https://github.com/EJX537/Microgrid/blob/main/deployment/install.sh)

@@ -25,6 +25,3 @@ services:
       MYSQL_PASSWORD: sluggrid
     volumes:
       - mysql-data:/var/lib/mysql
-
-volumes:
-  mysql-data:

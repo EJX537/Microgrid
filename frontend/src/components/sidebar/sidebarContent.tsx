@@ -50,7 +50,7 @@ const items_mock: MenuProps['items'] = [
 	getItem('Settings', '/settings', <SettingOutlined />),
 ];
 
-const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
+const SidebarContent = ({ collapsed }: { collapsed: boolean }) => {
 	const navigate = useNavigate();
 	const [selectedKey, selectKey] = useState(['']);
 	const pathname = window.location.pathname.toLowerCase();
@@ -97,4 +97,4 @@ const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
 	);
 };
 
-export default Sidebar;
+export default SidebarContent;

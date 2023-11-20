@@ -1,18 +1,29 @@
 #!/bin/bash
 
+echo "Installing Microgrid Manager..."
+
+# Check if we are on a Windows system
 # Check if we are on a Windows system
 if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
-	# This is a Windows system. Check if Chocolatey is installed
+	# Chocolatey is not installed. Install it
+	echo "Install Chocolatey..."
 	if ! command -v choco &>/dev/null; then
-		# Chocolatey is not installed. Install it
-		@powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+		echo "Chocolatey not found. Installing now..."
+		powershell -NoProfile -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"s
+	else
+		echo "Chocolatey is already installed."
 	fi
 
+	echo "Installing Docker..."
+	
 	# Install Docker using Chocolatey
-	choco install -y docker docker-compose
+	choco install -y docker-desktop
+
+	# Define the full path of the docker-compose executable
+	DOCKER_COMPOSE="C:\ProgramData\Docker\cli-plugins\docker-compose.exe"
 
 	# Create a new directory in the /Program\ Files directory
-	mkdir "\Program Files\Microgrid Manager"
+	mkdir -p "\Program Files\Microgrid Manager"
 
 	# Change to the /Program\ Files directory
 	cd "\Program Files\Microgrid Manager"
@@ -28,13 +39,13 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	sudo apt-get install -y docker docker-compose
 
 	# Create a new directory in the /opt\ Files directory
-	mkdir /opt/Microgrid\ Manager
+	mkdir -p /opt/Microgrid\ Manager
 
 	# Change to the /opt directory
 	cd /opt/Microgrid\ Manager
 
 	# Make a folder for the database
-	mkdir /database
+	mkdir -p /database
 
 else
 	# Unsupported.
@@ -50,4 +61,12 @@ curl -O https://raw.githubusercontent.com/EJX537/Microgrid/test-deployment/dist/
 chmod +x update.sh
 
 # Run the services
-docker-compose up -d
+if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+	"$DOCKER_COMPOSE" up -d
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+	docker-compose up -d
+else
+	# Unsupported.
+	echo "Unsupported OS: $OSTYPE"
+	exit 1
+fi

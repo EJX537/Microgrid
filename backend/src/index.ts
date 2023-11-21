@@ -2,6 +2,8 @@ import express, { Express, Request, Response, response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import bodyParser = require('body-parser');
+import db from './db';
+
 
 dotenv.config();
 
@@ -69,20 +71,33 @@ let dashboard: dashboardConfig = {
   refreshRate: 10,
 }
 
-app.get("/kitchen", (request, response)=>{
+interface RateData {
+  S4_L2: string;
+  S3_L1: string;
+  S6_L2: string;
+  S5_L1: string;
+  S2_L1: string;
+  S1_L1: number;
+  time: string;
+}
+
+app.get("/kitchen", async (request, response)=>{
   response.setHeader("Content-Type", "text/event-stream");
-  periodickitchen(response);
+  await periodickitchen(response);
 });
 
 //egauage serversent event, get, put
-function periodickitchen(res: Response){
+async function periodickitchen(res: Response){
+  const [rows] = await db.execute('SELECT * FROM rate ORDER BY time DESC LIMIT 1;');
+  const val = parseRows<RateData[]>(rows)[0];
   const data: eGaugeData = {
     source: "Kitchen",
-    dateTime: new Date(),
-    value: Math.random() * 3000,
+    dateTime: new Date(val.time),
+    value: val.S1_L1,
     unit: "W",
   }
-  res.write(`kitchen GET: ${JSON.stringify(data)}\n\n`);
+  // console.log(data)
+  res.write("data:" + `${JSON.stringify(data)}\n\n`);
   setTimeout(()=>periodickitchen(res), 1000);
 }
 
@@ -93,7 +108,7 @@ app.get("/kitchentime", function getkitchen(req: Request, res: Response){
     const data: eGaugeData = {
       source: "Kitchen",
       dateTime: new Date(),
-      value: seconds,
+      value: 10,
       unit: "W",
     }
     res.send('kitchen time GET: ' + req.query.sec);
@@ -103,7 +118,7 @@ app.get("/kitchentime", function getkitchen(req: Request, res: Response){
 });
 
 //powerview battery charge get
-app.get("/battery", function getkitchen(req: Request, res: Response){
+app.get("/battery", async function getkitchen(req: Request, res: Response){
   try{
     const data: batteryConfig = {
       source: "Battery",
@@ -111,20 +126,31 @@ app.get("/battery", function getkitchen(req: Request, res: Response){
       danger: 0.2,
     }
     res.send('battery GET: ' + req.query.sec);
+    const [rows, fields] = await db.execute('SELECT * FROM rate');
+    // res.send(JSON.stringify(rows));
+    console.log(rows);
   }catch(err){
     console.log(err);
   }
 });
 
+
+function parseRows<T>(rows: any): T {
+  return rows as T;
+}
 //poweor outage solar get
-app.get("/solar", function getkitchen(req: Request, res: Response){
+app.get("/solar", async (req: Request, res: Response) => {
   try{
     const data: batteryConfig = {
       source: "Solar",
       warning: 0.4,
       danger: 0.2,
     }
-    res.send('solar GET: ' + req.query.sec);
+    const [rows] = await db.execute('SELECT * FROM rate ORDER BY time DESC LIMIT 1;');
+    const val = parseRows<RateData[]>(rows);
+    console.log(val[0].time)
+    res.send(`solar GET: ${JSON.stringify(data)}\n\n`);
+    // res.send('solar GET');
   }catch(err){
     console.log(err);
   }
@@ -174,7 +200,7 @@ function periodicEnergy(res: Response){
     source: "Energy",
     watt: 5000
   }
-  res.write(`Energy GET: ${JSON.stringify(data)}\n\n`);
+  res.write("data: " + `${JSON.stringify(data)}\n\n`)
   setTimeout(()=>periodicEnergy(res), 1000);
 }
 

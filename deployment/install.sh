@@ -55,8 +55,8 @@ else
 fi
 
 # Download the docker-compose.yaml file and the update.sh file
-curl -O -k https://raw.githubusercontent.com/EJX537/Microgrid/test-deployment/dist/docker-compose.yaml
-curl -O -k https://raw.githubusercontent.com/EJX537/Microgrid/test-deployment/dist/update.sh
+curl -O -k https://raw.githubusercontent.com/EJX537/Microgrid/main/deployment/docker-compose.yaml
+curl -O -k https://raw.githubusercontent.com/EJX537/Microgrid/main/deployment/update.sh
 
 # Make the update.sh file executable
 chmod +x update.sh

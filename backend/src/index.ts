@@ -4,6 +4,7 @@ import cors from 'cors';
 import bodyParser = require('body-parser');
 import db from './db';
 
+import { RowDataPacket } from 'mysql2/promise';
 
 dotenv.config();
 
@@ -44,12 +45,13 @@ interface WeatherData {
 	windSpeed: string;
 }
 
-interface eGaugeData {
-  source: string;
-  dateTime: Date;
-  value: number;
-  unit: string;
-}
+// interface kitchenData {
+//   source: string;
+//   dateTime: Date;
+//   S11_L1: number;
+//   S12_L2: number;
+//   unit: string;
+// }
 
 interface batteryConfig{
   source: string;
@@ -71,17 +73,40 @@ let dashboard: dashboardConfig = {
   refreshRate: 10,
 }
 
-interface RateData {
-  S4_L2: string;
-  S3_L1: string;
-  S6_L2: string;
-  S5_L1: string;
-  S2_L1: string;
-  S1_L1: number;
-  time: string;
+interface rateData {
+  S4_L2?: string;
+  S3_L1?: string;
+  S6_L2?: string;
+  S5_L1?: string;
+  S2_L1?: string;
+  S1_L1?: number;
+  S8_L2?: number;
+  S7_L1?: number;
+  S10_L2?: number;
+  S9_L1?: number;
+  S12_L2?: number;
+  S11_L1?: number;
+  time?: string;
 }
 
-app.get("/kitchen", async (request, response)=>{
+interface eGaugeData {
+  source?: string;
+  S4_L2?: string;
+  S3_L1?: string;
+  S6_L2?: string;
+  S5_L1?: string;
+  S2_L1?: string;
+  S1_L1?: number;
+  S8_L2?: number;
+  S7_L1?: number;
+  S10_L2?: number;
+  S9_L1?: number;
+  S12_L2?: number;
+  S11_L1?: number;
+  time?: string;
+}
+
+app.get("/rate", async (request, response)=>{
   response.setHeader("Content-Type", "text/event-stream");
   await periodickitchen(response);
 });
@@ -89,29 +114,56 @@ app.get("/kitchen", async (request, response)=>{
 //egauage serversent event, get, put
 async function periodickitchen(res: Response){
   const [rows] = await db.execute('SELECT * FROM rate ORDER BY time DESC LIMIT 1;');
-  const val = parseRows<RateData[]>(rows)[0];
+  console.log(rows);
+  const val = parseRows<rateData[]>(rows)[0];
   const data: eGaugeData = {
-    source: "Kitchen",
-    dateTime: new Date(val.time),
-    value: val.S1_L1,
-    unit: "W",
+    source: "egauge",
+    S4_L2: val.S4_L2,
+    S3_L1: val.S3_L1,
+    S6_L2: val.S6_L2,
+    S5_L1: val.S5_L1,
+    S2_L1: val.S2_L1,
+    S1_L1: val.S1_L1,
+    S8_L2: val.S8_L2,
+    S7_L1: val.S7_L1,
+    S10_L2: val.S10_L2,
+    S9_L1: val.S9_L1,
+    S12_L2: val.S12_L2,
+    S11_L1: val.S11_L1,
+    time: val.time
   }
   // console.log(data)
   res.write("data:" + `${JSON.stringify(data)}\n\n`);
   setTimeout(()=>periodickitchen(res), 1000);
 }
 
-//powerview get last 30s/1min/30min/1hr kitchen
-app.get("/kitchentime", function getkitchen(req: Request, res: Response){
+//powerview get last 30s/1m/30m/1h kitchen
+app.get("/ratetime", async (req: Request, res: Response) => {
   try{
-    let seconds = parseInt(req.query?.sec as string, 10);
-    const data: eGaugeData = {
-      source: "Kitchen",
-      dateTime: new Date(),
-      value: 10,
-      unit: "W",
+    const val = req.query?.sec as string;
+    let query = ``;
+    if (val.charAt(val.length-1) == "s"){
+      query = `
+      SELECT *
+      FROM rate
+      where time>= NOW() - INTERVAL 28800 + ? SECOND;
+    `;
+    }else if (val.charAt(val.length-1) == "m"){
+    query = `
+      SELECT *
+      FROM rate
+      where time>= NOW() - INTERVAL 480 + ? MINUTE;
+    `;
+    }else{
+      query = `
+      SELECT *
+      FROM rate
+      where time>= NOW() - INTERVAL 8 + ? HOUR;
+    `;
     }
-    res.send('kitchen time GET: ' + req.query.sec);
+    const [rows] = parseRows<rateData[]>(await db.execute(query, [val.slice(0,-1)]));
+    // console.log(rows)
+    res.send(rows);
   }catch(err){
     console.log(err);
   }
@@ -147,7 +199,7 @@ app.get("/solar", async (req: Request, res: Response) => {
       danger: 0.2,
     }
     const [rows] = await db.execute('SELECT * FROM rate ORDER BY time DESC LIMIT 1;');
-    const val = parseRows<RateData[]>(rows);
+    const val = parseRows<rateData[]>(rows);
     console.log(val[0].time)
     res.send(`solar GET: ${JSON.stringify(data)}\n\n`);
     // res.send('solar GET');

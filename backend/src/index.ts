@@ -106,7 +106,7 @@ interface eGaugeData {
   time?: string;
 }
 
-app.get("/rate", async (request, response)=>{
+app.get("/eguage", async (request, response)=>{
   response.setHeader("Content-Type", "text/event-stream");
   await periodickitchen(response);
 });
@@ -138,7 +138,7 @@ async function periodickitchen(res: Response){
 }
 
 //powerview get last 30s/1m/30m/1h kitchen
-app.get("/ratetime", async (req: Request, res: Response) => {
+app.get("/eguagetime", async (req: Request, res: Response) => {
   try{
     const val = req.query?.sec as string;
     let query = ``;

@@ -1,5 +1,7 @@
 This program takes data from PowerView and puts it into the MySQL Database
 
+It currently takes data from Plant List, Plant Realtime, and Plant Flow.
+
 To change what database change the following variable values in the file.
 ```
 db_host 

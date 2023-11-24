@@ -24,7 +24,9 @@ my_user_password=str(sys.argv[2])
 loginurl = ('https://pv.inteless.com/oauth/token')
 
 # API call to get realtime inverter related information
-plant_id_endpoint = ('https://pv.inteless.com/api/v1/plants?page=1&limit=10&name=&status=')
+plant_id_endpoint = ('https://pv.inteless.com/api/v1/plants?page=1&limit=100&name=&status=')
+
+
 
 db_config = {
     "host": db_host,
@@ -32,68 +34,6 @@ db_config = {
     "password": db_password,
     "database": db_name
 }
-
-def insert_data(data_response):
-    connection = mysql.connector.connect(**db_config)
-    cursor = connection.cursor()
-
-    check_table_query = f"SELECT 1 FROM {table_name} LIMIT 1;"
-
-
-#     try:
-#         cursor.execute(check_table_query)
-#         cursor.fetchall()  # Consume the result
-#     except mysql.connector.Error as err:
-#         if err.errno == 1146:  # Table doesn't exist error code
-#             # Table doesn't exist, create it
-#             create_table_query = f"CREATE TABLE {table_name} ("
-#             create_table_query += ', '.join([f'{col_name} {col_type}' for col_name, col_type in column_data])
-#             create_table_query += ");"
-#             cursor.execute(create_table_query)
-#             db.commit()
- 
-
-
-    # Define the MySQL insert query
-    insert_query = """
-    INSERT INTO powerview_data (code, msg, pageSize, pageNumber, total, id, name, thumbUrl, status, address, pac, efficiency, etoday, etotal, updateAt, createAt, type, masterID, share, existCamera, email, phone, success)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """
-    data_infos = data_response['data']['infos'][0]
-    values = (
-        data_response['code'],
-        data_response['msg'],
-        data_response['data']['pageSize'],
-        data_response['data']['pageNumber'],
-        data_response['data']['total'],
-        data_infos['id'],
-        data_infos['name'],
-        data_infos['thumbUrl'],
-        data_infos['status'],
-        data_infos['address'],
-        data_infos['pac'],
-        data_infos['efficiency'],
-        data_infos['etoday'],
-        data_infos['etotal'],
-        parser.isoparse(data_infos['updateAt']),
-        parser.isoparse(data_infos['createAt']), 
-        data_infos['type'],
-        data_infos['masterId'],
-        data_infos['share'],
-        data_infos['existCamera'],
-        data_infos['email'],
-        data_infos['phone'],
-        data_response['success']
-    )
-    
-    # Execute the query with the data
-    cursor.execute(insert_query, values)
-    connection.commit()
-
-    cursor.close()
-    connection.close()
-
-    print('data sent')
 
 # print bearer/access token
 def my_bearer_token():
@@ -115,8 +55,10 @@ def my_bearer_token():
     the_bearer_token_string = ('Bearer '+ my_access_token)
     return my_access_token
 
-# Get plant id and data from plant
-def my_current_usage():
+# Get plant data from plant
+def get_and_insert_data():
+
+    #get plant id from plant list
     headers_and_token = {
     'Content-type':'application/json', 
     'Accept':'application/json',
@@ -126,11 +68,180 @@ def my_current_usage():
     data_response = r.json()
     #plant_id_and_pac = data_response['data']['infos']
     #print(data_response)
+    plant_id = data_response['data']['infos'][0]['id']
+    #print(plant_id)
+
+    #use plant id to find plant realtime data and plant flow data
+    plant_realtime_endpoint = f"https://pv.inteless.com/api/v1/plant/{plant_id}?lan=en"
+    plant_flow_endpoint = f"https://pv.inteless.com/api/v1/plant/energy/{plant_id}/flow"
+
+    r_realtime = requests.get(plant_realtime_endpoint, headers=headers_and_token)
+    r_flow = requests.get(plant_flow_endpoint, headers=headers_and_token)
+
+    realtime_reponse = r_realtime.json()
+    flow_response = r_flow.json()
+
+    # print('****************************************************************data_response')
+    # print(data_response)
+    # print('****************************************************************realtime_response')
+    # print(realtime_reponse)
+    # print('****************************************************************flow_response')
+    # print(flow_response)
+    # print('****************************************************************all_data')
+
+    all_data = data_response['data'] | realtime_reponse['data'] | flow_response['data']
+    #print(all_data)
+
+
+
     if 'data' in data_response and 'infos' in data_response['data']:
-        for entry in data_response['data']['infos']:
-            insert_data(data_response)
+        insert_data(all_data)
+
+def insert_data(data):
+    connection = mysql.connector.connect(**db_config)
+    cursor = connection.cursor()
+
+    cursor.execute("SHOW TABLES LIKE 'powerview_data'")
+    table_exists = cursor.fetchone()
+    if not table_exists:
+        cursor.execute ("""
+            CREATE TABLE powerview_data (
+                id INT,
+                name VARCHAR(255),
+                thumbUrl VARCHAR(255),
+                status INT,
+                address VARCHAR(255),
+                totalPower FLOAT,
+                pac FLOAT,
+                efficiency FLOAT,
+                etoday FLOAT,
+                emonth FLOAT,
+                eyear FLOAT,
+                etotal FLOAT,
+                income FLOAT,
+                updateAt TIMESTAMP,
+                createAt TIMESTAMP,
+                type INT,
+                masterID INT,
+                share BOOLEAN,
+                existCamera BOOLEAN,
+                email VARCHAR(255),
+                phone VARCHAR(15),
+                installer VARCHAR(255),
+                principal VARCHAR(255),
+                invest FLOAT,
+                meterCode INT,
+                pvPower FLOAT,
+                battPower FLOAT,
+                gridOrMeterPower FLOAT,
+                loadOrEpsPower FLOAT,
+                genPower FLOAT,
+                minPower FLOAT,
+                soc FLOAT,
+                heatPumpPower FLOAT,
+                pvTo BOOLEAN,
+                toLoad BOOLEAN,
+                toGrid BOOLEAN,
+                toBat BOOLEAN,
+                batTo BOOLEAN,
+                gridTo BOOLEAN,
+                genTo BOOLEAN,
+                minTo BOOLEAN,
+                toHeatPump BOOLEAN,
+                existsGen BOOLEAN,
+                existsMin BOOLEAN,
+                genOn BOOLEAN,
+                microOn BOOLEAN,
+                existsMeter BOOLEAN,
+                bmsCommFaultFlag BOOLEAN,
+                existsHeatPump BOOLEAN,
+                existThinkPower BOOLEAN,
+                PRIMARY KEY (updateAt)
+            )
+        """)
+        print('table created')
+
+    insert_query = """
+    INSERT INTO powerview_data (id, name, thumbUrl, status, address, totalPower, pac, efficiency, etoday, emonth, eyear, etotal, income, updateAt, createAt, type, masterID, share, existCamera, email, phone, installer, principal, invest, meterCode, pvPower, battPower, gridOrMeterPower, loadOrEpsPower, genPower, minPower, soc, heatPumpPower, pvTo, toLoad, toGrid, toBat, batTo, gridTo, genTo, minTo, toHeatPump, existsGen, existsMin, genOn, microOn, existsMeter, bmsCommFaultFlag, existsHeatPump, existThinkPower)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """
+
+#"data" is in the format of:    
+#'pageSize': 100, 'pageNumber': 1, 'total': 1, 'infos': [{'id': 139057, 'name': 'Mantey Residence', 'thumbUrl': 'https://static.inteless.com/plant/20231013032039336154.jpg@!650w', 'status': 1, 'address': '22316 Citation Dr, Los Gatos, CA 95033, USA', 'pac': 135, 'efficiency': 0.027, 'etoday': 24.2, 'etotal': 1016.6, 'updateAt': '2023-11-24T00:04:21Z', 'createAt': '2023-10-02T19:41:07.000+00:00', 'type': 2, 'masterId': 5575, 'share': False, 'plantPermission': ['smart.light.view', 'smart.rule.view', 'station.share.cancle'], 'existCamera': False, 'email': 'smpsb02@gmail.com', 'phone': '8317893318'}], 'id': 139057, 'name': 'Mantey Residence', 'totalPower': 5.0, 'thumbUrl': 'https://static.inteless.com/plant/20231013032039336154.jpg', 'joinDate': '2023-09-30T00:00:00Z', 'type': 2, 'status': 1, 'charges': [{'id': 18675729, 'startRange': '', 'endRange': '', 'price': 1.0, 'type': 1, 'stationId': 139057, 'createAt': '2023-10-02T19:41:07Z'}], 'products': None, 'lon': -121.9939688, 'lat': 37.14126505, 'address': '22316 Citation Dr, Los Gatos, CA 95033, USA', 'master': {'id': 5575, 'nickname': 'Rogaciano Gonzalez ', 'mobile': '8317893318'}, 'currency': {'id': 251, 'code': 'USD', 'text': '$'}, 'timezone': {'id': 226, 'code': 'America/Los_Angeles', 'text': '(UTC-08:00)Pacific Time (US & Canada)'}, 'realtime': {'pac': 135, 'etoday': 24.2, 'emonth': 472.7, 'eyear': 1016.6, 'etotal': 1016.6, 'income': 24.2, 'efficiency': 2.7, 'updateAt': '2023-11-24T00:04:21Z', 'currency': {'id': 251, 'code': 'USD', 'text': '$'}, 'totalPower': 5.0}, 'createAt': '2023-10-02T19:41:07Z', 'phone': ' 408-710-2745\n    ', 'email': 'mantey@ucsc.edu', 'installer': 'Rogaciano Gonzalez ', 'principal': 'Patrick Mantey ', 'plantPermission': ['smart.light.view', 'smart.rule.view', 'station.share.cancle'], 'fluxProducts': None, 'invest': 50000.0, 'custCode': 29, 'protocolIdentifier': '', 'meterCode': 0, 'pvPower': 135, 'battPower': 46, 'gridOrMeterPower': 3656, 'loadOrEpsPower': 3670, 'genPower': 0, 'minPower': 0, 'soc': 100.0, 'heatPumpPower': 0, 'pvTo': True, 'toLoad': True, 'toGrid': False, 'toBat': False, 'batTo': True, 'gridTo': True, 'genTo': False, 'minTo': False, 'toHeatPump': False, 'existsGen': False, 'existsMin': False, 'genOn': False, 'microOn': False, 'existsMeter': False, 'bmsCommFaultFlag': False, 'existsHeatPump': False, 'pv': None, 'existThinkPower': False}    
+
+    #infos is in an dictionary inside of an array for some reason
+    data_infos = data['infos'][0]
+    #print(data_infos)
+
+ 
+    values = (
+        data_infos['id'],
+        data_infos['name'],
+        data_infos['thumbUrl'],
+        data_infos['status'],
+        data_infos['address'],
+        data['totalPower'],
+        data_infos['pac'],
+        data_infos['efficiency'],
+        data_infos['etoday'],
+        data['realtime']['emonth'],
+        data['realtime']['eyear'],
+        data_infos['etotal'],
+        data['realtime']['income'],
+        parser.isoparse(data_infos['updateAt']),
+        parser.isoparse(data_infos['createAt']), 
+        data_infos['type'],
+        data_infos['masterId'],
+        data_infos['share'],
+        data_infos['existCamera'],
+        data_infos['email'],
+        data_infos['phone'],
+        data['installer'],
+        data['principal'],
+        data['invest'],
+        data['meterCode'],
+        data['pvPower'],
+        data['battPower'],
+        data['gridOrMeterPower'],
+        data['loadOrEpsPower'],
+        data['genPower'],
+        data['minPower'],
+        data['soc'],
+        data['heatPumpPower'],
+        data['pvTo'],
+        data['toLoad'],
+        data['toGrid'],
+        data['toBat'],
+        data['batTo'],
+        data['gridTo'],
+        data['genTo'],
+        data['minTo'],
+        data['toHeatPump'],
+        data['existsGen'],
+        data['existsMin'],
+        data['genOn'],
+        data['microOn'],
+        data['existsMeter'],
+        data['bmsCommFaultFlag'],
+        data['existsHeatPump'],
+        data['existThinkPower'],
+    )
+    
+    # Execute the query with the data
+    cursor.execute(insert_query, values)
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+
+
+
+
+
+    print('data sent')
 
 #main
 if __name__ == "__main__":
     my_bearer_token()
-    my_current_usage()
+    get_and_insert_data()

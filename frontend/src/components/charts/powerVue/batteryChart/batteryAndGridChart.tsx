@@ -12,7 +12,7 @@ import { useMicrogrid } from '../../../../context/useMicrogridContext';
 
 const mockDataStream: DataSteam = {
 	currentWatt: 13189,
-	projectedWatt: 14000,
+	projectedWatt: 10000,
 	onGrid: true,
 };
 
@@ -78,7 +78,7 @@ const BatteryChart = () => {
 				</button>
 			</div>
 			<div className='border-t border-black h-0.5 my-2' />
-			<div className='px-2 pt-2 h-full max-h-[300px]' ref={parentRef}>
+			<div className='px-2 pt-2 h-full max-h-[350px]' ref={parentRef}>
 				<BatteryCapacitySVG data={mockDataStream} height={dimensions.height} width={dimensions.width} capacity={mockData.capacity} config={config.batteryChartConfigs} />
 			</div>
 			<div className='px-2 flex justify-evenly gap-2'>
@@ -106,7 +106,7 @@ const BatteryChart = () => {
 				</div>
 			</div>
 			<div className={`absolute h-full items-center justify-center flex left w-full ${showConfig ? '' : 'hidden'}`}>
-				<div className='bg-slate-200 w-1/2 flex h-full p-4 rounded-md flex-col'>
+				<div className='bg-slate-200 sm:w-1/2 w-4/5 flex h-full p-4 rounded-md flex-col'>
 					<span>
 						Modify Config
 					</span>
@@ -130,7 +130,7 @@ const BatteryChart = () => {
 							})
 						}
 					</div>
-					<div className='flex gap-4 mt-auto'>
+					<div className='flex gap-4 mt-auto justify-between'>
 						<button className='border py-1 px-2 rounded-lg border-black hover:bg-slate-100' onClick={handleSave}>
 							Save
 						</button>

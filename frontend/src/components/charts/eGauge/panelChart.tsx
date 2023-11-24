@@ -7,8 +7,6 @@ import { SettingOutlined } from '@ant-design/icons';
 import { Alert, Input, Select, Tooltip } from 'antd';
 import { useMicrogrid } from '../../../context/useMicrogridContext';
 
-// const event = ;
-
 interface PanelChartProps {
 	name: string;
 	height?: number;
@@ -59,6 +57,7 @@ const PanelChart: React.FC<PanelChartProps> = ({ name, height = 300, width = 330
 	useEffect(() => {
 		setTarget('W');
 		const eventSource = readSSEResponse(new URL(config.chartCarouselConfigs[name].source));
+		console.log(eventSource);
 		eventSource.onmessage = (event) => {
 			const parsedData: eGaugeData = JSON.parse(event.data);
 			parsedData.dateTime = new Date(parsedData.dateTime);

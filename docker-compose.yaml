@@ -32,6 +32,12 @@ services:
       MYSQL_PASSWORD: sluggrid
     volumes:
       - mysql-data:/var/lib/mysql
+      
+  interface_0:
+    build: ./micro-services/eGauge
+    container_name: egauge_API_db
+    volumes:
+      - ./micro-services/eGauge:/app
 
 volumes:
   mysql-data:

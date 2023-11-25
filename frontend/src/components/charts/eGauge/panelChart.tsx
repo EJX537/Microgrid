@@ -54,6 +54,7 @@ const PanelChart: React.FC<PanelChartProps> = ({ name, height = 300, width = 330
 		}
 	}, [parentRef]);
 
+	// Todo: Call SSE from the Carousel
 	useEffect(() => {
 		setTarget('W');
 		const eventSource = readSSEResponse(new URL(config.chartCarouselConfigs[name].source));

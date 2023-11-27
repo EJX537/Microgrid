@@ -67,22 +67,22 @@ def job(latitude, longitude):
     create_table_query = """
     CREATE TABLE IF NOT EXISTS weather_data (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        start_time DATETIME,
+        startTime DATETIME,
         temperature INT,
-        short_forecast VARCHAR(255)
+        shortForecast VARCHAR(255)
     )
     """
     cursor.execute(create_table_query)
 
     # Insert data into the table
     insert_query = """
-    INSERT INTO weather_data (start_time, temperature, short_forecast) VALUES (%s, %s, %s)
+    INSERT INTO weather_data (startTime, temperature, shortForecast) VALUES (%s, %s, %s)
     """
 
     for period in result_list:
         cursor.execute(
             insert_query,
-            (period["start_time"], period["temperature"], period["short_forecast"]),
+            (period["startTime"], period["temperature"], period["shortForecast"]),
         )
 
     # Commit the changes

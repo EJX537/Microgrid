@@ -46,7 +46,7 @@ def job(latitude, longitude):
         short_forecast = period["shortForecast"]
 
         # Create a dictionary for each period
-        period_dict = {start_time: [temperature, short_forecast]}
+        period_dict = {"startTime": start_time, "temperature" : temperature, "shortForcast" : short_forecast}
 
         # Append the dictionary to the result list
         result_list.append(period_dict)

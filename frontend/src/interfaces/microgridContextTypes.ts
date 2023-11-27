@@ -1,5 +1,5 @@
 import React, { Dispatch, ReactNode } from 'react';
-import { BatteryChartConfig, EnergyGenerationConfig, eGaugeConfigMap } from './configurationTypes';
+import { BatteryChartConfig, EnergyGenerationConfig, eGaugeConfig } from './configurationTypes';
 
 interface WindowSize {
 	width: number;
@@ -13,12 +13,12 @@ export interface MicrogridState {
 	toggleCollapsed: () => void;
 	windowSize: WindowSize;
 	config: {
-		chartCarouselConfigs: eGaugeConfigMap;
+		chartCarouselConfigs: eGaugeConfig[];
 		batteryChartConfigs: BatteryChartConfig;
 		energyUsageConfigs: EnergyGenerationConfig;
 	};
 	setConfig: React.Dispatch<React.SetStateAction<{
-		chartCarouselConfigs: eGaugeConfigMap;
+		chartCarouselConfigs: eGaugeConfig[];
 		batteryChartConfigs: BatteryChartConfig;
 		energyUsageConfigs: EnergyGenerationConfig;
 	}>>;

@@ -10,7 +10,7 @@ from requests.auth import HTTPBasicAuth
 from datetime import datetime
 from dateutil import parser
 
-db_host = 'localhost'  
+db_host = 'localhost'
 db_user = 'microgridManager'
 db_password = 'sluggrid'
 db_name = 'microgridManager'
@@ -20,13 +20,14 @@ table_name = 'powerview_data'
 # Enter your username and password that you created on the Sunsynk website.
 my_user_email=str(sys.argv[1])
 my_user_password=str(sys.argv[2])
-
+is_docker=str(sys.argv[3])
+if is_docker == 'true':
+	db_host = 'host.docker.internal'
+  
 loginurl = ('https://pv.inteless.com/oauth/token')
 
 # API call to get realtime inverter related information
 plant_id_endpoint = ('https://pv.inteless.com/api/v1/plants?page=1&limit=100&name=&status=')
-
-
 
 db_config = {
     "host": db_host,
@@ -81,15 +82,15 @@ def get_and_insert_data():
     realtime_reponse = r_realtime.json()
     flow_response = r_flow.json()
 
-    # print('****************************************************************data_response')
-    # print(data_response)
-    # print('****************************************************************realtime_response')
-    # print(realtime_reponse)
-    # print('****************************************************************flow_response')
-    # print(flow_response)
-    # print('****************************************************************all_data')
+    print('****************************************************************data_response')
+    print(data_response)
+    print('****************************************************************realtime_response')
+    print(realtime_reponse)
+    print('****************************************************************flow_response')
+    print(flow_response)
+    print('****************************************************************all_data')
 
-    all_data = data_response['data'] | realtime_reponse['data'] | flow_response['data']
+    all_data = {**data_response['data'], **realtime_reponse['data'], **flow_response['data']}
     #print(all_data)
 
 
@@ -233,11 +234,6 @@ def insert_data(data):
 
     cursor.close()
     connection.close()
-
-
-
-
-
 
     print('data sent')
 

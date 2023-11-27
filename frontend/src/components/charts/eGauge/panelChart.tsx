@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import PanelChartSVG from './panelChartSVG';
-import { readSSEResponse } from './hooks/eGaugeDataRequester';
 
-import { eGaugeData, Config } from './eGaugeTypes';
+import { Config, eGaugeData } from './eGaugeTypes';
 import { SettingOutlined } from '@ant-design/icons';
 import { Alert, Input, Select, Tooltip } from 'antd';
 import { useMicrogrid } from '../../../context/useMicrogridContext';
 
 interface PanelChartProps {
-	name: string;
 	height?: number;
 	width?: number;
+	index: number;
+	dataSet: eGaugeData[];
 }
 
 type TooltipInfo = {
@@ -21,6 +21,7 @@ type TooltipInfo = {
 };
 
 const tooltipInfo: TooltipInfo = {
+	'name': 'Name of the Chart',
 	'source': 'End point to get data from',
 	'title': 'Source of the Data',
 	'period': 'How far back should the data be displayed',
@@ -36,15 +37,13 @@ const displayOptions = [
 	{ value: '1 hour', label: '1 hour' },
 ];
 
-const PanelChart: React.FC<PanelChartProps> = ({ name, height = 300, width = 330 }) => {
-	const { config, setConfig } = useMicrogrid();
+const PanelChart: React.FC<PanelChartProps> = ({ index, height = 300, width = 330, dataSet }) => {
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 	const parentRef = useRef<HTMLDivElement | null>(null);
-	const [data, setData] = useState<eGaugeData[]>([]);
-	const [target, setTarget] = useState('');
 	const [showConfig, setShowConfig] = useState(false);
 	const [showAlert, setShowAlert] = useState({ content: '', show: false });
-	const [configState, setConfigState] = useState({} as Config);
+	const { config, setConfig } = useMicrogrid();
+	const [configState, setConfigState] = useState<Config>(config.chartCarouselConfigs[index]);
 	useEffect(() => {
 		if (parentRef.current) {
 			setDimensions({
@@ -54,23 +53,8 @@ const PanelChart: React.FC<PanelChartProps> = ({ name, height = 300, width = 330
 		}
 	}, [parentRef]);
 
-	// Todo: Call SSE from the Carousel
-	useEffect(() => {
-		setTarget('W');
-		const eventSource = readSSEResponse(new URL(config.chartCarouselConfigs[name].source));
-		console.log(eventSource);
-		eventSource.onmessage = (event) => {
-			const parsedData: eGaugeData = JSON.parse(event.data);
-			parsedData.dateTime = new Date(parsedData.dateTime);
-			setData(prevData => [...prevData, parsedData]);
-		};
-		return () => {
-			eventSource.close();
-		};
-	}, [config, name]);
-
-	const handleEditInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setConfigState((prevState) => ({ ...prevState, [e.target.name]: e.target.value }));
+	const handleEditInput = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
+		setConfigState((prevState) => ({ ...prevState, [key]: e.target.value }));
 	};
 
 	const handleEditSelect = (value: string, target: string) => {
@@ -80,8 +64,12 @@ const PanelChart: React.FC<PanelChartProps> = ({ name, height = 300, width = 330
 	const handleSave = () => {
 		const isValid = Object.values(configState).every((value) => value !== undefined && value !== null);
 		if (isValid) {
-			setConfig({ ...config, chartCarouselConfigs: { ...config.chartCarouselConfigs, [name]: configState } });
-			setConfigState({} as Config);
+			const newChartCarouselConfigs = [...config.chartCarouselConfigs];
+			newChartCarouselConfigs[index] = configState;
+			setConfig(prevConfig => ({
+				...prevConfig,
+				chartCarouselConfigs: newChartCarouselConfigs
+			}));
 			setShowConfig(false);
 			setShowAlert({ content: 'Success', show: true });
 		} else {
@@ -96,14 +84,14 @@ const PanelChart: React.FC<PanelChartProps> = ({ name, height = 300, width = 330
 		<div key='1' className={`h-[${height}px] w-[${width}px] bg-white rounded-md flex flex-col group relative`}>
 			<div className='h-auto px-2 text-base font-mediums flex justify-between mb-2 items-center p-2'>
 				<p>
-					{name}
+					{configState.name}
 				</p>
-				<button className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-ou' onClick={() => { setShowConfig(!showConfig); setConfigState(config.chartCarouselConfigs[name]); }}>
+				<button className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-ou' onClick={() => { setShowConfig(!showConfig); }}>
 					<SettingOutlined />
 				</button>
 			</div>
 			<div className='w-full flex-grow relative p-2' ref={parentRef}>
-				<PanelChartSVG height={dimensions.height} width={dimensions.width} data={data} unit={target} parent={parentRef} config={config.chartCarouselConfigs[name]}/>
+				{/* <PanelChartSVG height={dimensions.height} width={dimensions.width} data={dataSet} unit={'W'} parent={parentRef} config={config} /> */}
 			</div>
 			<div className={`absolute h-full items-center justify-center flex w-full ${showConfig ? '' : 'hidden'}`}>
 				<div className='bg-slate-200 w-3/4 flex h-full p-4 rounded-md flex-col'>
@@ -113,15 +101,14 @@ const PanelChart: React.FC<PanelChartProps> = ({ name, height = 300, width = 330
 					<div className='border-t border-black h-0.5 my-2' />
 					<div className='flex flex-col overflow-auto gap-y-2'>
 						{
-							Object.entries(config.chartCarouselConfigs[name]).map(([key, value]) => (
+							Object.entries(configState).map(([key, value]) => (
 								<div key={key}>
 									<Tooltip title={tooltipInfo[key]}>{key}: </Tooltip>
 									{
-										key === 'source' ?
+										key === 'source' || key === 'name' ?
 											<Input
 												placeholder={value}
-												disabled={key === 'source'}
-												onChange={handleEditInput} />
+												onChange={(e) => handleEditInput(e, key)} />
 											:
 											<Select
 												className='w-full'
@@ -137,7 +124,7 @@ const PanelChart: React.FC<PanelChartProps> = ({ name, height = 300, width = 330
 						<button className='border py-1 px-2 rounded-lg border-black hover:bg-slate-100' onClick={handleSave}>
 							Save
 						</button>
-						<button className='border py-1 px-2 rounded-lg border-black hover:bg-slate-100' onClick={() => { setShowConfig(false); setConfigState({} as Config); }}>
+						<button className='border py-1 px-2 rounded-lg border-black hover:bg-slate-100' onClick={() => { setShowConfig(false); setConfigState(config.chartCarouselConfigs[index]); }}>
 							Cancel
 						</button>
 					</div>

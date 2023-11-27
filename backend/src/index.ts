@@ -103,10 +103,10 @@ interface eGaugeData {
   S9_L1?: number;
   S12_L2?: number;
   S11_L1?: number;
-  time?: string;
+  dateTime?: string;
 }
 
-app.get("/eguage", async (request, response)=>{
+app.get("/egauge", async (request, response)=>{
   response.setHeader("Content-Type", "text/event-stream");
   await periodickitchen(response);
 });
@@ -131,7 +131,7 @@ async function periodickitchen(res: Response) {
 			S9_L1: val.S9_L1,
 			S12_L2: val.S12_L2,
 			S11_L1: val.S11_L1,
-			time: val.time
+			dateTime: val.time
 		}
 		// console.log(data)
 		res.write("data:" + `${JSON.stringify(data)}\n\n`);
@@ -197,7 +197,7 @@ function parseRows<T>(rows: any): T {
   return rows as T;
 }
 //poweor outage solar get
-app.get("/solar", async (req: Request, res: Response) => {
+app.get("/solarConfig", async (req: Request, res: Response) => {
   try{
     const data: batteryConfig = {
       source: "Solar",
@@ -207,7 +207,7 @@ app.get("/solar", async (req: Request, res: Response) => {
     const [rows] = await db.execute('SELECT * FROM rate ORDER BY time DESC LIMIT 1;');
     const val = parseRows<rateData[]>(rows);
     console.log(val[0].time)
-    res.send(`solar GET: ${JSON.stringify(data)}\n\n`);
+    res.send(`data: ${JSON.stringify(data)}\n\n`);
     // res.send('solar GET');
   }catch(err){
     console.log(err);

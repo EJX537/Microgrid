@@ -39,5 +39,10 @@ services:
     volumes:
       - ./micro-services/eGauge:/app
 
+  interface_1:
+    build: ./micro-services/PowerView
+    container_name: powerview
+    volumes:
+      - ./micro-services/PowerView:/app
 volumes:
   mysql-data:

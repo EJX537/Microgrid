@@ -2,7 +2,7 @@
 import mysql from 'mysql2/promise';
 
 const pool = mysql.createPool({
-  host: 'localhost',
+  host: 'host.docker.internal',
   user: 'microgridManager',
   password: 'sluggrid',
   database: 'microgridManager',

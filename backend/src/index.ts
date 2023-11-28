@@ -141,22 +141,24 @@ async function periodickitchen(res: Response){
 app.get("/eguagetime", async (req: Request, res: Response) => {
   try{
     const val = req.query?.sec as string;
+    const dataname = req.query?.dataname as string;
+    console.log(dataname);
     let query = ``;
     if (val.charAt(val.length-1) == "s"){
       query = `
-      SELECT *
+      SELECT ${dataname}
       FROM rate
       where time>= NOW() - INTERVAL 28800 + ? SECOND;
     `;
     }else if (val.charAt(val.length-1) == "m"){
     query = `
-      SELECT *
+      SELECT ${dataname}
       FROM rate
       where time>= NOW() - INTERVAL 480 + ? MINUTE;
     `;
     }else{
       query = `
-      SELECT *
+      SELECT ${dataname}
       FROM rate
       where time>= NOW() - INTERVAL 8 + ? HOUR;
     `;

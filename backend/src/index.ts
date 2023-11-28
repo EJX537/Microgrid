@@ -140,17 +140,16 @@ async function periodickitchen(res: Response){
 //powerview get last 30s/1m/30m/1h kitchen
 app.get("/eguagetime", async (req: Request, res: Response) => {
   try{
-    const val = req.query?.sec as string;
+    const time = req.query?.time as string;
     const dataname = req.query?.dataname as string;
-    console.log(dataname);
     let query = ``;
-    if (val.charAt(val.length-1) == "s"){
+    if (time.charAt(time.length-1) == "s"){
       query = `
       SELECT ${dataname}
       FROM rate
       where time>= NOW() - INTERVAL 28800 + ? SECOND;
     `;
-    }else if (val.charAt(val.length-1) == "m"){
+    }else if (time.charAt(time.length-1) == "m"){
     query = `
       SELECT ${dataname}
       FROM rate
@@ -163,7 +162,7 @@ app.get("/eguagetime", async (req: Request, res: Response) => {
       where time>= NOW() - INTERVAL 8 + ? HOUR;
     `;
     }
-    const [rows] = parseRows<rateData[]>(await db.execute(query, [val.slice(0,-1)]));
+    const [rows] = parseRows<rateData[]>(await db.execute(query, [time.slice(0,-1)]));
     // console.log(rows)
     res.send(rows);
   }catch(err){

@@ -44,9 +44,15 @@ def job(latitude, longitude):
         start_time = period["startTime"]
         temperature = period["temperature"]
         short_forecast = period["shortForecast"]
+        icon = period["icon"]
 
         # Create a dictionary for each period
-        period_dict = {"startTime": start_time, "temperature" : temperature, "shortForcast" : short_forecast}
+        period_dict = {
+            "startTime": start_time,
+            "temperature": temperature,
+            "shortForcast": short_forecast,
+            "icon": icon,
+        }
 
         # Append the dictionary to the result list
         result_list.append(period_dict)
@@ -70,19 +76,25 @@ def job(latitude, longitude):
         startTime DATETIME,
         temperature INT,
         shortForecast VARCHAR(255)
+        icon VARCHAR(255)
     )
     """
     cursor.execute(create_table_query)
 
     # Insert data into the table
     insert_query = """
-    INSERT INTO weather_data (startTime, temperature, shortForecast) VALUES (%s, %s, %s)
+    INSERT INTO weather_data (startTime, temperature, shortForecast, icon) VALUES (%s, %s, %s, %s)
     """
 
     for period in result_list:
         cursor.execute(
             insert_query,
-            (period["startTime"], period["temperature"], period["shortForecast"]),
+            (
+                period["startTime"],
+                period["temperature"],
+                period["shortForecast"],
+                period["icon"],
+            ),
         )
 
     # Commit the changes

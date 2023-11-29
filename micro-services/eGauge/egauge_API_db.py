@@ -39,7 +39,7 @@ measurements = ["normal", "mean", "freq"]
 query_string = "&".join(sections + metrics)
 
 # Function to create a MySQL connection
-def create_connection():
+def create_connection(mysql_config):
     try:
         connection = mysql.connector.connect(**mysql_config)
         if connection.is_connected():
@@ -198,16 +198,15 @@ while True:
 
     # Connect to MySQL (replace placeholders with actual values)
     db_config = {
-        "host": "localhost",
+        "host": 'host.docker.internal',
         "user": "microgridManager",
         "password": "sluggrid",
         "database": "microgridManager",
     }
 
     # Connect to MySQL database
-    connection = mysql.connector.connect(**db_config)
+    connection = create_connection(db_config)
     cursor = connection.cursor()
-
 
     # Check if the 'cumulative' table exists
     cursor.execute("SHOW TABLES LIKE 'cumulative'")

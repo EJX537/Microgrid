@@ -27,14 +27,14 @@ loginurl = ('https://pv.inteless.com/oauth/token')
 # API call to get realtime inverter related information
 plant_id_endpoint = ('https://pv.inteless.com/api/v1/plants?page=1&limit=100&name=&status=')
 
-
-
 db_config = {
     "host": db_host,
     "user": db_user,
     "password": db_password,
     "database": db_name
 }
+
+outage_timer = 0
 
 # print bearer/access token
 def my_bearer_token():
@@ -94,6 +94,14 @@ def get_and_insert_data():
     #print(all_data)
 
 
+    #outage detection
+    global outage_timer
+    if (not all_data['gridTo']):
+        outage_timer += 5
+        if (outage_timer >= 30):
+            print('Outage longer than 30 minutes detected')
+    else:
+        outage_timer = 0
 
     if 'data' in data_response and 'infos' in data_response['data']:
         insert_data(all_data)
@@ -200,8 +208,7 @@ def insert_data(data):
 
 #main
 if __name__ == "__main__":
+    my_bearer_token()
     while(1):
-        my_bearer_token()
         get_and_insert_data()
-        time.sleep(303)
-
+        time.sleep(302)

@@ -1,4 +1,4 @@
-This program takes data from PowerView and puts it into the MySQL Database once every 5 minutes and 3 seconds. The API updates once every 5 minutes and ~0.8 seconds.
+This program takes data from PowerView and puts it into the MySQL Database once every 5 minutes and 2 seconds. The API updates once every 5 minutes and ~0.8 seconds.
 
 It currently takes data from Plant List, Plant Realtime, and Plant Flow.
 

@@ -32,6 +32,6 @@ jobs:
         docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
         docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/backend:latest
         docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/mysql:latest
-        docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/eGauge:latest
+        docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/egauge:latest
         docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/powerview:latest
 

@@ -50,7 +50,7 @@ def job(latitude, longitude):
         period_dict = {
             "startTime": start_time,
             "temperature": temperature,
-            "shortForcast": short_forecast,
+            "shortForecast": short_forecast,
             "icon": icon,
         }
 
@@ -75,7 +75,7 @@ def job(latitude, longitude):
         id INT AUTO_INCREMENT PRIMARY KEY,
         startTime DATETIME,
         temperature INT,
-        shortForecast VARCHAR(255)
+        shortForecast VARCHAR(255),
         icon VARCHAR(255)
     )
     """
@@ -112,9 +112,9 @@ def main():
     latitude = "93"
     longitude = "67"
 
-    # FOR TEST ONLY
-    job(latitude, longitude)
-    return
+    # Comment Out for Collection Every 12 hours
+    # job(latitude, longitude)
+    # return
 
     # Schedule job every 12 hours
     schedule.every(12).hours.do(lambda: job(latitude, longitude))

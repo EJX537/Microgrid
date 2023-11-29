@@ -1,0 +1,31 @@
+version: '3'
+services:
+  frontend:
+    image: ejx537/frontend:latest
+    container_name: Dashboard
+    ports:
+      - '5173:5173'
+    stdin_open: true
+    tty: true
+
+  backend:
+    image: ejx537/backend:latest
+    container_name: backend
+    ports:
+      - '8080:8080'
+
+  mysql:
+    image: ejx537/mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: sluggrid
+      MYSQL_DATABASE: microgridManager
+      MYSQL_USER: microgridManager
+      MYSQL_PASSWORD: sluggrid
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
+  

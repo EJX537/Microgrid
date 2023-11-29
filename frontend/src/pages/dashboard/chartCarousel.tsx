@@ -41,10 +41,9 @@ const ChartCarousel: React.FC<ChartCarouselProps> = ({ height = 300, width = 330
 		if (carouselRef.current) {
 			const heightWithGap = height + PADDINGY;
 			const widthWithGap = width + PADDINGX;
-			let noPlus = false;
+			const noPlus = true; // False if you want to show the plus button on new slides
 			const newDivArray: JSX.Element[] = [];
 			const divsPerSlide = Math.max(1, Math.floor(carouselWidth / widthWithGap));
-
 			const configKeys = Object.keys(config.chartCarouselConfigs);
 			let divsInThisSlide: JSX.Element[] = [];
 			configKeys.forEach((key, index) => {
@@ -54,6 +53,7 @@ const ChartCarousel: React.FC<ChartCarouselProps> = ({ height = 300, width = 330
 					divsInThisSlide = [];
 				}
 			});
+
 			if (divsInThisSlide.length > 0) {
 				const fillerCount = divsPerSlide - divsInThisSlide.length;
 				if (fillerCount > 0) {
@@ -63,7 +63,7 @@ const ChartCarousel: React.FC<ChartCarouselProps> = ({ height = 300, width = 330
 						</div>
 					);
 					divsInThisSlide = [...divsInThisSlide, ...fillerDivs];
-					noPlus = true;
+					// noPlus = true;
 				}
 				newDivArray.push(<div key={`slide-${configKeys.length}`} className={`h-[${heightWithGap}px] !flex flex-row justify-evenly p-2 pt-3`}>{divsInThisSlide}</div>);
 			}
@@ -84,7 +84,7 @@ const ChartCarousel: React.FC<ChartCarouselProps> = ({ height = 300, width = 330
 		<div className='h-[360px] w-full col-start-1 col-span-full bg-gray-200 rounded-md shadow-sm py-2' ref={carouselRef}>
 			<div className='w-full h-full'>
 				<div className='carousel-parent'>
-					<Carousel className='w-full h-[345px] sm:gap-1 gap-2'>
+					<Carousel className={`w-full h-[${height + PADDINGY}px] sm:gap-1 gap-2`}>
 						{divs.map((divElement) => divElement)}
 					</Carousel>
 				</div>

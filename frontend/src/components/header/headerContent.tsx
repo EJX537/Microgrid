@@ -8,7 +8,6 @@ import {
 import { useMicrogrid } from '../../context/useMicrogridContext';
 import { useState } from 'react';
 
-
 const content_process = (
 	<div className='w-full flex flex-col gap-2'>
 		<p>
@@ -51,8 +50,11 @@ const HeaderContent = () => {
 			<Button
 				className='!w-16 !h-16'
 				type="text"
-				icon={collapsed ? <MenuUnfoldOutlined className='text-white' /> : <MenuFoldOutlined className='text-white' />}
-				onClick={() => toggleCollapsed()}
+				data-testid="collapse-button"
+				icon={
+					collapsed ? <MenuUnfoldOutlined data-testid='Header-Icon-Collapsed' className='text-white' />
+						: <MenuFoldOutlined data-testid='Header-Icon-Not-Collapsed' className='text-white' />}
+				onClick={toggleCollapsed}
 			/>
 			<div className={`flex ml-auto items-center ${collapsed ? 'mr-[80px]' : 'mr-[200px]'}`}>
 				<Popover

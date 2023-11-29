@@ -5,6 +5,7 @@
 import sys
 import requests
 import json
+import time
 import mysql.connector
 from requests.auth import HTTPBasicAuth
 from datetime import datetime
@@ -106,11 +107,9 @@ def insert_data(data):
     if not table_exists:
         cursor.execute ("""
             CREATE TABLE powerview_data (
-                id INT,
+                updateAt TIMESTAMP,
                 name VARCHAR(255),
-                thumbUrl VARCHAR(255),
                 status INT,
-                address VARCHAR(255),
                 totalPower FLOAT,
                 pac FLOAT,
                 efficiency FLOAT,
@@ -119,18 +118,7 @@ def insert_data(data):
                 eyear FLOAT,
                 etotal FLOAT,
                 income FLOAT,
-                updateAt TIMESTAMP,
-                createAt TIMESTAMP,
-                type INT,
-                masterID INT,
-                share BOOLEAN,
-                existCamera BOOLEAN,
-                email VARCHAR(255),
-                phone VARCHAR(15),
-                installer VARCHAR(255),
-                principal VARCHAR(255),
                 invest FLOAT,
-                meterCode INT,
                 pvPower FLOAT,
                 battPower FLOAT,
                 gridOrMeterPower FLOAT,
@@ -148,22 +136,16 @@ def insert_data(data):
                 genTo BOOLEAN,
                 minTo BOOLEAN,
                 toHeatPump BOOLEAN,
-                existsGen BOOLEAN,
-                existsMin BOOLEAN,
                 genOn BOOLEAN,
                 microOn BOOLEAN,
-                existsMeter BOOLEAN,
-                bmsCommFaultFlag BOOLEAN,
-                existsHeatPump BOOLEAN,
-                existThinkPower BOOLEAN,
                 PRIMARY KEY (updateAt)
             )
         """)
         print('table created')
 
     insert_query = """
-    INSERT INTO powerview_data (id, name, thumbUrl, status, address, totalPower, pac, efficiency, etoday, emonth, eyear, etotal, income, updateAt, createAt, type, masterID, share, existCamera, email, phone, installer, principal, invest, meterCode, pvPower, battPower, gridOrMeterPower, loadOrEpsPower, genPower, minPower, soc, heatPumpPower, pvTo, toLoad, toGrid, toBat, batTo, gridTo, genTo, minTo, toHeatPump, existsGen, existsMin, genOn, microOn, existsMeter, bmsCommFaultFlag, existsHeatPump, existThinkPower)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO powerview_data (updateAt, name, status, totalPower, pac, efficiency, etoday, emonth, eyear, etotal, income, invest, pvPower, battPower, gridOrMeterPower, loadOrEpsPower, genPower, minPower, soc, heatPumpPower, pvTo, toLoad, toGrid, toBat, batTo, gridTo, genTo, minTo, toHeatPump, genOn, microOn)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
 
 #"data" is in the format of:    
@@ -175,11 +157,9 @@ def insert_data(data):
 
  
     values = (
-        data_infos['id'],
+        parser.isoparse(data_infos['updateAt']),
         data_infos['name'],
-        data_infos['thumbUrl'],
         data_infos['status'],
-        data_infos['address'],
         data['totalPower'],
         data_infos['pac'],
         data_infos['efficiency'],
@@ -188,18 +168,7 @@ def insert_data(data):
         data['realtime']['eyear'],
         data_infos['etotal'],
         data['realtime']['income'],
-        parser.isoparse(data_infos['updateAt']),
-        parser.isoparse(data_infos['createAt']), 
-        data_infos['type'],
-        data_infos['masterId'],
-        data_infos['share'],
-        data_infos['existCamera'],
-        data_infos['email'],
-        data_infos['phone'],
-        data['installer'],
-        data['principal'],
         data['invest'],
-        data['meterCode'],
         data['pvPower'],
         data['battPower'],
         data['gridOrMeterPower'],
@@ -217,14 +186,8 @@ def insert_data(data):
         data['genTo'],
         data['minTo'],
         data['toHeatPump'],
-        data['existsGen'],
-        data['existsMin'],
         data['genOn'],
         data['microOn'],
-        data['existsMeter'],
-        data['bmsCommFaultFlag'],
-        data['existsHeatPump'],
-        data['existThinkPower'],
     )
     
     # Execute the query with the data
@@ -233,15 +196,12 @@ def insert_data(data):
 
     cursor.close()
     connection.close()
-
-
-
-
-
-
     print('data sent')
 
 #main
 if __name__ == "__main__":
-    my_bearer_token()
-    get_and_insert_data()
+    while(1):
+        my_bearer_token()
+        get_and_insert_data()
+        time.sleep(303)
+

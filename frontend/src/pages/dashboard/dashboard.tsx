@@ -1,6 +1,6 @@
 import WeatherWidget from '../../components/widget/weather';
 import { WidgetLayout } from '../../layouts';
-import ChartCarousel from './chartCarousel';
+import ChartCarousel from '../../components/charts/eGauge/chartCarousel';
 import EnergyUsage from '../../components/charts/powerVue/energyGeneration/energyGeneration';
 import { Widget, WidgetComponent } from '../../interfaces/JSXTypes';
 import { BatteryChart } from '../../components';

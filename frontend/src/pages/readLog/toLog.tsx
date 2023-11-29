@@ -80,6 +80,7 @@ const LogPage = () => {
 
 	return (
 		<div className='w-full h-full p-4'>
+			<h1 className="w-full bg-yellow-400 p-2 mb-4 rounded-sm text-red-600">WORK IN PROGRESS</h1>
 			<div className='text-lg font-semibold p-2'>
 				Raw Logs
 			</div>

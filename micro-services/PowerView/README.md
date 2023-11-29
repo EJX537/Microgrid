@@ -18,4 +18,3 @@ Usage: python3 powerview_generation.py <User/Email> <Password>
 ```
 Dependencies: python3, pip python-dateutil, pip mysql-connector-python, pip3 requests
 ```
-

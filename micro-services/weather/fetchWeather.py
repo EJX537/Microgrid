@@ -113,15 +113,15 @@ def main():
     longitude = "67"
 
     # Comment Out for Collection Every 12 hours
-    # job(latitude, longitude)
-    # return
+    job(latitude, longitude)
+    return
 
     # Schedule job every 12 hours
-    schedule.every(12).hours.do(lambda: job(latitude, longitude))
+    # schedule.every(12).hours.do(lambda: job(latitude, longitude))
 
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+    # while True:
+    #     schedule.run_pending()
+    #     time.sleep(1)
 
 
 if __name__ == "__main__":

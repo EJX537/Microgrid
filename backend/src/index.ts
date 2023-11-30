@@ -151,19 +151,19 @@ app.get("/eguagetime", async (req: Request, res: Response) => {
     let query = ``;
     if (time.charAt(time.length-1) == "s"){
       query = `
-      SELECT ${dataname}
+      SELECT ${dataname}, time
       FROM rate
       where time>= NOW() - INTERVAL 28800 + ? SECOND;
     `;
     }else if (time.charAt(time.length-1) == "m"){
     query = `
-      SELECT ${dataname}
+      SELECT ${dataname}, time
       FROM rate
       where time>= NOW() - INTERVAL 480 + ? MINUTE;
     `;
     }else{
       query = `
-      SELECT ${dataname}
+      SELECT ${dataname}, time
       FROM rate
       where time>= NOW() - INTERVAL 8 + ? HOUR;
     `;
@@ -176,7 +176,7 @@ app.get("/eguagetime", async (req: Request, res: Response) => {
   }
 });
 
-//powerview get start and end
+//powerview get start and end timestamp
 app.get("/eguageperiod", async (req: Request, res: Response) => {
   try{
     const start = req.query?.start as string;
@@ -186,7 +186,7 @@ app.get("/eguageperiod", async (req: Request, res: Response) => {
     let query = `
       SELECT ${dataname}
       FROM rate
-      where time BETWEEN ${start} AND ${end};
+      where time BETWEEN "${start}" AND "${end}";
     `;
     const [rows] = parseRows<rateData[]>(await db.execute(query));
     // console.log(rows)
@@ -196,16 +196,31 @@ app.get("/eguageperiod", async (req: Request, res: Response) => {
   }
 });
 
-//powerview battery charge get
-app.get("/battery", async function getkitchen(req: Request, res: Response){
+//weather get
+app.get("/weather", async (req: Request, res: Response) => {
   try{
-    const data: batteryConfig = {
-      source: "Battery",
-      warning: 0.4,
-      danger: 0.2,
-    }
-    res.send('battery GET: ' + req.query.sec);
-    const [rows, fields] = await db.execute('SELECT * FROM rate');
+    let query = `
+      SELECT *
+      FROM weather_data 
+      ORDER BY startTime DESC LIMIT 1;
+    `;
+    const [rows] = parseRows<rateData[]>(await db.execute(query));
+    res.send(rows);
+  }catch(err){
+    console.log(err);
+  }
+});
+
+//powerview battery charge get
+app.get("/powerview", async (req: Request, res: Response) => {
+  try{
+    let query = `
+      SELECT pac, etoday, etotal, income, updateAt
+      FROM powerview_data 
+      ORDER BY updateAt  DESC LIMIT 1;
+    `;
+    const [rows] = parseRows<rateData[]>(await db.execute(query));
+    res.send(rows);
     // res.send(JSON.stringify(rows));
     console.log(rows);
   }catch(err){
@@ -230,39 +245,6 @@ app.get("/solarConfig", async (req: Request, res: Response) => {
     console.log(val[0].time)
     res.send(`data: ${JSON.stringify(data)}\n\n`);
     // res.send('solar GET');
-  }catch(err){
-    console.log(err);
-  }
-});
-
-//powerview weather get
-app.get("/weather", function getkitchen(req: Request, res: Response){
-  try{
-    const data: WeatherData = {
-      detailedForecast: "details",
-      startTime: "start date",
-      endTime: "end date",
-      isDaytime: true,
-      name: "my weather",
-      dewpoint: {
-        unitCode: "K",
-        value: 3,
-      },
-      probabilityOfPrecipitation: {
-        unitCode: "K",
-        value: 3 || null,
-      },
-      relativeHumidity: {
-        unitCode: "K",
-        value: 3,
-      },
-      shortForecast: "hi",
-      temperature: 72,
-      temperatureUnit: "F",
-      windDirection: "south",
-      windSpeed: "32",
-    }
-    res.send(`weather GET: ${JSON.stringify(data)}\n\n`);
   }catch(err){
     console.log(err);
   }

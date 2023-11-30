@@ -115,7 +115,6 @@ app.get("/egauge", async (request, response)=>{
 async function periodickitchen(res: Response) {
 	try {
 		const [rows] = await db.execute('SELECT * FROM rate ORDER BY time DESC LIMIT 1;');
-		console.log(rows);
 		const val = parseRows<rateData[]>(rows)[0];
 		const data: eGaugeData = {
 			source: "egauge",
@@ -182,7 +181,6 @@ app.get("/eguageperiod", async (req: Request, res: Response) => {
     const start = req.query?.start as string;
     const end = req.query?.end as string;
     const dataname = req.query?.dataname as string;
-    console.log(start);
     let query = `
       SELECT ${dataname}
       FROM rate
@@ -221,17 +219,16 @@ app.get("/powerview", async (req: Request, res: Response) => {
     `;
     const [rows] = parseRows<rateData[]>(await db.execute(query));
     res.send(rows);
-    // res.send(JSON.stringify(rows));
-    console.log(rows);
+    // console.log(rows);
   }catch(err){
     console.log(err);
   }
 });
 
-
 function parseRows<T>(rows: any): T {
   return rows as T;
 }
+
 //poweor outage solar get
 app.get("/solarConfig", async (req: Request, res: Response) => {
   try{

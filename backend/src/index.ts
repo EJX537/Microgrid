@@ -115,7 +115,6 @@ app.get("/egauge", async (request, response)=>{
 async function periodickitchen(res: Response) {
 	try {
 		const [rows] = await db.execute('SELECT * FROM rate ORDER BY time DESC LIMIT 1;');
-		console.log(rows);
 		const val = parseRows<rateData[]>(rows)[0];
 		const data: eGaugeData = {
 			source: "egauge",
@@ -135,7 +134,7 @@ async function periodickitchen(res: Response) {
 		}
 		// console.log(data)
 		res.write("data:" + `${JSON.stringify(data)}\n\n`);
-		setTimeout(() => periodickitchen(res), 1000);
+		setTimeout(() => periodickitchen(res), 3000);
 	} catch (error) {
 		console.error("An error occurred:", error);
 		// Handle the error gracefully, e.g., send an error response to the client
@@ -144,7 +143,7 @@ async function periodickitchen(res: Response) {
 }
 
 //powerview get last 30s/1m/30m/1h kitchen
-app.get("/eguagetime", async (req: Request, res: Response) => {
+app.get("/egaugetime", async (req: Request, res: Response) => {
   try{
     const time = req.query?.time as string;
     const dataname = req.query?.dataname as string;

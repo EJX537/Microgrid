@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
 import * as d3 from 'd3';
 import { Config, eGaugeData } from './eGaugeTypes';
 
@@ -13,7 +13,8 @@ interface PanelChartSVGProps {
 
 const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit, parent, config }) => {
 	const svgRef = useRef<SVGSVGElement | null>(null);
-
+	const [lastMousePosition, setLastMousePosition] = useState<[number, number] | null>(null);
+	const [isInSVG, setIsInSVG] = useState(false);
 	let div = d3.select(parent.current).select('.tooltip') as d3.Selection<HTMLDivElement, unknown, null, undefined>;
 	if (div.empty()) {
 		div = d3.select(parent.current).append('div')
@@ -25,6 +26,7 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit
 	const marginRight = 30;
 	const marginBottom = 30;
 	const marginLeft = 40;
+	const formatTime = d3.timeFormat('%H:%M:%S');
 
 	const timeRangeLimit = useMemo(() => {
 		const [value, unit] = config.period.split(' ');
@@ -39,12 +41,24 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit
 		return valueInMs;
 	}, [config.period]);
 
-	// Define the mousemove function.
-	const formatTime = d3.timeFormat('%H:%M:%S');
+	const filteredData = useMemo(() => data.filter(d => d.dateTime && d.dateTime.getTime() >= new Date().getTime() - timeRangeLimit), [data, timeRangeLimit]);
+
+	const xDomain = useMemo(() => d3.extent(filteredData, d => d.dateTime) as [Date, Date], [filteredData]);
+
+	const x = useMemo(() => d3.scaleTime()
+		.domain(xDomain)
+		.range([marginLeft, width]), [xDomain, marginLeft, width]);
 
 	const y = useMemo(() => d3.scaleLinear()
-		.domain([0, d3.max(data, d => d.value) as number])
+		.domain([0, (d3.max(data, d => d.value) as number) * 1.4])
 		.range([height - marginBottom, marginTop]), [data, height]);
+
+	const line = useMemo(() => d3.line<eGaugeData>()
+		.x(d => x(d.dateTime) as number)
+		.y(d => y(d.value) as number), [x, y]);
+
+	const points = filteredData.map((d) => [x(d.dateTime), y(d.value)]);
+
 
 	useEffect(() => {
 		if (!svgRef.current || data.length === 0 || !unit) return;
@@ -54,20 +68,6 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit
 			.attr('height', height)
 			.attr('viewBox', [0, 0, width, height].join(' '))
 			.attr('style', 'width: 100%; height: 100%; overflow: visible; font: 10px sans-serif; padding: 4px;');
-
-		const filteredData = data.filter(d => d.dateTime !== undefined && d.dateTime.getTime() >= new Date().getTime() - timeRangeLimit);
-
-		const xDomain = d3.extent(filteredData, d => d.dateTime) as [Date, Date];
-
-		const x = d3.scaleTime()
-			.domain(xDomain)
-			.range([marginLeft, width]);
-
-		const line = d3.line<eGaugeData>()
-			.x(d => x(d.dateTime) as number)
-			.y(d => y(d.value) as number);
-
-		const points = filteredData.map((d) => [x(d.dateTime), y(d.value)]);
 
 		const timeRange = xDomain[1].getTime() - xDomain[0].getTime();
 		const tickInterval = timeRange / 3; // Divide by 4 to get 5 ticks
@@ -94,7 +94,7 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit
 		// Add the y-axis, remove the domain line, add grid lines and a label.
 		svg.append('g')
 			.attr('transform', `translate(${marginLeft},0)`)
-			.call(d3.axisLeft(y).ticks(height / 50))
+			.call(d3.axisLeft(y).ticks(5))
 			.attr('font-size', '14px')
 			.call(g => g.select('.domain').remove())
 			.call(g => g.selectAll('.tick line').clone()
@@ -114,22 +114,29 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit
 			.attr('stroke-width', 1.5)
 			.attr('d', line(filteredData));
 
+		return () => { svg.selectAll('*').remove(); };
+	}, [data.length, div, filteredData, formatTime, height, lastMousePosition, line, points, unit, width, x, xDomain, y]);
 
-		// Append a group for the dot and text.
-		const dot = svg.append('g')
-			.attr('display', 'none');
+	useEffect(() => {
+		const svg = d3.select(svgRef.current);
+		let line: d3.Selection<SVGLineElement, unknown, null, undefined>;
 
-		const pointermoved = (event: React.PointerEvent<SVGSVGElement>) => {
-			svg.selectAll('.vertical-line').remove(); // Remove existing line
-			const [xm, ym] = d3.pointer(event);
+		// Define the mousemove function.
+		const pointermoved = (event: React.PointerEvent<SVGSVGElement> | [number, number]) => {
+			const [xm, ym] = Array.isArray(event) ? event : d3.pointer(event);
+
+			if (!lastMousePosition || Math.abs(xm - lastMousePosition[0]) > 1 || Math.abs(ym - lastMousePosition[1]) > 1) {
+				svg.selectAll('.vertical-line').remove(); // Remove existing line
+				setLastMousePosition([xm, ym]);
+			}
+
 			const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
 			if (i === undefined) return;
 
 			const [x_i] = points[i];
 
 			// Draw a vertical line at the x-axis
-			svg
-				.append('line')
+			svg.append('line')
 				.attr('class', 'vertical-line')
 				.attr('x1', x_i)
 				.attr('y1', marginTop)
@@ -139,16 +146,40 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit
 				.attr('stroke-width', 1)
 				.attr('stroke-dasharray', '5,5');
 
+			div.html(`
+							<p>Time: ${formatTime(filteredData[i].dateTime)}</p>
+							<p>Energy Usage: ${filteredData[i].value.toString().substring(0, 5).replace(/\.$/, '')}${filteredData[i].unit}</p>`)
+				.style('left', (xm - 100) + 'px')
+				.style('top', (ym - 100) + 'px');
+		};
+
+		const pointerenter = (event: React.PointerEvent<SVGSVGElement>) => {
+			const [xm] = Array.isArray(event) ? event : d3.pointer(event);
+
+			// If the line doesn't exist, create it
+			if (!line) {
+				line = svg.append('line')
+					.attr('class', 'vertical-line')
+					.attr('stroke', 'black')
+					.attr('stroke-width', 1)
+					.attr('stroke-dasharray', '5,5');
+			}
+
+			// Update the position of the line
+			line.attr('x1', xm)
+				.attr('y1', marginTop)
+				.attr('x2', xm)
+				.attr('y2', height - marginBottom);
+
 			div.transition()
 				.duration(200)
 				.style('opacity', .9);
-
-			div.html(`
-				<p>Time: ${formatTime(filteredData[i].dateTime)}</p>
-				<p>Energy Usage: ${filteredData[i].value.toFixed(2)}${filteredData[i].unit}</p>`)
-				.style('left', (d3.pointer(event)[0] - 100) + 'px')
-				.style('top', (d3.pointer(event)[1] - 100) + 'px');
+			setIsInSVG(true);
 		};
+
+		// Append a group for the dot and text.
+		const dot = svg.append('g')
+			.attr('display', 'none');
 
 		const pointerleft = () => {
 			svg.selectAll('.vertical-line').remove(); // Remove all lines with class 'vertical-line'
@@ -159,16 +190,19 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit
 
 			div.style('left', (-1000) + 'px')
 				.style('top', (-1000) + 'px');
+			setIsInSVG(false);
 		};
 
 		// Add the event listeners to the svg.
 		svg
 			.on('pointermove', pointermoved)
 			.on('pointerleave', pointerleft)
+			.on('pointerenter', pointerenter)
 			.on('touchstart', () => { }, { passive: true });
-
-		return () => { svg.selectAll('*').remove(); };
-	}, [data, div, height, unit, width, y, timeRangeLimit, formatTime]);
+		if (isInSVG && lastMousePosition) {
+			pointermoved(lastMousePosition);
+		}
+	}, [div, filteredData, formatTime, height, isInSVG, lastMousePosition, points]);
 
 	return (<svg ref={svgRef} />);
 };

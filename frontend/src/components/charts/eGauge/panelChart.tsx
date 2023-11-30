@@ -45,7 +45,7 @@ const PanelChart: React.FC<PanelChartProps> = ({ index, height = 300, width = 33
 	const { config, setConfig } = useMicrogrid();
 	const [configState, setConfigState] = useState<Config>(config.chartCarouselConfigs[index]);
 	useEffect(() => {
-		if (parentRef.current) {
+		if (parentRef.current && parentRef.current.offsetWidth > 0 && parentRef.current.offsetHeight > 0) {
 			setDimensions({
 				width: parentRef.current.offsetWidth,
 				height: parentRef.current.offsetHeight
@@ -91,7 +91,7 @@ const PanelChart: React.FC<PanelChartProps> = ({ index, height = 300, width = 33
 				</button>
 			</div>
 			<div className='w-full flex-grow relative p-2' ref={parentRef}>
-				{/* <PanelChartSVG height={dimensions.height} width={dimensions.width} data={dataSet} unit={'W'} parent={parentRef} config={config} /> */}
+				<PanelChartSVG height={dimensions.height} width={dimensions.width} data={dataSet} unit={'W'} parent={parentRef} config={configState} />
 			</div>
 			<div className={`absolute h-full items-center justify-center flex w-full ${showConfig ? '' : 'hidden'}`}>
 				<div className='bg-slate-200 w-3/4 flex h-full p-4 rounded-md flex-col'>

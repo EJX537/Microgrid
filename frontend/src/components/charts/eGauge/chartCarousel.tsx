@@ -25,15 +25,33 @@ const ChartCarousel: React.FC<ChartCarouselProps> = ({ height = 300, width = 330
 	const resizeObserver = useRef<ResizeObserver | undefined>(undefined);
 	const [carouselWidth, setCarouselWidth] = useState(0);
 	const { config } = useMicrogrid();
+	const eventSourceRef = useRef<EventSource | null>(null);
 
 	const [eGaugeInfo, seteGaugeInfo] = useState<eGaugePannel[]>(
 		config.chartCarouselConfigs.map((eGaugeConfig: Config) => {
 			return { config: eGaugeConfig, data: [] as eGaugeData[] };
 		}));
 
+	const [eGaugeSources] = useState(
+		config.chartCarouselConfigs.map((eGaugeConfig: Config) => {
+			return eGaugeConfig.source;
+		})
+	);
+
 	const updateSize = () => {
 		if (carouselRef.current) {
 			setCarouselWidth(carouselRef.current.offsetWidth);
+		}
+	};
+
+	const firstLoadData = async (time: string, source: string) => {
+		try {
+			const response = await fetch(`http://localhost:8080/egaugetime?time=${time}&dataname=${source}`);
+			const data = await response.json();
+			console.log(data);
+			return data;
+		} catch (error) {
+			return [];
 		}
 	};
 
@@ -51,42 +69,70 @@ const ChartCarousel: React.FC<ChartCarouselProps> = ({ height = 300, width = 330
 		};
 	}, []);
 
+	// useEffect(() => {
+	// 	eGaugeSources.forEach((source) => {
+	// 		const eGaugeInstance = eGaugeInfo.find((eGaugeInstance) => eGaugeInstance.config.source === source);
+	// 		if (!eGaugeInstance) return;
+	// 		firstLoadData(eGaugeInstance.config.period, eGaugeInstance.config.source).then((data) => {
+	// 			seteGaugeInfo((prevInfo) => {
+	// 				const updatedInfo = prevInfo.map((eGaugeInstance) => {
+	// 					if (eGaugeInstance.config.source === source) {
+	// 						return {
+	// 							...eGaugeInstance,
+	// 							data: [...eGaugeInstance.data, data]
+	// 						};
+	// 					}
+	// 					return eGaugeInstance;
+	// 				});
+	// 				return updatedInfo;
+	// 			});
+	// 		});
+	// 	});
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [eGaugeSources]);
+
+
 	useEffect(() => {
-		const firstLoadData = () => {
-
-		};
-
-
-		const eventSource = readSSEResponse(new URL('http://localhost:8080/egauge'));
-		const eGaugeSources = eGaugeInfo.map((eGaugeInstance) => eGaugeInstance.config.source);
-		eventSource.onmessage = (event) => {
-			const parsedData: eGaugeDataStream = JSON.parse(event.data);
-			const dateTime = new Date(parsedData.dateTime);
-			eGaugeSources.forEach((source) => {
-				const matchingEGaugeInstance = eGaugeInfo.find((eGaugeInstance) => eGaugeInstance.config.source === source);
-				const dataEntry = parsedData[source];
-				if (matchingEGaugeInstance) {
-					const data = {
-						dateTime: dateTime,
-						value: dataEntry as number,
-						unit: 'W'
-					};
-					seteGaugeInfo((prevInfo) => {
-						const updatedInfo = prevInfo.map((eGaugeInstance) => {
-							if (eGaugeInstance.config.source === source) {
-								return {
-									...eGaugeInstance,
-									data: [...eGaugeInstance.data, data]
-								};
-							}
-							return eGaugeInstance;
+		// Only create a new EventSource if one doesn't already exist
+		if (!eventSourceRef.current) {
+			eventSourceRef.current = readSSEResponse(new URL('http://localhost:8080/egauge'));
+			eventSourceRef.current.onmessage = (event) => {
+				const parsedData: eGaugeDataStream = JSON.parse(event.data);
+				const dateTime = new Date(parsedData.dateTime);
+				eGaugeSources.forEach((source) => {
+					const matchingEGaugeInstance = eGaugeInfo.find((eGaugeInstance) => eGaugeInstance.config.source === source);
+					const dataEntry = parsedData[source];
+					if (matchingEGaugeInstance) {
+						const data = {
+							dateTime: dateTime,
+							value: dataEntry as number,
+							unit: 'W'
+						};
+						seteGaugeInfo((prevInfo) => {
+							const updatedInfo = prevInfo.map((eGaugeInstance) => {
+								if (eGaugeInstance.config.source === source) {
+									return {
+										...eGaugeInstance,
+										data: [...eGaugeInstance.data, data]
+									};
+								}
+								return eGaugeInstance;
+							});
+							return updatedInfo;
 						});
-						return updatedInfo;
-					});
-				}
-			});
+					}
+				});
+			};
+		}
+
+		// Clean up the EventSource when the component is unmounted
+		return () => {
+			if (eventSourceRef.current) {
+				eventSourceRef.current.close();
+				eventSourceRef.current = null;
+			}
 		};
-	}, [eGaugeInfo]);
+	}, [eGaugeInfo, eGaugeSources]); // Empty dependency array so the useEffect only runs once
 
 	useEffect(() => {
 		if (carouselRef.current) {

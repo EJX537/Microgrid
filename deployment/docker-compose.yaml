@@ -33,11 +33,15 @@ services:
     image: ejx537/egauge:latest
     container_name: egauge_API_db
     pull_policy: always
+    depends_on:
+      - mysql
 
   interface_1:
     image: ejx537/powerview:latest
     container_name: powerview
     pull_policy: always
+    depends_on:
+      - mysql
 
 volumes:
   mysql-data:

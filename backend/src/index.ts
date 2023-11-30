@@ -176,6 +176,26 @@ app.get("/eguagetime", async (req: Request, res: Response) => {
   }
 });
 
+//powerview get start and end
+app.get("/eguageperiod", async (req: Request, res: Response) => {
+  try{
+    const start = req.query?.start as string;
+    const end = req.query?.end as string;
+    const dataname = req.query?.dataname as string;
+    console.log(start);
+    let query = `
+      SELECT ${dataname}
+      FROM rate
+      where time BETWEEN ${start} AND ${end};
+    `;
+    const [rows] = parseRows<rateData[]>(await db.execute(query));
+    // console.log(rows)
+    res.send(rows);
+  }catch(err){
+    console.log(err);
+  }
+});
+
 //powerview battery charge get
 app.get("/battery", async function getkitchen(req: Request, res: Response){
   try{

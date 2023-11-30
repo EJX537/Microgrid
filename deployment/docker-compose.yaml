@@ -25,7 +25,15 @@ services:
       MYSQL_PASSWORD: sluggrid
     volumes:
       - mysql-data:/var/lib/mysql
+      
+  interface_0:
+    image: ejx537/egauge:latest
+    container_name: egauge_API_db
 
+  interface_1:
+    image: ejx537/powerview:latest
+    container_name: powerview
+    
 volumes:
   mysql-data:
   

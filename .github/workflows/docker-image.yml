@@ -24,7 +24,7 @@ jobs:
     - name: Build and push Docker images
       run: |
         docker-compose build
-        docker tag microgrid_frontend docker.io/${{ secrets.DOCKERHUB_USERNAME }}/frontend:t0
+        docker tag microgrid_frontend docker.io/${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
         docker tag microgrid_backend docker.io/${{ secrets.DOCKERHUB_USERNAME }}/backend:latest
         docker tag microgrid_mysql docker.io/${{ secrets.DOCKERHUB_USERNAME }}/mysql:latest
         docker tag microgrid_interface_0 docker.io/${{ secrets.DOCKERHUB_USERNAME }}/egauge:latest

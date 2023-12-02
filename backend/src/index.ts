@@ -45,18 +45,20 @@ interface WeatherData {
 	windSpeed: string;
 }
 
-// interface kitchenData {
-//   source: string;
-//   dateTime: Date;
-//   S11_L1: number;
-//   S12_L2: number;
-//   unit: string;
-// }
+interface solarkConfig{
+  devicename: string;
+  permission_username: string,
+  permission_password: string,
+	outlink: string,
+  devicestatus: boolean
+}
 
-interface batteryConfig{
-  source: string;
-  warning: number,
-	danger: number,
+interface eguageConfig{
+  devicename: string;
+  permission_username: string,
+  permission_password: string,
+	outlink: string,
+  devicestatus: boolean
 }
 
 interface powerViewData{
@@ -150,19 +152,19 @@ app.get("/egaugetime", async (req: Request, res: Response) => {
     let query = ``;
     if (time.charAt(time.length-1) == "s"){
       query = `
-      SELECT ${dataname}
+      SELECT ${dataname}, time
       FROM rate
       where time>= NOW() - INTERVAL 28800 + ? SECOND;
     `;
     }else if (time.charAt(time.length-1) == "m"){
     query = `
-      SELECT ${dataname}
+      SELECT ${dataname}, time
       FROM rate
       where time>= NOW() - INTERVAL 480 + ? MINUTE;
     `;
     }else{
       query = `
-      SELECT ${dataname}
+      SELECT ${dataname}, time
       FROM rate
       where time>= NOW() - INTERVAL 8 + ? HOUR;
     `;
@@ -175,95 +177,125 @@ app.get("/egaugetime", async (req: Request, res: Response) => {
   }
 });
 
-//powerview battery charge get
-app.get("/battery", async function getkitchen(req: Request, res: Response){
+//powerview get start and end timestamp
+app.get("/eguageperiod", async (req: Request, res: Response) => {
   try{
-    const data: batteryConfig = {
-      source: "Battery",
-      warning: 0.4,
-      danger: 0.2,
-    }
-    res.send('battery GET: ' + req.query.sec);
-    const [rows, fields] = await db.execute('SELECT * FROM rate');
-    // res.send(JSON.stringify(rows));
-    console.log(rows);
+    const start = req.query?.start as string;
+    const end = req.query?.end as string;
+    const dataname = req.query?.dataname as string;
+    let query = `
+      SELECT ${dataname}
+      FROM rate
+      where time BETWEEN "${start}" AND "${end}";
+    `;
+    const [rows] = parseRows<rateData[]>(await db.execute(query));
+    // console.log(rows)
+    res.send(rows);
   }catch(err){
     console.log(err);
   }
 });
 
+//weather get
+app.get("/weather", async (req: Request, res: Response) => {
+  try{
+    let query = `
+      SELECT *
+      FROM weather_data 
+      ORDER BY startTime DESC LIMIT 1;
+    `;
+    const [rows] = parseRows<rateData[]>(await db.execute(query));
+    res.send(rows);
+  }catch(err){
+    console.log(err);
+  }
+});
+
+//powerview battery charge get
+app.get("/powerview", async (req: Request, res: Response) => {
+  try{
+    let query = `
+      SELECT pac, etoday, etotal, income, updateAt
+      FROM powerview_data 
+      ORDER BY updateAt  DESC LIMIT 1;
+    `;
+    const [rows] = parseRows<rateData[]>(await db.execute(query));
+    res.send(rows);
+    // console.log(rows);
+  }catch(err){
+    console.log(err);
+  }
+});
 
 function parseRows<T>(rows: any): T {
   return rows as T;
 }
-//poweor outage solar get
-app.get("/solarConfig", async (req: Request, res: Response) => {
-  try{
-    const data: batteryConfig = {
-      source: "Solar",
-      warning: 0.4,
-      danger: 0.2,
-    }
-    const [rows] = await db.execute('SELECT * FROM rate ORDER BY time DESC LIMIT 1;');
-    const val = parseRows<rateData[]>(rows);
-    console.log(val[0].time)
-    res.send(`data: ${JSON.stringify(data)}\n\n`);
-    // res.send('solar GET');
-  }catch(err){
-    console.log(err);
-  }
-});
 
-//powerview weather get
-app.get("/weather", function getkitchen(req: Request, res: Response){
-  try{
-    const data: WeatherData = {
-      detailedForecast: "details",
-      startTime: "start date",
-      endTime: "end date",
-      isDaytime: true,
-      name: "my weather",
-      dewpoint: {
-        unitCode: "K",
-        value: 3,
-      },
-      probabilityOfPrecipitation: {
-        unitCode: "K",
-        value: 3 || null,
-      },
-      relativeHumidity: {
-        unitCode: "K",
-        value: 3,
-      },
-      shortForecast: "hi",
-      temperature: 72,
-      temperatureUnit: "F",
-      windDirection: "south",
-      windSpeed: "32",
-    }
-    res.send(`weather GET: ${JSON.stringify(data)}\n\n`);
-  }catch(err){
-    console.log(err);
-  }
-});
+// CONFIGURATIONS
 
-//powerview energy generation server sent event and get request
-app.get("/energy", (request, response)=>{
-  response.setHeader("Content-Type", "text/event-stream");
-  periodicEnergy(response);
-});
-function periodicEnergy(res: Response){
-  const data: powerViewData = {
-    dateTime: new Date(),
-    source: "Energy",
-    watt: 5000
-  }
-  res.write("data: " + `${JSON.stringify(data)}\n\n`)
-  setTimeout(()=>periodicEnergy(res), 1000);
+let solarkconfig: solarkConfig = {
+  devicename: "Solar device name",
+  permission_username: "",
+  permission_password: "",
+  outlink: "",
+  devicestatus: false
+}
+let eguageconfig: solarkConfig = {
+  devicename: "Solar device name",
+  permission_username: "",
+  permission_password: "",
+  outlink: "",
+  devicestatus: false
 }
 
-//config get and put
-app.get("/solar", function getkitchen(res: Response){
+app.get("/configsolark", async (req: Request, res: Response) => {
+  try{
+    res.send(solarkconfig);
+  }catch(err){
+    console.log(err);
+  }
+});
+
+app.put("/configsolark", function getkitchen(req: Request, res: Response){
+  try{
+    solarkconfig = {
+      devicename: req.query?.devicename as string,
+      permission_username: req.query?.permission_username as string,
+      permission_password: req.query?.permission_password as string,
+      outlink: req.query?.outlink as string,
+      devicestatus: req.query?.devicestatus == "true" ? true : false
+    }
+    res.send('config sol ark success');
+  }catch(err){
+    console.log(err);
+  }
+});
+
+app.get("/configeguage", async (req: Request, res: Response) => {
+  try{
+    res.send(eguageconfig);
+  }catch(err){
+    console.log(err);
+  }
+});
+
+app.put("/configeguage", function getkitchen(req: Request, res: Response){
+  try{
+    eguageconfig = {
+      devicename: req.query?.devicename as string,
+      permission_username: req.query?.permission_username as string,
+      permission_password: req.query?.permission_password as string,
+      outlink: req.query?.outlink as string,
+      devicestatus: req.query?.devicestatus == "true" ? true : false
+    }
+    res.send('config eguage success');
+  }catch(err){
+    console.log(err);
+  }
+});
+
+//work in progress
+app.get("/settings", function getkitchen(res: Response){
   try{
     res.send('dashboard config GET: ' + JSON.stringify(dashboard));
   }catch(err){
@@ -271,7 +303,7 @@ app.get("/solar", function getkitchen(res: Response){
   }
 });
 
-app.put("/solar", function getkitchen(req: Request, res: Response){
+app.put("/settings", function getkitchen(req: Request, res: Response){
   try{
     dashboard = {
       refreshRate: parseInt(req.params.refreshRate),

@@ -7,4 +7,3 @@ ADD . /app
 RUN pip install mysql-connector-python egauge-python
 
 CMD ["python3", "egauge_API_db.py"]
-

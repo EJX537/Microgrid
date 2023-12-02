@@ -9,7 +9,7 @@ const Page404 = () => {
 			</span>
 			<Button>
 				<Link to="/">
-					Click to Return to Dash Board
+					Click to Return to Dashboard
 				</Link>
 			</Button>
 		</div>

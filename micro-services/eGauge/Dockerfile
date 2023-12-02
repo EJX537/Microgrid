@@ -4,7 +4,6 @@ WORKDIR /app
 
 ADD . /app
 
-# Install dependencies
-RUN pip install mysql-connector-python egauge
+RUN pip install mysql-connector-python egauge-python
 
-CMD ["python", "egauge_API_db.py"]
+CMD ["python3", "egauge_API_db.py"]

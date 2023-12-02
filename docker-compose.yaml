@@ -32,13 +32,17 @@ services:
       MYSQL_PASSWORD: sluggrid
     volumes:
       - mysql-data:/var/lib/mysql
+      
   interface_0:
-    build: ./interfaces/Example
-    container_name: example-python-microservice
+    build: ./micro-services/eGauge
+    container_name: egauge_API_db
     volumes:
-      - ./interfaces/Example:/app
+      - ./micro-services/eGauge:/app
 
+  interface_1:
+    build: ./micro-services/PowerView
+    container_name: powerview
+    volumes:
+      - ./micro-services/PowerView:/app
 volumes:
   mysql-data:
-
-# services:

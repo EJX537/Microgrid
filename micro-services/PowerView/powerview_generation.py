@@ -78,7 +78,7 @@ def create_powerview_config_settings_table(host, user, password, database, table
 
         add_powerview_query = f"""
         INSERT INTO {table_name} (device_name, permission_username, permission_password, outlink, device_status, freq_rate)
-        VALUES ("eguage", "", "", "", "off", 100);
+        VALUES ("powerview", "", "", "", "off", 100);
         """
         
         cursor.execute(add_powerview_query)

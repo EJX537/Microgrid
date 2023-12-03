@@ -22,8 +22,11 @@ table_name = 'powerview_data'
 my_user_email=str(sys.argv[1])
 my_user_password=str(sys.argv[2])
 is_docker=str(sys.argv[3])
+print(is_docker == 'true')
 if is_docker == 'true':
 	db_host = 'host.docker.internal'
+  
+print(db_host)
   
 loginurl = ('https://pv.inteless.com/oauth/token')
 
@@ -39,14 +42,9 @@ db_config = {
 
 outage_timer = 0
 
-def create_powerview_config_settings_table(host, user, password, database, table_name):
+def create_powerview_config_settings_table(table_name):
     # Connect to MySQL
-    connection = mysql.connector.connect(
-        host=host,
-        user=user,
-        password=password,
-        database=database
-    )
+    connection = mysql.connector.connect(**db_config)
 
     # Create a cursor object to interact with the database
     cursor = connection.cursor()
@@ -90,7 +88,7 @@ def create_powerview_config_settings_table(host, user, password, database, table
     connection.close()
 
 # Example usage
-create_powerview_config_settings_table('localhost', 'microgridManager', 'sluggrid', 'microgridManager', 'powerview_config_settings_table')
+create_powerview_config_settings_table('powerview_config_settings_table')
 
 # print bearer/access token
 def my_bearer_token():

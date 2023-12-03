@@ -208,7 +208,7 @@ app.get("/weather", async (req: Request, res: Response) => {
       FROM weather_data 
       ORDER BY startTime DESC LIMIT 14;
     `;
-		const [rows] = parseRows<rateData[]>(await db.execute(query));
+		const [rows] = parseRows<WeatherData[]>(await db.execute(query));
 		console.log(rows);
 		res.send(rows);
 	} catch (err) {

@@ -14,15 +14,18 @@ meter_dev = os.getenv("EGDEV", "http://egauge18646.egaug.es")
 meter_user = os.getenv("EGUSR", "ppridge1")
 meter_password = os.getenv("EGPWD", "ppridge")
 
+# Connect to MySQL (replace placeholders with actual values)
+db_config = {
+    "host": "host.docker.internal",
+    "user": "microgridManager",
+    "password": "sluggrid",
+    "database": "microgridManager",
+}
 
-def create_egauge_config_settings_table(host, user, password, database, table_name):
+
+def create_egauge_config_settings_table(table_name):
     # Connect to MySQL
-    connection = mysql.connector.connect(
-        host=host,
-        user=user,
-        password=password,
-        database=database
-    )
+    connection = mysql.connector.connect(**db_config)
 
     # Create a cursor object to interact with the database
     cursor = connection.cursor()
@@ -66,7 +69,7 @@ def create_egauge_config_settings_table(host, user, password, database, table_na
     connection.close()
 
 # Example usage
-create_egauge_config_settings_table('localhost', 'microgridManager', 'sluggrid', 'microgridManager', 'egauge_config_settings_table')
+create_egauge_config_settings_table('egauge_config_settings_table')
 
 
 # Function to create a device with retry logic
@@ -256,14 +259,6 @@ while True:
 
     print("\nRate Dictionary:")
     print(rate)
-
-    # Connect to MySQL (replace placeholders with actual values)
-    db_config = {
-        "host": "host.docker.internal",
-        "user": "microgridManager",
-        "password": "sluggrid",
-        "database": "microgridManager",
-    }
 
     # Connect to MySQL database
     connection = mysql.connector.connect(**db_config)

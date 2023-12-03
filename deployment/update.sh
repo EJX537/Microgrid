@@ -9,12 +9,16 @@ while [ "$(docker-compose ps -q)" != "" ]; do
   sleep 1
 done
 
+# Remove unused Docker images
+echo "Removing old Docker images"
+docker image prune -a -f
+
 # Check if we are on a Windows system
 echo "Deleting old docker-compose.yaml"
 if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
 	# Change to the /Program\ Files directory
 	cd "\Program Files"
-	rm docker-compose.yaml
+	rm -f docker-compose.yaml
 
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	# Change to the /opt directory

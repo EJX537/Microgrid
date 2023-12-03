@@ -1,5 +1,9 @@
 import { eGaugeData, requestBetweenPeriods } from './eGaugeTypes';
 
+const onLoadRequestConfig = () => {
+
+};
+
 const onloadRequest = (props: requestBetweenPeriods): eGaugeData[] | Error => {
 	const { source, startDate, endDate, target } = props;
 
@@ -16,4 +20,4 @@ const readSSEResponse = (target: URL): EventSource => {
 	return eventSource;
 };
 
-export { onloadRequest, readSSEResponse };
+export { onloadRequest, readSSEResponse, onLoadRequestConfig };

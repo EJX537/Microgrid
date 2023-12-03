@@ -44,5 +44,12 @@ services:
     container_name: powerview
     volumes:
       - ./micro-services/PowerView:/app
+
+  interface_2:
+    build: ./micro-services/weather
+    container_name: weather
+    volumes:
+      - ./micro-services/weather:/app
+      
 volumes:
   mysql-data:

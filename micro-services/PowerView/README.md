@@ -12,7 +12,7 @@ db_name
 
 
 ```
-Usage: python3 powerview_generation.py <User/Email> <Password>
+Usage: python3 powerview_generation.py <User/Email> <Password> <Using Docker true/false>
 ```
 
 ```

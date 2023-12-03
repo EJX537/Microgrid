@@ -238,20 +238,21 @@ function parseRows<T>(rows: any): T {
 
 // CONFIGURATIONS
 
-// let solarkconfig: solarkConfig = {
-//   devicename: "Solar device name",
-//   permission_username: "",
-//   permission_password: "",
-//   outlink: "",
-//   devicestatus: false
-// }
-// let eguageconfig: solarkConfig = {
-//   devicename: "Solar device name",
-//   permission_username: "",
-//   permission_password: "",
-//   outlink: "",
-//   devicestatus: false
-// }
+let solarkconfig: solarkConfig = {
+  devicename: "Solar device name",
+  permission_username: "",
+  permission_password: "",
+  outlink: "",
+  devicestatus: false
+}
+
+let eguageconfig: solarkConfig = {
+  devicename: "Solar device name",
+  permission_username: "",
+  permission_password: "",
+  outlink: "",
+  devicestatus: false
+}
 
 async function update(insertQuery: any, dataToInsert: any) {
   try {

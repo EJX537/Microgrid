@@ -3,8 +3,10 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import bodyParser = require('body-parser');
 import db from './db';
+// import mysql from 'mysql2/promise';
+// import * as pgPromise from 'pg-promise';
 
-import { RowDataPacket } from 'mysql2/promise';
+// import { RowDataPacket } from 'mysql2/promise';
 
 dotenv.config();
 
@@ -240,12 +242,23 @@ let solarkconfig: solarkConfig = {
   outlink: "",
   devicestatus: false
 }
-let eguageconfig: solarkConfig = {
-  devicename: "Solar device name",
-  permission_username: "",
-  permission_password: "",
-  outlink: "",
-  devicestatus: false
+// let eguageconfig: solarkConfig = {
+//   devicename: "Solar device name",
+//   permission_username: "",
+//   permission_password: "",
+//   outlink: "",
+//   devicestatus: false
+// }
+
+async function update(insertQuery: any, dataToInsert: any) {
+  try {
+    // Execute the insert query with the data
+    const [result] = await db.query(insertQuery, dataToInsert);
+
+    console.log('Data update successfully:', result);
+  } catch (error) {
+    console.error('Error inserting data:', error);
+  }
 }
 
 app.get("/configsolark", async (req: Request, res: Response) => {
@@ -273,22 +286,36 @@ app.put("/configsolark", function getkitchen(req: Request, res: Response){
 
 app.get("/configeguage", async (req: Request, res: Response) => {
   try{
-    res.send(eguageconfig);
+    let query = `
+      SELECT *
+      FROM egauge_config_settings_table
+      where devicename == "eguage";
+    `;
+    const [rows] = parseRows<rateData[]>(await db.execute(query));
+    res.send(rows);
   }catch(err){
     console.log(err);
   }
 });
 
-app.put("/configeguage", function getkitchen(req: Request, res: Response){
+app.put("/configeguage", async (req: Request, res: Response) => {
   try{
-    eguageconfig = {
-      devicename: req.query?.devicename as string,
-      permission_username: req.query?.permission_username as string,
-      permission_password: req.query?.permission_password as string,
-      outlink: req.query?.outlink as string,
-      devicestatus: req.query?.devicestatus == "true" ? true : false
-    }
-    res.send('config eguage success');
+    // const updateQuery = `INSERT INTO egauge_config_settings_table (device_name, permission_username, permission_password, outlink, device_status, freq_rate)
+    //   VALUES (req.query?.devicename as string, req.query?.permission_username as string, req.query?.permission_password as string, req.query?.outlink as string, req.query?.devicestatus as string, req.query?.freqrate as string)
+    //   ON DUPLICATE KEY UPDATE
+    //   device_name = VALUES(device_name),
+    //   permission_username = VALUES(permission_username)
+    //   permission_password = VALUES(permission_password),
+    //   outlink = VALUES(outlink),
+    //   device_status = VALUES(device_status),
+    //   freq_rate = VALUES(freq_rate)
+    //   ;`;
+      const updateQuery = `UPDATE egauge_config_settings_table
+      SET permission_username = "${req.query?.permission_username as string}", permission_password = "${req.query?.permission_password as string}", outlink = "${req.query?.outlink as string}", device_status = "${req.query?.device_status as string}", freq_rate = ${req.query?.freqrate as string}
+      WHERE device_name = "eguage"
+      ;`;
+    const [result] = await db.query(updateQuery);
+    res.send(`config eguage success ${result}`);
   }catch(err){
     console.log(err);
   }

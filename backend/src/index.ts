@@ -3,8 +3,10 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import bodyParser = require('body-parser');
 import db from './db';
+// import mysql from 'mysql2/promise';
+// import * as pgPromise from 'pg-promise';
 
-import { RowDataPacket } from 'mysql2/promise';
+// import { RowDataPacket } from 'mysql2/promise';
 
 dotenv.config();
 
@@ -236,65 +238,76 @@ function parseRows<T>(rows: any): T {
 
 // CONFIGURATIONS
 
-let solarkconfig: solarkConfig = {
-	devicename: "Solar device name",
-	permission_username: "",
-	permission_password: "",
-	outlink: "",
-	devicestatus: false
-}
-let eguageconfig: solarkConfig = {
-	devicename: "Solar device name",
-	permission_username: "",
-	permission_password: "",
-	outlink: "",
-	devicestatus: false
+// let solarkconfig: solarkConfig = {
+//   devicename: "Solar device name",
+//   permission_username: "",
+//   permission_password: "",
+//   outlink: "",
+//   devicestatus: false
+// }
+// let eguageconfig: solarkConfig = {
+//   devicename: "Solar device name",
+//   permission_username: "",
+//   permission_password: "",
+//   outlink: "",
+//   devicestatus: false
+// }
+
+async function update(insertQuery: any, dataToInsert: any) {
+  try {
+    // Execute the insert query with the data
+    const [result] = await db.query(insertQuery, dataToInsert);
+
+    console.log('Data update successfully:', result);
+  } catch (error) {
+    console.error('Error inserting data:', error);
+  }
 }
 
 app.get("/configsolark", async (req: Request, res: Response) => {
-	try {
-		res.send(solarkconfig);
-	} catch (err) {
-		console.log(err);
-	}
+  try{
+    res.send(solarkconfig);
+  }catch(err){
+    console.log(err);
+  }
 });
 
-app.put("/configsolark", function getkitchen(req: Request, res: Response) {
-	try {
-		solarkconfig = {
-			devicename: req.query?.devicename as string,
-			permission_username: req.query?.permission_username as string,
-			permission_password: req.query?.permission_password as string,
-			outlink: req.query?.outlink as string,
-			devicestatus: req.query?.devicestatus == "true" ? true : false
-		}
-		res.send('config sol ark success');
-	} catch (err) {
-		console.log(err);
-	}
+app.put("/configsolark", function getkitchen(req: Request, res: Response){
+  try{
+    solarkconfig = {
+      devicename: req.query?.devicename as string,
+      permission_username: req.query?.permission_username as string,
+      permission_password: req.query?.permission_password as string,
+      outlink: req.query?.outlink as string,
+      devicestatus: req.query?.devicestatus == "true" ? true : false
+    }
+    res.send('config sol ark success');
+  }catch(err){
+    console.log(err);
+  }
 });
 
 app.get("/configeguage", async (req: Request, res: Response) => {
-	try {
-		res.send(eguageconfig);
-	} catch (err) {
-		console.log(err);
-	}
+  try{
+    res.send(eguageconfig);
+  }catch(err){
+    console.log(err);
+  }
 });
 
-app.put("/configeguage", function getkitchen(req: Request, res: Response) {
-	try {
-		eguageconfig = {
-			devicename: req.query?.devicename as string,
-			permission_username: req.query?.permission_username as string,
-			permission_password: req.query?.permission_password as string,
-			outlink: req.query?.outlink as string,
-			devicestatus: req.query?.devicestatus == "true" ? true : false
-		}
-		res.send('config eguage success');
-	} catch (err) {
-		console.log(err);
-	}
+app.put("/configeguage", function getkitchen(req: Request, res: Response){
+  try{
+    eguageconfig = {
+      devicename: req.query?.devicename as string,
+      permission_username: req.query?.permission_username as string,
+      permission_password: req.query?.permission_password as string,
+      outlink: req.query?.outlink as string,
+      devicestatus: req.query?.devicestatus == "true" ? true : false
+    }
+    res.send('config eguage success');
+  }catch(err){
+    console.log(err);
+  }
 });
 
 //work in progress

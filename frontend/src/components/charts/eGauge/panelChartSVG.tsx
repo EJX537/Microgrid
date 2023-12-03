@@ -2,7 +2,6 @@ import React, { useRef, useEffect, useMemo } from 'react';
 import * as d3 from 'd3';
 import { Config, eGaugeData } from './eGaugeTypes';
 
-
 interface PanelChartSVGProps {
 	parent: React.MutableRefObject<HTMLDivElement | null>;
 	height: number;

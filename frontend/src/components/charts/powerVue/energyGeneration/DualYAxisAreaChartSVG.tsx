@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
 import * as d3 from 'd3';
 import { DataTypeWattHour } from './overviewEnergyChart';
 
@@ -10,57 +10,71 @@ interface DualYAxisAreaChartSVGProps {
 	capacity: number;
 }
 
-const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = (props: DualYAxisAreaChartSVGProps) => {
+const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = ({ width, height, capacity, data, parent }) => {
 	const svgRef = useRef<SVGSVGElement | null>(null);
+	const [div, setDiv] = useState<d3.Selection<HTMLDivElement, unknown, null, undefined> | null>(null);
 
-	const div = d3.select(props.parent.current).append('div')
-		.attr('class', 'tooltip absolute bg-slate-50 rounded-sm p-2',)
-		.style('opacity', 0);
+	useEffect(() => {
+		const tooltips = document.querySelectorAll('div.tooltip');
+		tooltips.forEach(tooltip => tooltip.remove());
+		setDiv(d3.select(parent.current)
+			.append('div')
+			.attr('class', 'tooltip absolute bg-slate-50 rounded-sm p-2',)
+			.style('opacity', 0));
+	}, [width, height, parent]);
 
 	const marginTop = 20;
 	const marginRight = 20;
 	const marginBottom = 20;
 	const marginLeft = 30;
 
+	const batteryData: DataTypeWattHour[] = data?.battery;
+	const otherData: DataTypeWattHour[] = d3.merge(Object.values(data).filter(d => d !== batteryData));
+
+	// Declare the y (vertical position) scale.
+	const yMax = useMemo(
+		() => Math.ceil((d3.max(otherData, d => d.watt) ?? 0) / 2000) * 2000
+		, [otherData]);
+	const yMin = useMemo(
+		() => Math.floor((d3.min(otherData, d => d.watt) ?? 0) / 2000) * 2000
+		, [otherData]);
+
+	// Declare the x (horizontal position) scale.
+	const x = useMemo(
+		() => d3.scaleTime(d3.extent(batteryData, d => d.dateTime) as [Date, Date], [marginLeft, width - marginRight])
+		, [batteryData, width]);
+
+	// Declare the y (vertical position) scale.
+	const y1 = useMemo(() => d3.scaleLinear()
+		.domain([yMin, yMax])
+		.range([height - 95, marginTop]), [height, yMax, yMin]);
+
+	const y2 = useMemo(() => d3.scaleLinear()
+		.domain([0, 100])
+		.range([height - 95, marginTop]), [height]);
+
+	const line = useMemo(() => d3.line<DataTypeWattHour>()
+		.x(d => x(d.dateTime) ?? 0)
+		.y(d => y2((d.watt / capacity) * 100))
+		.curve(d3.curveMonotoneX), [capacity, x, y2]);
+
+	const area = useMemo(() => d3.area<DataTypeWattHour>()
+		.x(d => x(d.dateTime))
+		.y0(d => y1(d.watt))
+		.y1(y1(0))
+		.curve(d3.curveMonotoneX), [x, y1]);
+
+	const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
 	useEffect(() => {
-		const { width, height, capacity, data } = props;
-		if (!svgRef.current || !width || !height || !data) return;
-
-		const batteryData: DataTypeWattHour[] = data?.battery;
-
-		const otherData: DataTypeWattHour[] = d3.merge(Object.values(data).filter(d => d !== batteryData));
-
+		if (!svgRef.current || !data) return;
 		const svg = d3.select(svgRef.current)
 			.attr('width', width)
 			.attr('height', height)
 			.attr('viewBox', [0, 0, width, height].join(' '))
 			.attr('style', 'width: 100%; height: 100%; overflow: hidden; font: 10px sans-serif; padding: 0px;');
 
-		// Declare the x (horizontal position) scale.
-		const x = d3.scaleTime(d3.extent(batteryData, d => d.dateTime) as [Date, Date], [marginLeft, width - marginRight]);
-
-		// Declare the y (vertical position) scale.
-		const yMax = Math.ceil((d3.max(otherData, d => d.watt) ?? 0) / 2000) * 2000;
-		const yMin = Math.floor((d3.min(otherData, d => d.watt) ?? 0) / 2000) * 2000;
-
-		const y1 = d3.scaleLinear()
-			.domain([yMin, yMax])
-			.range([height - 95, marginTop]);
-
-		// Declare the y (vertical position) scale.
-		const y2 = d3.scaleLinear()
-			.domain([0, 100])
-			.range([height - 95, marginTop]);
-
 		const sources = d3.union(otherData.map(d => d.source), ['battery']);
-
-		const area = d3.area<DataTypeWattHour>()
-			.x(d => x(d.dateTime))
-			.y0(d => y1(d.watt))
-			.y1(y1(0))
-			.curve(d3.curveMonotoneX);
-
-		const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
 		Array.from(otherData.reduce((set, d) => set.add(d.source), new Set<string>())).filter(source => source !== 'battery').forEach((source: string) => {
 			const data = otherData.filter(d => d.source === source);
@@ -76,18 +90,13 @@ const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = (props: Dual
 				.attr('d', area);
 		});
 
-		const line = d3.line<DataTypeWattHour>()
-			.x(d => x(d.dateTime) ?? 0)
-			.y(d => y2((d.watt / capacity) * 100))
-			.curve(d3.curveMonotoneX);
-
 		svg.append('path')
 			.datum(batteryData)
 			.attr('fill', 'none')
 			.attr('stroke', colorScale('battery'))
 			.attr('stroke-width', 1.5)
 			.attr('d', line);
-			
+
 		// For each tick...
 		y1.ticks(6).forEach(tickValue => {
 			// Append a line to the SVG
@@ -145,7 +154,7 @@ const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = (props: Dual
 			.attr('class', 'legendItem');
 
 		legendItem.append('rect')
-			.attr('x', (d, i) => i * 100)
+			.attr('x', (_, i) => i * 100)
 			.attr('width', 18)
 			.attr('height', 18)
 			.style('fill', (d) => d === 'eGuage' ? 'steelblue' : d === 'battery' ? 'green' : 'orange'); // Todo: Color From Source
@@ -157,7 +166,6 @@ const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = (props: Dual
 			.style('text-anchor', 'start')
 			.attr('font-size', '14px')
 			.text((d) => d);
-
 
 		// Append a group for the dot and text.
 		const dot = svg.append('g')
@@ -233,10 +241,10 @@ const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = (props: Dual
 		svg
 			.on('pointermove', pointermoved)
 			.on('pointerleave', pointerleft)
-			.on('touchstart', () => {}, { passive: true });
+			.on('touchstart', () => { }, { passive: true });
 
 		return () => { svg.selectAll('*').remove(); };
-	}, [svgRef, props, div]);
+	}, [area, batteryData, capacity, colorScale, data, div, line, otherData, width, height, x, y1, y2, yMax, yMin]);
 
 	// Return the SVG element.
 	return <svg ref={svgRef} />;

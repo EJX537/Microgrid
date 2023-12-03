@@ -33,11 +33,11 @@ const getItem = (
 };
 
 const items_mock: MenuProps['items'] = [
-	getItem('Dashboard', '/dashboard', <AppstoreOutlined />, undefined, undefined),
+	getItem('Dashboard', '/dashboard', <AppstoreOutlined />),
 	getItem('Sol-Ark', 'Sol-Ark', <DesktopOutlined />, [
-		getItem('Data View', '/sol-ark/data%20view', <BarChartOutlined />, undefined, undefined),
-		getItem('Configure', '/sol-ark/config', <SettingOutlined />, undefined, undefined),
-		getItem('Link', 'Sol-Ark OUTLINK', <LinkOutlined />, undefined, undefined)
+		getItem('Data View', '/sol-ark/data%20view', <BarChartOutlined />),
+		getItem('Configure', '/sol-ark/config', <SettingOutlined />),
+		getItem('Link', 'Sol-Ark OUTLINK', <LinkOutlined />)
 	]),
 	getItem('eGauge', 'eGauge', <DesktopOutlined />, [
 		getItem('Data View', '/egauge/data%20view', <BarChartOutlined />),
@@ -46,11 +46,11 @@ const items_mock: MenuProps['items'] = [
 	]),
 	getItem('Add Device', '/add%20device', <PlusOutlined />),
 	getItem('Backup Cloud', '/backup%20cloud', <CloudOutlined />),
-	getItem('Log', '/Log', <FileTextOutlined />),
-	getItem('Settings', '/Settings', <SettingOutlined />),
+	getItem('Log', '/log', <FileTextOutlined />),
+	getItem('Settings', '/settings', <SettingOutlined />),
 ];
 
-const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
+const SidebarContent = ({ collapsed }: { collapsed: boolean }) => {
 	const navigate = useNavigate();
 	const [selectedKey, selectKey] = useState(['']);
 	const pathname = window.location.pathname.toLowerCase();
@@ -78,7 +78,7 @@ const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
 		case 'Log':
 			navigate('/log');
 			return;
-		case 'Setting':
+		case 'Settings':
 			navigate('/settings');
 			return;
 		default:
@@ -97,4 +97,4 @@ const Sidebar = ({ collapsed }: { collapsed: boolean }) => {
 	);
 };
 
-export default Sidebar;
+export default SidebarContent;

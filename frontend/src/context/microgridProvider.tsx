@@ -1,20 +1,22 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { MicrogridState, ProviderProps } from '../interfaces/microgridContextTypes';
-import { BatteryChartConfig, EnergyGenerationConfig, eGaugeConfig, eGaugeConfigMap } from '../interfaces/configurationTypes';
+import { BatteryChartConfig, EnergyGenerationConfig, eGaugeConfig } from '../interfaces/configurationTypes';
 
 export const MicrogridContext = createContext<MicrogridState | undefined>(undefined);
 
 const dashboardConfigMock = {
-	chartCarouselConfigs: {
-		'Kitchen': {
-			source: 'http://localhost:8080/time',
+	chartCarouselConfigs: [
+		{
+			name: 'Kitchen',
+			source: 'S7_L1',
 			period: '30 seconds',
 		} as eGaugeConfig,
-		'HVAC': {
-			source: 'http://localhost:8080/time',
+		{
+			name: 'HVAC',
+			source: 'S3_L1',
 			period: '30 seconds',
 		} as eGaugeConfig,
-	} as eGaugeConfigMap,
+	],
 	batteryChartConfigs: {
 		warning: 0.4,
 		danger: 0.2,
@@ -22,7 +24,6 @@ const dashboardConfigMock = {
 	} as BatteryChartConfig,
 	energyUsageConfigs: {} as EnergyGenerationConfig,
 };
-
 
 const MicrogridProvider: React.FC<ProviderProps> = ({ children }) => {
 	const [user, setUser] = useState('root');

@@ -1,5 +1,5 @@
 import { Layout } from 'antd';
-import { BreadcrumbComponent, HeaderComponent, SidebarComponent } from '../components';
+import { HeaderComponent, SidebarComponent } from '../components';
 import { Content, Footer } from 'antd/es/layout/layout';
 import RoutesProvider from '../routes/routes';
 import { useMicrogrid } from '../context/useMicrogridContext';
@@ -8,12 +8,11 @@ import { useMicrogrid } from '../context/useMicrogridContext';
 const CoreLayout = () => {
 	const { collapsed } = useMicrogrid();
 	return (
-		<Layout hasSider className='min-h-screen min-w-screen font-serif'>
+		<Layout hasSider className='min-h-screen h-auto w-full font-serif'>
 			<SidebarComponent />
-			<Layout style={{ transition: 'margin-left .2s', marginLeft: collapsed ? 80 : 200 }} className='min-h-screen !min-w-[600px] w-full'>
+			<Layout style={{ transition: 'margin-left .2s', marginLeft: collapsed ? 80 : 200 }} className='min-h-screen !min-w-[600px] w-full flex flex-col justify-between'>
 				<HeaderComponent />
-				<BreadcrumbComponent />
-				<Content className='h-full bg-white w-full'>
+				<Content className='h-full bg-white w-full mt-16'>
 					<RoutesProvider />
 				</Content>
 				<Footer> Microgird Designs™©</Footer>

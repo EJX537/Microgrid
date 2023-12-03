@@ -16,6 +16,11 @@ const dashboardConfigMock = {
 			source: 'S3_L1',
 			period: '30 seconds',
 		} as eGaugeConfig,
+		{
+			name: 'WATER',
+			source: 'S5_L1',
+			period: '1 minute',
+		} as eGaugeConfig,
 	],
 	batteryChartConfigs: {
 		warning: 0.4,

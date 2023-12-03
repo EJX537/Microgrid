@@ -204,7 +204,7 @@ while True:
 
     # Connect to MySQL (replace placeholders with actual values)
     db_config = {
-        "host": "localhost",
+        "host": "host.docker.internal",
         "user": "microgridManager",
         "password": "sluggrid",
         "database": "microgridManager",
@@ -307,4 +307,3 @@ while True:
     cursor.close()
     connection.close()
     time.sleep(5)
-    time.sleep(30)

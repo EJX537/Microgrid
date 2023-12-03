@@ -38,16 +38,28 @@ const WaterTankWidget: React.FC<Widget> = () => {
 			<div className='h-0 opacity-0 group-hover/internal:h-auto group-hover/internal:opacity-100 group-hover/internal:p-2 pointer-events-none group-hover/internal:pointer-events-auto'>
 				<div className='border-t border-black h-0.5 my-2' />
 				<div className='flex flex-row h-auto w-full justify-evenly'>
-					<div className='flex flex-col justify-center h-full items-center text-center w-20 text-sm'>
-						<p>
-							1
-						</p>
-						<p>
-							2
-						</p>
-						<p>
-							3
-						</p>
+					<div className='flex flex-col h-full w-full text-sm overflow-y-scroll '>
+						<div className='w-full shadow-sm p-1 flex flex-col'>
+							<div>
+								On Grid
+							</div>
+							<div>
+								slider
+							</div>
+						</div>
+						<div className='w-full shadow-sm p-1 flex flex-col'>
+							<div>
+								Off Grid
+							</div>
+							<div>
+								slider
+							</div>
+						</div>
+						<div className='w-full shadow-sm p-1 flex flex-col'>
+							<div>
+								Add rule
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

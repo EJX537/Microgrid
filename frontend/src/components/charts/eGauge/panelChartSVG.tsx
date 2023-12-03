@@ -50,8 +50,8 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit
 		.range([marginLeft, width]), [xDomain, marginLeft, width]);
 
 	const y = useMemo(() => d3.scaleLinear()
-		.domain([0, (d3.max(data, d => d.value) as number) * 1.4])
-		.range([height - marginBottom, marginTop]), [data, height]);
+		.domain([0, (d3.max(filteredData, d => d.value) as number) * 1.4])
+		.range([height - marginBottom, marginTop]), [filteredData, height]);
 
 	const line = useMemo(() => d3.line<eGaugeData>()
 		.x(d => x(d.dateTime) as number)
@@ -61,7 +61,7 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit
 
 
 	useEffect(() => {
-		if (!svgRef.current || data.length === 0 || !unit) return;
+		if (!svgRef.current || filteredData.length === 0 || !unit) return;
 
 		const svg = d3.select(svgRef.current)
 			.attr('width', width)
@@ -89,13 +89,13 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit
 		svg.append('g')
 			.attr('transform', `translate(0,${height - marginBottom})`)
 			.call(xAxis)
-			.attr('font-size', '14px');
+			.attr('font-size', '10px');
 
 		// Add the y-axis, remove the domain line, add grid lines and a label.
 		svg.append('g')
 			.attr('transform', `translate(${marginLeft},0)`)
 			.call(d3.axisLeft(y).ticks(5))
-			.attr('font-size', '14px')
+			.attr('font-size', '10px')
 			.call(g => g.select('.domain').remove())
 			.call(g => g.selectAll('.tick line').clone()
 				.attr('x2', width - marginLeft)
@@ -115,7 +115,7 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit
 			.attr('d', line(filteredData));
 
 		return () => { svg.selectAll('*').remove(); };
-	}, [data.length, div, filteredData, formatTime, height, lastMousePosition, line, points, unit, width, x, xDomain, y]);
+	}, [div, filteredData, formatTime, height, lastMousePosition, line, points, unit, width, x, xDomain, y]);
 
 	useEffect(() => {
 		const svg = d3.select(svgRef.current);
@@ -124,27 +124,28 @@ const PanelChartSVG: React.FC<PanelChartSVGProps> = ({ width, height, data, unit
 		// Define the mousemove function.
 		const pointermoved = (event: React.PointerEvent<SVGSVGElement> | [number, number]) => {
 			const [xm, ym] = Array.isArray(event) ? event : d3.pointer(event);
-
+			svg.selectAll('.vertical-line').remove(); // Remove existing line
 			if (!lastMousePosition || Math.abs(xm - lastMousePosition[0]) > 1 || Math.abs(ym - lastMousePosition[1]) > 1) {
-				svg.selectAll('.vertical-line').remove(); // Remove existing line
 				setLastMousePosition([xm, ym]);
 			}
 
 			const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
 			if (i === undefined) return;
 
-			const [x_i] = points[i];
+			if (i < points.length) {
+				const [x_i] = points[i];
 
-			// Draw a vertical line at the x-axis
-			svg.append('line')
-				.attr('class', 'vertical-line')
-				.attr('x1', x_i)
-				.attr('y1', marginTop)
-				.attr('x2', x_i)
-				.attr('y2', height - marginBottom)
-				.attr('stroke', 'black')
-				.attr('stroke-width', 1)
-				.attr('stroke-dasharray', '5,5');
+				// Draw a vertical line at the x-axis
+				svg.append('line')
+					.attr('class', 'vertical-line')
+					.attr('x1', x_i)
+					.attr('y1', marginTop)
+					.attr('x2', x_i)
+					.attr('y2', height - marginBottom)
+					.attr('stroke', 'black')
+					.attr('stroke-width', 1)
+					.attr('stroke-dasharray', '5,5');
+			}
 
 			div.html(`
 							<p>Time: ${formatTime(filteredData[i].dateTime)}</p>

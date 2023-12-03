@@ -52,6 +52,14 @@ def create_egauge_config_settings_table(host, user, password, database, table_na
         cursor.execute(create_table_query)
         print(f"Table {table_name} created.")
 
+        add_eguage_query = f"""
+        INSERT INTO {table_name} (device_name, permission_username, permission_password, outlink, device_status, freq_gitrate)
+        VALUES ("eguage", "", "", "", "off", 100);
+        """
+        
+        cursor.execute(add_eguage_query)
+        print(f"Table {table_name} updated with eguage config.")
+
     # Commit the changes and close the connection
     connection.commit()
     cursor.close()

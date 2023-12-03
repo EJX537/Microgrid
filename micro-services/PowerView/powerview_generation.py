@@ -39,6 +39,59 @@ db_config = {
 
 outage_timer = 0
 
+def create_powerview_config_settings_table(host, user, password, database, table_name):
+    # Connect to MySQL
+    connection = mysql.connector.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database
+    )
+
+    # Create a cursor object to interact with the database
+    cursor = connection.cursor()
+
+    # SQL query to check if the table exists
+    check_table_query = f"SHOW TABLES LIKE '{table_name}'"
+
+    # Execute the query
+    cursor.execute(check_table_query)
+
+    # Fetch the result
+    table_exists = cursor.fetchone()
+
+    # If the table doesn't exist, create it
+    if not table_exists:
+        create_table_query = f"""
+        CREATE TABLE {table_name} (
+            device_name VARCHAR(255),
+            permission_username VARCHAR(255),
+            permission_password VARCHAR(255),
+            outlink VARCHAR(255),
+            device_status VARCHAR(255),
+            freq_rate INT
+        )
+        """
+        
+        cursor.execute(create_table_query)
+        print(f"Table {table_name} created.")
+
+        add_powerview_query = f"""
+        INSERT INTO {table_name} (device_name, permission_username, permission_password, outlink, device_status, freq_rate)
+        VALUES ("powerview", "", "", "", "off", 100);
+        """
+        
+        cursor.execute(add_powerview_query)
+        print(f"Table {table_name} updated with powerview config.")
+
+    # Commit the changes and close the connection
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+# Example usage
+create_powerview_config_settings_table('localhost', 'microgridManager', 'sluggrid', 'microgridManager', 'powerview_config_settings_table')
+
 # print bearer/access token
 def my_bearer_token():
     headers = {

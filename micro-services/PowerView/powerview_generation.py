@@ -99,7 +99,7 @@ def get_and_insert_data():
 
     #outage detection
     global outage_timer
-    if (not all_data['gridTo']):
+    if (not all_data['gridTo'] and not all_data['toGrid']):
         outage_timer += 5
         if (outage_timer >= 30):
             print('Outage longer than 30 minutes detected')

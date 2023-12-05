@@ -27,7 +27,7 @@ if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ "$OSTYPE" == "c
 	mkdir -p "C:\Program Files\Microgrid Manager"
 
 	# Change to the /Program\ Files directory
-	cd "\Program Files\Microgrid Manager"
+	cd "C:\Program Files\Microgrid Manager"
 
 	# Make a folder for the database
 	mkdir "database"

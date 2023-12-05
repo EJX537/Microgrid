@@ -17,7 +17,7 @@ docker image prune -a -f
 echo "Deleting old docker-compose.yaml"
 if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
 	# Change to the /Program\ Files directory
-	cd "\Program Files"
+	cd "C:\Program Files"
 	rm -f docker-compose.yaml
 
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then

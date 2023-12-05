@@ -24,7 +24,7 @@ if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ "$OSTYPE" == "c
   export PATH=$PATH:"C:\Program Files\Docker\Docker\resources\bin"
 
 	# Create a new directory in the /Program\ Files directory
-	mkdir -p "\Program Files\Microgrid Manager"
+	mkdir -p "C:\Program Files\Microgrid Manager"
 
 	# Change to the /Program\ Files directory
 	cd "\Program Files\Microgrid Manager"

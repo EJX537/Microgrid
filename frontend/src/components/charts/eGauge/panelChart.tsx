@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import PanelChartSVG from './panelChartSVG';
 
 import { Config, eGaugeData } from './eGaugeTypes';
@@ -89,7 +89,7 @@ const PanelChart: React.FC<PanelChartProps> = ({ index, height = 300, width = 33
 						{dataSet.length > 0 ? dataSet[dataSet.length - 1].unit : 'W'} 
 					</span>
 				</p>
-				<button className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-ou' onClick={() => { setShowConfig(!showConfig); }}>
+				<button className={`${collapsed ? 'hidden' : ''} opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 ease-in-out`} onClick={() => { setShowConfig(!showConfig); }}>
 					<SettingOutlined />
 				</button>
 			</div>

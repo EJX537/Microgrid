@@ -9,17 +9,87 @@ from typing import List
 import json
 import time
 
-
-# Specify eGauge details - This is what lets us connect to our
-# particular meter
+# Specify eGauge details - This is what lets us connect to our particular meter
 meter_dev = os.getenv("EGDEV", "http://egauge18646.egaug.es")
 meter_user = os.getenv("EGUSR", "ppridge1")
 meter_password = os.getenv("EGPWD", "ppridge")
 
-dev = webapi.device.Device(meter_dev, webapi.JWTAuth(meter_user, meter_password))
+# Connect to MySQL (replace placeholders with actual values)
+db_config = {
+    "host": "host.docker.internal",
+    "user": "microgridManager",
+    "password": "sluggrid",
+    "database": "microgridManager",
+}
 
- # Request values for all available sensors: built-in environmental
-# sensors, all line inputs, and all sensors.
+
+def create_egauge_config_settings_table(table_name):
+    # Connect to MySQL
+    connection = mysql.connector.connect(**db_config)
+
+    # Create a cursor object to interact with the database
+    cursor = connection.cursor()
+
+    # SQL query to check if the table exists
+    check_table_query = f"SHOW TABLES LIKE '{table_name}'"
+
+    # Execute the query
+    cursor.execute(check_table_query)
+
+    # Fetch the result
+    table_exists = cursor.fetchone()
+
+    # If the table doesn't exist, create it
+    if not table_exists:
+        create_table_query = f"""
+        CREATE TABLE {table_name} (
+            device_name VARCHAR(255),
+            permission_username VARCHAR(255),
+            permission_password VARCHAR(255),
+            outlink VARCHAR(255),
+            device_status VARCHAR(255),
+            freq_rate INT
+        )
+        """
+        
+        cursor.execute(create_table_query)
+        print(f"Table {table_name} created.")
+
+        add_eguage_query = f"""
+        INSERT INTO {table_name} (device_name, permission_username, permission_password, outlink, device_status, freq_gitrate)
+        VALUES ("eguage", "", "", "", "off", 100);
+        """
+        
+        cursor.execute(add_eguage_query)
+        print(f"Table {table_name} updated with eguage config.")
+
+    # Commit the changes and close the connection
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+# Example usage
+create_egauge_config_settings_table('egauge_config_settings_table')
+
+
+# Function to create a device with retry logic
+def create_egauge_device(dev_url, user, password, retry_interval=300, max_retries=10):
+    retries = 0
+    while retries < max_retries:
+        try:
+            dev = webapi.device.Device(dev_url, webapi.JWTAuth(user, password))
+            return dev
+        except Exception as e:
+            print(f"Error creating eGauge device: {e}")
+            retries += 1
+            print(f"Retrying in {retry_interval} seconds...")
+            time.sleep(retry_interval)
+    print(f"Max retries reached. Exiting.")
+    return None
+
+# Create eGauge device with retry logic
+dev = create_egauge_device(meter_dev, meter_user, meter_password)
+
 sensors = ["env=all", "l=all", "s=all"]
 
 # Request all available sections: the sensor values themselves as well
@@ -39,7 +109,7 @@ measurements = ["normal", "mean", "freq"]
 query_string = "&".join(sections + metrics)
 
 # Function to create a MySQL connection
-def create_connection(mysql_config):
+def create_connection():
     try:
         connection = mysql.connector.connect(**mysql_config)
         if connection.is_connected():
@@ -168,21 +238,15 @@ def insert_or_update_cumulative(table_name, nested_data, column_names):
 
 
 while True:
+    # Fetch the sensor values from the meter
+    if dev:
+        local = Local(dev, query_string)
+        string_version = str(local)
+        data = json.loads(string_version)
 
-    # Fetch the sensor values from the meter:
-    local = Local(dev, query_string)
-
-    # print(data_dict)
-    # print(local)
-    print("string version", str(local))
-    string_version = str(local)
-    # THIS IS WHAT DATA THE SQL QUERIES WILL LOOP THROUGH
-    data = json.loads(
-        string_version
-    )  
-
-
-    #I am keeping these debug prints in on purpose
+        # The rest of your code for processing and inserting data into MySQL
+        # ...
+ #I am keeping these debug prints in on purpose
     #because if something goes wrong it will let us tell what is wrong
     cumulative = {}
     rate = {}
@@ -196,17 +260,10 @@ while True:
     print("\nRate Dictionary:")
     print(rate)
 
-    # Connect to MySQL (replace placeholders with actual values)
-    db_config = {
-        "host": 'host.docker.internal',
-        "user": "microgridManager",
-        "password": "sluggrid",
-        "database": "microgridManager",
-    }
-
     # Connect to MySQL database
-    connection = create_connection(db_config)
+    connection = mysql.connector.connect(**db_config)
     cursor = connection.cursor()
+
 
     # Check if the 'cumulative' table exists
     cursor.execute("SHOW TABLES LIKE 'cumulative'")

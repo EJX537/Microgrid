@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import PanelChartSVG from './panelChartSVG';
 
 import { Config, eGaugeData } from './eGaugeTypes';
@@ -11,6 +11,7 @@ interface PanelChartProps {
 	width?: number;
 	index: number;
 	dataSet: eGaugeData[];
+	collapsed: boolean;
 }
 
 type TooltipInfo = {
@@ -37,21 +38,12 @@ const displayOptions = [
 	{ value: '1 hour', label: '1 hour' },
 ];
 
-const PanelChart: React.FC<PanelChartProps> = ({ index, height = 300, width = 330, dataSet }) => {
-	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+const PanelChart: React.FC<PanelChartProps> = ({ index, height = 300, width = 330, dataSet, collapsed }) => {
 	const parentRef = useRef<HTMLDivElement | null>(null);
 	const [showConfig, setShowConfig] = useState(false);
 	const [showAlert, setShowAlert] = useState({ content: '', show: false });
 	const { config, setConfig } = useMicrogrid();
 	const [configState, setConfigState] = useState<Config>(config.chartCarouselConfigs[index]);
-	useEffect(() => {
-		if (parentRef.current) {
-			setDimensions({
-				width: parentRef.current.offsetWidth,
-				height: parentRef.current.offsetHeight
-			});
-		}
-	}, [parentRef]);
 
 	const handleEditInput = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
 		setConfigState((prevState) => ({ ...prevState, [key]: e.target.value }));
@@ -81,17 +73,28 @@ const PanelChart: React.FC<PanelChartProps> = ({ index, height = 300, width = 33
 	};
 
 	return (
-		<div key='1' className={`h-[${height}px] w-[${width}px] bg-white rounded-md flex flex-col group relative`}>
-			<div className='h-auto px-2 text-base font-mediums flex justify-between mb-2 items-center p-2'>
+		<div key='1' className={`w-[${width}px] bg-white rounded-md flex flex-col group relative`}>
+			<div className='h-auto px-2 text-base font-mediums flex justify-between items-center p-2'>
 				<p>
-					{configState.name}
+					<span>
+						{configState.name}
+					</span>
+					<span>
+						:
+					</span>
+					<span className='pl-2'>
+						{dataSet.length > 0 ? Number(dataSet[dataSet.length - 1].value).toFixed(2) : '0'} 
+					</span>
+					<span>
+						{dataSet.length > 0 ? dataSet[dataSet.length - 1].unit : 'W'} 
+					</span>
 				</p>
-				<button className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-ou' onClick={() => { setShowConfig(!showConfig); }}>
+				<button className={`${collapsed ? 'hidden' : ''} opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 ease-in-out`} onClick={() => { setShowConfig(!showConfig); }}>
 					<SettingOutlined />
 				</button>
 			</div>
-			<div className='w-full flex-grow relative p-2' ref={parentRef}>
-				{/* <PanelChartSVG height={dimensions.height} width={dimensions.width} data={dataSet} unit={'W'} parent={parentRef} config={config} /> */}
+			<div className={`${collapsed ? 'h-0 opacity-0 pointer-events-none' : 'h-[' + height + '] opacity-100 p-2 mt-2'} w-full flex-grow relative transition-all duration-100`} ref={parentRef}>
+				<PanelChartSVG height={150} width={250} data={dataSet} unit={'W'} parent={parentRef} config={configState} />
 			</div>
 			<div className={`absolute h-full items-center justify-center flex w-full ${showConfig ? '' : 'hidden'}`}>
 				<div className='bg-slate-200 w-3/4 flex h-full p-4 rounded-md flex-col'>

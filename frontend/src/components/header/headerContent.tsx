@@ -10,6 +10,7 @@ import { useState } from 'react';
 
 const content_process = (
 	<div className='w-full flex flex-col gap-2'>
+		<h1 className="w-full bg-yellow-400 p-2 mb-4 rounded-sm text-red-600">WORK IN PROGRESS</h1>
 		<p>
 			No ongoing processes
 		</p>
@@ -22,6 +23,7 @@ const content_process = (
 
 const content_notification = (
 	<div className='w-full flex flex-col gap-2'>
+		<h1 className="w-full bg-yellow-400 p-2 mb-4 rounded-sm text-red-600">WORK IN PROGRESS</h1>
 		<p>
 			Expect Heavy Rainfall and Low Visability
 		</p>

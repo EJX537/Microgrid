@@ -3,8 +3,10 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import bodyParser = require('body-parser');
 import db from './db';
+// import mysql from 'mysql2/promise';
+// import * as pgPromise from 'pg-promise';
 
-import { RowDataPacket } from 'mysql2/promise';
+// import { RowDataPacket } from 'mysql2/promise';
 
 dotenv.config();
 
@@ -45,18 +47,20 @@ interface WeatherData {
 	windSpeed: string;
 }
 
-// interface kitchenData {
-//   source: string;
-//   dateTime: Date;
-//   S11_L1: number;
-//   S12_L2: number;
-//   unit: string;
-// }
+interface solarkConfig{
+  devicename: string;
+  permission_username: string,
+  permission_password: string,
+	outlink: string,
+  devicestatus: boolean
+}
 
-interface batteryConfig{
-  source: string;
-  warning: number,
-	danger: number,
+interface eguageConfig{
+  devicename: string;
+  permission_username: string,
+  permission_password: string,
+	outlink: string,
+  devicestatus: boolean
 }
 
 interface powerViewData{
@@ -209,61 +213,135 @@ app.get("/weather", async (req: Request, res: Response) => {
   }
 });
 
-//powerview battery charge get
-app.get("/powerview", async (req: Request, res: Response) => {
-  try{
-    let query = `
-      SELECT pac, etoday, etotal, income, updateAt
+
+interface powerviewData {
+	pac: number;
+	toGrid: boolean;
+	gridTo: boolean;
+	soc: number;
+	status: number;
+	battPower: number;
+	toBat: number;
+}
+
+// Powerview SSE call
+async function getPowerView(res: Response) {
+	try {
+		let query = `
+      SELECT *
       FROM powerview_data 
-      ORDER BY updateAt  DESC LIMIT 1;
+      ORDER BY updateAt DESC LIMIT 1;
     `;
-    const [rows] = parseRows<rateData[]>(await db.execute(query));
-    res.send(rows);
-    // console.log(rows);
-  }catch(err){
-    console.log(err);
-  }
+		const [rows] = (await db.execute(query));
+		const val = parseRows<powerviewData[]>(rows)[0]
+
+		const data: powerviewData = {
+			pac: val.pac,
+			toGrid: val.toGrid,
+			gridTo: val.gridTo,
+			soc: val.soc,
+			status: val.status,
+			battPower: val.battPower,
+			toBat: val.toBat,
+		}
+
+		res.write(`data: ${JSON.stringify(data)}\n\n`);
+
+		setTimeout(() => getPowerView(res), 5 * 60 * 1000); // 5 minutes
+	} catch (error) {
+		console.error("An error occurred:", error);
+		// Handle the error gracefully, e.g., send an error response to the client
+		res.status(500).send("An error occurred");
+	}
+}
+
+// Powerview battery charge get
+app.get("/powerview", async (req: Request, res: Response) => {
+	res.setHeader("Content-Type", "text/event-stream");
+	await getPowerView(res);
 });
 
 function parseRows<T>(rows: any): T {
   return rows as T;
 }
 
-//poweor outage solar get
-app.get("/solarConfig", async (req: Request, res: Response) => {
+// CONFIGURATIONS
+
+let solarkconfig: solarkConfig = {
+	devicename: "Solar device name",
+	permission_username: "",
+	permission_password: "",
+	outlink: "",
+	devicestatus: false
+}
+
+let eguageconfig: solarkConfig = {
+	devicename: "Solar device name",
+	permission_username: "",
+	permission_password: "",
+	outlink: "",
+	devicestatus: false
+}
+
+async function update(insertQuery: any, dataToInsert: any) {
+	try {
+		// Execute the insert query with the data
+		const [result] = await db.query(insertQuery, dataToInsert);
+
+		console.log('Data update successfully:', result);
+	} catch (error) {
+		console.error('Error inserting data:', error);
+	}
+}
+
+app.get("/configsolark", async (req: Request, res: Response) => {
   try{
-    const data: batteryConfig = {
-      source: "Solar",
-      warning: 0.4,
-      danger: 0.2,
-    }
-    const [rows] = await db.execute('SELECT * FROM rate ORDER BY time DESC LIMIT 1;');
-    const val = parseRows<rateData[]>(rows);
-    console.log(val[0].time)
-    res.send(`data: ${JSON.stringify(data)}\n\n`);
-    // res.send('solar GET');
+    res.send(solarkconfig);
   }catch(err){
     console.log(err);
   }
 });
 
-//powerview energy generation server sent event and get request
-app.get("/energy", (request, response)=>{
-  response.setHeader("Content-Type", "text/event-stream");
-  periodicEnergy(response);
-});
-function periodicEnergy(res: Response){
-  const data: powerViewData = {
-    dateTime: new Date(),
-    source: "Energy",
-    watt: 5000
+app.put("/configsolark", function getkitchen(req: Request, res: Response){
+  try{
+    solarkconfig = {
+      devicename: req.query?.devicename as string,
+      permission_username: req.query?.permission_username as string,
+      permission_password: req.query?.permission_password as string,
+      outlink: req.query?.outlink as string,
+      devicestatus: req.query?.devicestatus == "true" ? true : false
+    }
+    res.send('config sol ark success');
+  }catch(err){
+    console.log(err);
   }
-  res.write("data: " + `${JSON.stringify(data)}\n\n`)
-  setTimeout(()=>periodicEnergy(res), 1000);
-}
+});
 
-//config get and put
-app.get("/solar", function getkitchen(res: Response){
+app.get("/configeguage", async (req: Request, res: Response) => {
+  try{
+    res.send(eguageconfig);
+  }catch(err){
+    console.log(err);
+  }
+});
+
+app.put("/configeguage", function getkitchen(req: Request, res: Response){
+  try{
+    eguageconfig = {
+      devicename: req.query?.devicename as string,
+      permission_username: req.query?.permission_username as string,
+      permission_password: req.query?.permission_password as string,
+      outlink: req.query?.outlink as string,
+      devicestatus: req.query?.devicestatus == "true" ? true : false
+    }
+    res.send('config eguage success');
+  }catch(err){
+    console.log(err);
+  }
+});
+
+//work in progress
+app.get("/settings", function getkitchen(res: Response){
   try{
     res.send('dashboard config GET: ' + JSON.stringify(dashboard));
   }catch(err){
@@ -271,7 +349,7 @@ app.get("/solar", function getkitchen(res: Response){
   }
 });
 
-app.put("/solar", function getkitchen(req: Request, res: Response){
+app.put("/settings", function getkitchen(req: Request, res: Response){
   try{
     dashboard = {
       refreshRate: parseInt(req.params.refreshRate),

@@ -34,7 +34,7 @@ const data = {
 	'PowerVue': data3
 };
 
-const BatteryChart = () => {
+const GenerationChart = () => {
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 	const parentRef = useRef<HTMLDivElement | null>(null);
 	useEffect(() => {
@@ -53,4 +53,4 @@ const BatteryChart = () => {
 	);
 };
 
-export default BatteryChart;
+export default GenerationChart;

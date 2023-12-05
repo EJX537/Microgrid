@@ -4,41 +4,28 @@ import { weatherIcons } from './svgImports';
 
 interface WeatherData {
 	detailedForecast: string;
-	dewpoint: {
-		unitCode: string;
-		value: number;
-	};
-	endTime: string;
 	icon: string;
-	isDaytime: boolean;
+	id: number;
 	name: string;
 	number: number;
 	probabilityOfPrecipitation: {
 		unitCode: string;
 		value: number | null;
 	};
-	relativeHumidity: {
-		unitCode: string;
-		value: number;
-	};
 	shortForecast: string;
 	startTime: string;
 	temperature: number;
-	temperatureTrend: null;
-	temperatureUnit: string;
-	windDirection: string;
-	windSpeed: string;
 }
 
 const WeatherWidget: React.FC<Widget> = () => {
-	const [weatherData, setWeatherData] = useState([] as WeatherData[]);
+	const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
 	const parentRef = useRef<HTMLDivElement>(null);
 	const [itemsCount, setItemsCount] = useState(0);
 
 	useEffect(() => {
-		fetch('https://api.weather.gov/gridpoints/MTR/93,67/forecast')
+		fetch('http://localhost:8080/weather')
 			.then(response => response.json())
-			.then(data => setWeatherData(data.properties.periods));
+			.then(data => setWeatherData(data));
 	}, []);
 
 	useEffect(() => {
@@ -48,7 +35,7 @@ const WeatherWidget: React.FC<Widget> = () => {
 			setItemsCount(Math.floor(parentWidth / itemWidth));
 		}
 	}, [weatherData, parentRef.current?.offsetWidth]);
-	
+
 	return (
 		<div className='group/internal hover:flex-grow text-lg px-2 flex flex-col p-4 bg-slate-50 rounded-md pointer-events-auto transition-all duration-300 ease-in-out transform hover:scale-101'>
 			<div className='flex items-center justify-between w-full'>

@@ -216,20 +216,52 @@ app.get("/weather", async (req: Request, res: Response) => {
 	}
 });
 
-//powerview battery charge get
-app.get("/powerview", async (req: Request, res: Response) => {
+
+interface powerviewData {
+	pac: number;
+	toGrid: boolean;
+	gridTo: boolean;
+	soc: number;
+	status: number;
+	battPower: number;
+	toBat: number;
+}
+
+// Powerview SSE call
+async function getPowerView(res: Response) {
 	try {
 		let query = `
-      SELECT pac, etoday, etotal, income, updateAt
+      SELECT *
       FROM powerview_data 
-      ORDER BY updateAt  DESC LIMIT 1;
+      ORDER BY updateAt DESC LIMIT 1;
     `;
-		const [rows] = parseRows<rateData[]>(await db.execute(query));
-		res.send(rows);
-		// console.log(rows);
-	} catch (err) {
-		console.log(err);
+		const [rows] = (await db.execute(query));
+		const val = parseRows<powerviewData[]>(rows)[0]
+
+		const data: powerviewData = {
+			pac: val.pac,
+			toGrid: val.toGrid,
+			gridTo: val.gridTo,
+			soc: val.soc,
+			status: val.status,
+			battPower: val.battPower,
+			toBat: val.toBat,
+		}
+
+		res.write(`data: ${JSON.stringify(data)}\n\n`);
+
+		setTimeout(() => getPowerView(res), 5 * 60 * 1000); // 5 minutes
+	} catch (error) {
+		console.error("An error occurred:", error);
+		// Handle the error gracefully, e.g., send an error response to the client
+		res.status(500).send("An error occurred");
 	}
+}
+
+// Powerview battery charge get
+app.get("/powerview", async (req: Request, res: Response) => {
+	res.setHeader("Content-Type", "text/event-stream");
+	await getPowerView(res);
 });
 
 function parseRows<T>(rows: any): T {
@@ -239,76 +271,76 @@ function parseRows<T>(rows: any): T {
 // CONFIGURATIONS
 
 let solarkconfig: solarkConfig = {
-  devicename: "Solar device name",
-  permission_username: "",
-  permission_password: "",
-  outlink: "",
-  devicestatus: false
+	devicename: "Solar device name",
+	permission_username: "",
+	permission_password: "",
+	outlink: "",
+	devicestatus: false
 }
 
 let eguageconfig: solarkConfig = {
-  devicename: "Solar device name",
-  permission_username: "",
-  permission_password: "",
-  outlink: "",
-  devicestatus: false
+	devicename: "Solar device name",
+	permission_username: "",
+	permission_password: "",
+	outlink: "",
+	devicestatus: false
 }
 
 async function update(insertQuery: any, dataToInsert: any) {
-  try {
-    // Execute the insert query with the data
-    const [result] = await db.query(insertQuery, dataToInsert);
+	try {
+		// Execute the insert query with the data
+		const [result] = await db.query(insertQuery, dataToInsert);
 
-    console.log('Data update successfully:', result);
-  } catch (error) {
-    console.error('Error inserting data:', error);
-  }
+		console.log('Data update successfully:', result);
+	} catch (error) {
+		console.error('Error inserting data:', error);
+	}
 }
 
 app.get("/configsolark", async (req: Request, res: Response) => {
-  try{
-    res.send(solarkconfig);
-  }catch(err){
-    console.log(err);
-  }
+	try {
+		res.send(solarkconfig);
+	} catch (err) {
+		console.log(err);
+	}
 });
 
-app.put("/configsolark", function getkitchen(req: Request, res: Response){
-  try{
-    solarkconfig = {
-      devicename: req.query?.devicename as string,
-      permission_username: req.query?.permission_username as string,
-      permission_password: req.query?.permission_password as string,
-      outlink: req.query?.outlink as string,
-      devicestatus: req.query?.devicestatus == "true" ? true : false
-    }
-    res.send('config sol ark success');
-  }catch(err){
-    console.log(err);
-  }
+app.put("/configsolark", function getkitchen(req: Request, res: Response) {
+	try {
+		solarkconfig = {
+			devicename: req.query?.devicename as string,
+			permission_username: req.query?.permission_username as string,
+			permission_password: req.query?.permission_password as string,
+			outlink: req.query?.outlink as string,
+			devicestatus: req.query?.devicestatus == "true" ? true : false
+		}
+		res.send('config sol ark success');
+	} catch (err) {
+		console.log(err);
+	}
 });
 
 app.get("/configeguage", async (req: Request, res: Response) => {
-  try{
-    res.send(eguageconfig);
-  }catch(err){
-    console.log(err);
-  }
+	try {
+		res.send(eguageconfig);
+	} catch (err) {
+		console.log(err);
+	}
 });
 
-app.put("/configeguage", function getkitchen(req: Request, res: Response){
-  try{
-    eguageconfig = {
-      devicename: req.query?.devicename as string,
-      permission_username: req.query?.permission_username as string,
-      permission_password: req.query?.permission_password as string,
-      outlink: req.query?.outlink as string,
-      devicestatus: req.query?.devicestatus == "true" ? true : false
-    }
-    res.send('config eguage success');
-  }catch(err){
-    console.log(err);
-  }
+app.put("/configeguage", function getkitchen(req: Request, res: Response) {
+	try {
+		eguageconfig = {
+			devicename: req.query?.devicename as string,
+			permission_username: req.query?.permission_username as string,
+			permission_password: req.query?.permission_password as string,
+			outlink: req.query?.outlink as string,
+			devicestatus: req.query?.devicestatus == "true" ? true : false
+		}
+		res.send('config eguage success');
+	} catch (err) {
+		console.log(err);
+	}
 });
 
 //work in progress

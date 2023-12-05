@@ -18,7 +18,7 @@ interface WeatherData {
 }
 
 const WeatherWidget: React.FC<Widget> = () => {
-	const [weatherData, setWeatherData] = useState([] as WeatherData[]);
+	const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
 	const parentRef = useRef<HTMLDivElement>(null);
 	const [itemsCount, setItemsCount] = useState(0);
 

@@ -8,11 +8,40 @@ from egauge.webapi.device.physical_quantity import PhysicalQuantity
 from typing import List
 import json
 import time
+import requests
+
 
 # Specify eGauge details - This is what lets us connect to our particular meter
 meter_dev = os.getenv("EGDEV", "http://egauge18646.egaug.es")
 meter_user = os.getenv("EGUSR", "ppridge1")
 meter_password = os.getenv("EGPWD", "ppridge")
+
+
+
+url = 'http://localhost:8080/configeguage'
+
+
+#Basically all that has to be done here is
+#evalute the response
+#parse and get the username & password
+#along with the freq_rate
+#assign those to variables (global/env)??
+#plug them into the current login info
+try:
+    response = requests.get(url)
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        # Print the response content
+        print('**** This is what the config endpoint is giving us ****')
+        print(response.json())  # Use .json() if the response is JSON data
+        pulled_username = response.eguageconfig.permission_username
+        pulled_password = response.eguageconfig.permission_password
+
+    else:
+        print(f"Request failed with status code: {response.status_code}")
+except requests.RequestException as e:
+    print(f"Request failed: {e}")
+
 
 # Connect to MySQL (replace placeholders with actual values)
 db_config = {
@@ -77,7 +106,7 @@ def create_egauge_device(dev_url, user, password, retry_interval=300, max_retrie
     retries = 0
     while retries < max_retries:
         try:
-            dev = webapi.device.Device(dev_url, webapi.JWTAuth(user, password))
+            dev = webapi.device.Device(dev_url, webapi.JWTAuth(pulled_username, pulled_password))
             return dev
         except Exception as e:
             print(f"Error creating eGauge device: {e}")
@@ -108,16 +137,31 @@ measurements = ["normal", "mean", "freq"]
 #This assembles the query string to make sure we get all the sections we want
 query_string = "&".join(sections + metrics)
 
-# Function to create a MySQL connection
-def create_connection():
-    try:
-        connection = mysql.connector.connect(**mysql_config)
-        if connection.is_connected():
-            print("Connected to MySQL database")
-            return connection
-    except Error as e:
-        print(f"Error: {e}")
-        return None
+# # Function to create a MySQL connection
+# def create_connection():
+#     try:
+#         connection = mysql.connector.connect(**mysql_config)
+#         if connection.is_connected():
+#             print("Connected to MySQL database")
+#             return connection
+#     except Error as e:
+#         print(f"Error: {e}")
+#         return None
+
+def create_connection_with_retry(retry_count=10, retry_delay=5):
+    for _ in range(retry_count):
+        try:
+            connection = mysql.connector.connect(**mysql_config)
+            if connection.is_connected():
+                print("Connected to MySQL database")
+                return connection
+        except Error as e:
+            print(f"Error: {e}")
+            print(f"Retrying in {retry_delay} seconds...")
+            time.sleep(retry_delay)  # Import time module for the sleep function
+
+    print(f"Failed to establish connection after {retry_count} attempts.")
+    return None
 
 # Function to insert data into MySQL table, handling duplicates
 def insert_data(connection, table_name, columns, values):

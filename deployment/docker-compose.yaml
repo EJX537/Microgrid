@@ -42,7 +42,14 @@ services:
     pull_policy: always
     depends_on:
       - mysql
-
+      
+  interface_2:
+    image: ejx537/weather:latest
+    container_name: weather
+    pull_policy: always
+    depends_on:
+      - mysql
+      
 volumes:
   mysql-data:
   

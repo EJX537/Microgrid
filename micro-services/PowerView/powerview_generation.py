@@ -1,5 +1,5 @@
 # URL background
-#  https://pv.inteless.com/oauth/token 
+# https://pv.inteless.com/oauth/token 
 # Your login details are redirected to the authentication URL, which provides your bearer token for future API requests
 
 import sys
@@ -19,7 +19,7 @@ db_name = 'microgridManager'
 
 table_name = 'powerview_data'
 
-# Enter your username and password that you created on the Sunsynk website.
+# Enter username and password that you created on the Sunsynk website
 my_user_email=str(sys.argv[1])
 my_user_password=str(sys.argv[2])
 is_docker=str(sys.argv[3])
@@ -43,18 +43,18 @@ db_config = {
 
 outage_timer = 0
 
-def create_powerview_config_settings_table(table_name):
+def create_powerview_config_settings_table(table_name, retry_interval=3, max_retries=10):
     connection = None
     connection_attempts = 0
     # Connect to MySQL
-    while not connection and connection_attempts < 10:
+    while not connection and connection_attempts < max_retries:
         try:
             connection = mysql.connector.connect(**db_config)
-            print("MySQL Database connection successful.")
+            print("MySQL Database connection for config table successful.")
         except Error as e:
             print(f"Error '{e}' occurred, trying again.")
             connection_attempts += 1
-            time.sleep(3)
+            time.sleep(retry_interval)
     if not connection: 
         print("Maximum connection attempts reached. Exiting.")
         return None
@@ -103,7 +103,7 @@ def create_powerview_config_settings_table(table_name):
 # Example usage
 create_powerview_config_settings_table('powerview_config_settings_table')
 
-# print bearer/access token
+# Get bearer/access token
 def my_bearer_token():
     headers = {
         'Content-type':'application/json', 
@@ -134,9 +134,8 @@ def get_and_insert_data():
     }
     r = requests.get(plant_id_endpoint, headers=headers_and_token)
     data_response = r.json()
-    #plant_id_and_pac = data_response['data']['infos']
-    #print(data_response)
     plant_id = data_response['data']['infos'][0]['id']
+    
     #print(plant_id)
 
     #use plant id to find plant realtime data and plant flow data
@@ -162,10 +161,12 @@ def get_and_insert_data():
 
 
     #outage detection
-    global outage_timer
+    outage_threshold = 30                                   #outage threshold is how long an outage should be detected before notifying
+    global outage_timer                                     #keeps track of time
     if (not all_data['gridTo'] and not all_data['toGrid']):
-        outage_timer += 5
-        if (outage_timer >= 30):
+        outage_timer += 5                                   #This number should be updated based on how frequently you get data (5 minutes minimum for PowerView)
+        if (outage_timer >= outage_threshold):
+            outage_message = f"Outage longer than {outage_threshold} minutes detected"
             print('Outage longer than 30 minutes detected')
     else:
         outage_timer = 0
@@ -180,7 +181,7 @@ def insert_data(data):
     while not connection and connection_attempts < 10:
         try:
             connection = mysql.connector.connect(**db_config)
-            print("MySQL Database connection successful.")
+            print("MySQL Database connection for inserting successful.")
         except Error as e:
             print(f"Error '{e}' occurred, trying again.")
             connection_attempts += 1
@@ -190,6 +191,7 @@ def insert_data(data):
         return None
     cursor = connection.cursor()
 
+    #check if powerview data table already exists & create one if not
     cursor.execute("SHOW TABLES LIKE 'powerview_data'")
     table_exists = cursor.fetchone()
     if not table_exists:
@@ -231,18 +233,19 @@ def insert_data(data):
         """)
         print('table created')
 
+    #infos has general data about the current plant
+    #infos is in a dictionary inside of an array at index 0 for some reason
     data_infos = data['infos'][0]
+    #print(data_infos)
 
+    #Check if this dataset already exists, the updateAt value keeps track of the datasets in intervals of 5 minutes and ~0.6seconds 
     check_record_query = 'SELECT updateAt FROM powerview_data WHERE updateAt = %s'
     cursor.execute(check_record_query, (parser.isoparse(data_infos['updateAt']),))
     updateAt_exists = cursor.fetchone()
 
-
     if (updateAt_exists):
         print('Data for this update time already exists. Please wait <5 minutes.')
     else:
-
-
         insert_query = """
         INSERT INTO powerview_data (updateAt, name, status, totalPower, pac, efficiency, etoday, emonth, eyear, etotal, income, invest, pvPower, battPower, gridOrMeterPower, loadOrEpsPower, genPower, minPower, soc, heatPumpPower, pvTo, toLoad, toGrid, toBat, batTo, gridTo, genTo, minTo, toHeatPump, genOn, microOn)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -251,10 +254,6 @@ def insert_data(data):
     #"data" is in the format of:    
     #'pageSize': 100, 'pageNumber': 1, 'total': 1, 'infos': [{'id': 139057, 'name': 'Mantey Residence', 'thumbUrl': 'https://static.inteless.com/plant/20231013032039336154.jpg@!650w', 'status': 1, 'address': '22316 Citation Dr, Los Gatos, CA 95033, USA', 'pac': 135, 'efficiency': 0.027, 'etoday': 24.2, 'etotal': 1016.6, 'updateAt': '2023-11-24T00:04:21Z', 'createAt': '2023-10-02T19:41:07.000+00:00', 'type': 2, 'masterId': 5575, 'share': False, 'plantPermission': ['smart.light.view', 'smart.rule.view', 'station.share.cancle'], 'existCamera': False, 'email': 'smpsb02@gmail.com', 'phone': '8317893318'}], 'id': 139057, 'name': 'Mantey Residence', 'totalPower': 5.0, 'thumbUrl': 'https://static.inteless.com/plant/20231013032039336154.jpg', 'joinDate': '2023-09-30T00:00:00Z', 'type': 2, 'status': 1, 'charges': [{'id': 18675729, 'startRange': '', 'endRange': '', 'price': 1.0, 'type': 1, 'stationId': 139057, 'createAt': '2023-10-02T19:41:07Z'}], 'products': None, 'lon': -121.9939688, 'lat': 37.14126505, 'address': '22316 Citation Dr, Los Gatos, CA 95033, USA', 'master': {'id': 5575, 'nickname': 'Rogaciano Gonzalez ', 'mobile': '8317893318'}, 'currency': {'id': 251, 'code': 'USD', 'text': '$'}, 'timezone': {'id': 226, 'code': 'America/Los_Angeles', 'text': '(UTC-08:00)Pacific Time (US & Canada)'}, 'realtime': {'pac': 135, 'etoday': 24.2, 'emonth': 472.7, 'eyear': 1016.6, 'etotal': 1016.6, 'income': 24.2, 'efficiency': 2.7, 'updateAt': '2023-11-24T00:04:21Z', 'currency': {'id': 251, 'code': 'USD', 'text': '$'}, 'totalPower': 5.0}, 'createAt': '2023-10-02T19:41:07Z', 'phone': ' 408-710-2745\n    ', 'email': 'mantey@ucsc.edu', 'installer': 'Rogaciano Gonzalez ', 'principal': 'Patrick Mantey ', 'plantPermission': ['smart.light.view', 'smart.rule.view', 'station.share.cancle'], 'fluxProducts': None, 'invest': 50000.0, 'custCode': 29, 'protocolIdentifier': '', 'meterCode': 0, 'pvPower': 135, 'battPower': 46, 'gridOrMeterPower': 3656, 'loadOrEpsPower': 3670, 'genPower': 0, 'minPower': 0, 'soc': 100.0, 'heatPumpPower': 0, 'pvTo': True, 'toLoad': True, 'toGrid': False, 'toBat': False, 'batTo': True, 'gridTo': True, 'genTo': False, 'minTo': False, 'toHeatPump': False, 'existsGen': False, 'existsMin': False, 'genOn': False, 'microOn': False, 'existsMeter': False, 'bmsCommFaultFlag': False, 'existsHeatPump': False, 'pv': None, 'existThinkPower': False}    
 
-        #infos is in an dictionary inside of an array for some reason
-        #print(data_infos)
-
-    
         values = (
             parser.isoparse(data_infos['updateAt']),
             data_infos['name'],
@@ -294,7 +293,6 @@ def insert_data(data):
         connection.commit()
         print('data sent')
 
-
     cursor.close()
     connection.close()
 
@@ -304,4 +302,4 @@ if __name__ == "__main__":
     create_powerview_config_settings_table('powerview_config_settings_table')
     while(1):
         get_and_insert_data()
-        time.sleep(302)
+        time.sleep(302) #<< This value should be higher than 300 because the API requires at least 5 minutes to update

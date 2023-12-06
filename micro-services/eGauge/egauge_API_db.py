@@ -74,7 +74,7 @@ def create_database_connection(config, retry_interval=10, max_retries=3):
 def create_egauge_config_settings_table(table_name):
     # Connect to MySQL
     
-    connection = create_database_connection(**db_config)
+    connection = create_database_connection(db_config)
 
     # Create a cursor object to interact with the database
     cursor = connection.cursor()
@@ -105,7 +105,7 @@ def create_egauge_config_settings_table(table_name):
         print(f"Table {table_name} created.")
 
         add_eguage_query = f"""
-        INSERT INTO {table_name} (device_name, permission_username, permission_password, outlink, device_status, freq_gitrate)
+        INSERT INTO {table_name} (device_name, permission_username, permission_password, outlink, device_status, freq_rate)
         VALUES ("eguage", "", "", "", "off", 100);
         """
         
@@ -312,7 +312,7 @@ while True:
     print(rate)
 
     # Connect to MySQL database
-    connection = create_database_connection(**db_config)
+    connection = create_database_connection(db_config)
     cursor = connection.cursor()
 
 

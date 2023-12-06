@@ -49,12 +49,25 @@ def job(latitude, longitude):
 		print("Storing weather data...")
 		# Store data into database
 		# Connect to MySQL
-		conn = mysql.connector.connect(
+		conn = None
+		connection_attempts = 0
+		while not conn and connection_attempts < max_retries:
+			try:
+				conn = mysql.connector.connect(
 				host="host.docker.internal",
 				user="microgridManager",
 				password="sluggrid",
 				database="microgridManager",
 		)
+				print("MySQL Database connection for weather successful.")
+			except Error as e:
+				print(f"Error '{e}' occurred, trying again.")
+				connection_attempts += 1
+				time.sleep(retry_interval)
+		if not conn: 
+			print("Maximum connection attempts reached. Exiting.")
+			return None
+
 
 		# Create a cursor
 		cursor = conn.cursor()

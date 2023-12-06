@@ -7,6 +7,7 @@ import requests
 import json
 import time
 import mysql.connector
+from mysql.connector import Error
 from requests.auth import HTTPBasicAuth
 from datetime import datetime
 from dateutil import parser
@@ -43,8 +44,20 @@ db_config = {
 outage_timer = 0
 
 def create_powerview_config_settings_table(table_name):
+    connection = None
+    connection_attempts = 0
     # Connect to MySQL
-    connection = mysql.connector.connect(**db_config)
+    while not connection and connection_attempts < 10:
+        try:
+            connection = mysql.connector.connect(**db_config)
+            print("MySQL Database connection successful.")
+        except Error as e:
+            print(f"Error '{e}' occurred, trying again.")
+            connection_attempts += 1
+            time.sleep(3)
+    if not connection: 
+        print("Maximum connection attempts reached. Exiting.")
+        return None
 
     # Create a cursor object to interact with the database
     cursor = connection.cursor()
@@ -110,44 +123,6 @@ def my_bearer_token():
     the_bearer_token_string = ('Bearer '+ my_access_token)
     return my_access_token
 
-def create_powerview_config_settings_table(table_name):
-    # Connect to MySQL
-    connection = mysql.connector.connect(**db_config)
-
-    # Create a cursor object to interact with the database
-    cursor = connection.cursor()
-
-    # SQL query to check if the table exists
-    check_table_query = f"SHOW TABLES LIKE '{table_name}'"
-
-    # Execute the query
-    cursor.execute(check_table_query)
-
-    # Fetch the result
-    table_exists = cursor.fetchone()
-
-    # If the table doesn't exist, create it
-    if not table_exists:
-        create_table_query = f"""
-        CREATE TABLE {table_name} (
-            device_name VARCHAR(255),
-            permission_username VARCHAR(255),
-            permission_password VARCHAR(255),
-            outlink VARCHAR(255),
-            device_status VARCHAR(255),
-            freq_rate INT
-        )
-        """
-        
-        cursor.execute(create_table_query)
-        print(f"Table {table_name} created.")
-
-    # Commit the changes and close the connection
-    connection.commit()
-    cursor.close()
-    connection.close()
-
-
 # Get plant data from plant
 def get_and_insert_data():
 
@@ -199,7 +174,20 @@ def get_and_insert_data():
         insert_data(all_data)
 
 def insert_data(data):
-    connection = mysql.connector.connect(**db_config)
+    connection = None
+    connection_attempts = 0
+    # Connect to MySQL
+    while not connection and connection_attempts < 10:
+        try:
+            connection = mysql.connector.connect(**db_config)
+            print("MySQL Database connection successful.")
+        except Error as e:
+            print(f"Error '{e}' occurred, trying again.")
+            connection_attempts += 1
+            time.sleep(3)
+    if not connection: 
+        print("Maximum connection attempts reached. Exiting.")
+        return None
     cursor = connection.cursor()
 
     cursor.execute("SHOW TABLES LIKE 'powerview_data'")

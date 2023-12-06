@@ -221,7 +221,7 @@ interface powerviewData {
 	soc: number;
 	status: number;
 	battPower: number;
-	toBat: number;
+	gridOrMeterPower: number;
 }
 
 // Powerview SSE call
@@ -242,7 +242,7 @@ async function getPowerView(res: Response) {
 			soc: val.soc,
 			status: val.status,
 			battPower: val.battPower,
-			toBat: val.toBat,
+			gridOrMeterPower: val.gridOrMeterPower,
 		}
 
 		res.write(`data: ${JSON.stringify(data)}\n\n`);

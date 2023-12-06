@@ -1,10 +1,10 @@
-import { Config, DataSteam } from './batteryChartTypes';
+import { Config, DataStream } from './batteryChartTypes';
 
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import * as d3 from 'd3';
 
 interface batteryCapacitySVGProps {
-	data: DataSteam;
+	data: DataStream;
 	height: number;
 	width: number;
 	capacity: number;
@@ -88,10 +88,11 @@ const BatteryCapacitySVG: React.FC<batteryCapacitySVGProps> = (props) => {
 		const svg = d3.select(svgRef.current);
 
 		const dataStream = props.data;
-		const onGrid = dataStream.onGrid;
-		const percentage = dataStream.currentWatt / capacity;
-		const projectedPercentage = dataStream.projectedWatt / capacity;
-		const isCharging = dataStream.projectedWatt > dataStream.currentWatt;
+		const onGrid = dataStream.gridTo || dataStream.toGrid;
+		const percentage = dataStream.soc / 100;
+		const projectedWatt = dataStream.battPower + capacity * percentage;
+		const projectedPercentage = projectedWatt / capacity;
+		const isCharging = projectedWatt > capacity * percentage;
 
 		if (isCharging) {
 			// Projected Charge arc
@@ -114,6 +115,7 @@ const BatteryCapacitySVG: React.FC<batteryCapacitySVGProps> = (props) => {
 				.style('fill', '#FF5733')
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				.attr('d', arc as any);
+
 			const projectedArc = svg.append('path')
 				.datum(getArcAngles(projectedPercentage))
 				.style('fill', '#8BC34A')
@@ -132,8 +134,8 @@ const BatteryCapacitySVG: React.FC<batteryCapacitySVGProps> = (props) => {
 		svg.append('text')
 			.attr('text-anchor', 'middle')
 			.style('font-size', `${size / 8}px`)
-			.style('fill', percentage < config.danger ? '#FF5733' : percentage < config.warning ? '#FFC300' : '#4CAF50')
-			.text(`${dataStream.currentWatt} (W)`);
+			.style('fill', dataStream.pac <= 0 ? '#FF5733' : '#4CAF50')
+			.text(`${dataStream.pac} (W)`);
 
 		svg.append('text')
 			.attr('text-anchor', 'middle')

@@ -14,18 +14,34 @@ meter_dev = os.getenv("EGDEV", "http://egauge18646.egaug.es")
 meter_user = os.getenv("EGUSR", "ppridge1")
 meter_password = os.getenv("EGPWD", "ppridge")
 
-# Connect to MySQL (replace placeholders with actual values)
 db_config = {
-    "host": "host.docker.internal",
-    "user": "microgridManager",
-    "password": "sluggrid",
-    "database": "microgridManager",
+        "host": "host.docker.internal",
+        "user": "microgridManager",
+        "password": "sluggrid",
+        "database": "microgridManager",
 }
+
+def create_database_connection(config, retry_interval=10, max_retries=3):
+    retries = 0
+    while retries < max_retries:
+        try:
+            connection = mysql.connector.connect(**config)
+            if connection.is_connected():
+                print("Connected to MySQL database")
+                return connection
+        except Error as e:
+            print(f"Error: {e}")
+            retries += 1
+            print(f"Retrying in {retry_interval} seconds...")
+            time.sleep(retry_interval)
+    print(f"Max retries reached. Exiting.")
+    return None
 
 
 def create_egauge_config_settings_table(table_name):
     # Connect to MySQL
-    connection = mysql.connector.connect(**db_config)
+    connection = create_database_connection(db_config)
+    
 
     # Create a cursor object to interact with the database
     cursor = connection.cursor()
@@ -54,14 +70,6 @@ def create_egauge_config_settings_table(table_name):
         
         cursor.execute(create_table_query)
         print(f"Table {table_name} created.")
-
-        add_eguage_query = f"""
-        INSERT INTO {table_name} (device_name, permission_username, permission_password, outlink, device_status, freq_gitrate)
-        VALUES ("eguage", "", "", "", "off", 100);
-        """
-        
-        cursor.execute(add_eguage_query)
-        print(f"Table {table_name} updated with eguage config.")
 
     # Commit the changes and close the connection
     connection.commit()
@@ -108,16 +116,16 @@ measurements = ["normal", "mean", "freq"]
 #This assembles the query string to make sure we get all the sections we want
 query_string = "&".join(sections + metrics)
 
-# Function to create a MySQL connection
-def create_connection():
-    try:
-        connection = mysql.connector.connect(**mysql_config)
-        if connection.is_connected():
-            print("Connected to MySQL database")
-            return connection
-    except Error as e:
-        print(f"Error: {e}")
-        return None
+# # Function to create a MySQL connection
+# def create_connection():
+#     try:
+#         connection = mysql.connector.connect(**mysql_config)
+#         if connection.is_connected():
+#             print("Connected to MySQL database")
+#             return connection
+#     except Error as e:
+#         print(f"Error: {e}")
+#         return None
 
 # Function to insert data into MySQL table, handling duplicates
 def insert_data(connection, table_name, columns, values):
@@ -260,8 +268,11 @@ while True:
     print("\nRate Dictionary:")
     print(rate)
 
+    # Connect to MySQL (replace placeholders with actual values)
+  
+
     # Connect to MySQL database
-    connection = mysql.connector.connect(**db_config)
+    connection = create_database_connection(db_config)
     cursor = connection.cursor()
 
 
@@ -356,4 +367,6 @@ while True:
     # Close the MySQL connection
     cursor.close()
     connection.close()
-    time.sleep(5)
+    time.sleep(2)
+    # time.sleep(30)
+    

@@ -49,6 +49,8 @@ def job(latitude, longitude):
 		print("Storing weather data...")
 		# Store data into database
 		# Connect to MySQL
+		retry_interval=3
+		max_retries=10
 		conn = None
 		connection_attempts = 0
 		while not conn and connection_attempts < max_retries:

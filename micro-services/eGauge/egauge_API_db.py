@@ -52,9 +52,29 @@ db_config = {
 }
 
 
+
+
+# Function to create a MySQL connection with retry logic
+def create_database_connection(config, retry_interval=10, max_retries=3):
+    retries = 0
+    while retries < max_retries:
+        try:
+            connection = mysql.connector.connect(**config)
+            if connection.is_connected():
+                print("Connected to MySQL database")
+                return connection
+        except Error as e:
+            print(f"Error: {e}")
+            retries += 1
+            print(f"Retrying in {retry_interval} seconds...")
+            time.sleep(retry_interval)
+    print(f"Max retries reached. Exiting.")
+    return None
+
 def create_egauge_config_settings_table(table_name):
     # Connect to MySQL
-    connection = mysql.connector.connect(**db_config)
+    
+    connection = create_database_connection(**db_config)
 
     # Create a cursor object to interact with the database
     cursor = connection.cursor()
@@ -148,20 +168,7 @@ query_string = "&".join(sections + metrics)
 #         print(f"Error: {e}")
 #         return None
 
-def create_connection_with_retry(retry_count=10, retry_delay=5):
-    for _ in range(retry_count):
-        try:
-            connection = mysql.connector.connect(**mysql_config)
-            if connection.is_connected():
-                print("Connected to MySQL database")
-                return connection
-        except Error as e:
-            print(f"Error: {e}")
-            print(f"Retrying in {retry_delay} seconds...")
-            time.sleep(retry_delay)  # Import time module for the sleep function
 
-    print(f"Failed to establish connection after {retry_count} attempts.")
-    return None
 
 # Function to insert data into MySQL table, handling duplicates
 def insert_data(connection, table_name, columns, values):
@@ -305,7 +312,7 @@ while True:
     print(rate)
 
     # Connect to MySQL database
-    connection = mysql.connector.connect(**db_config)
+    connection = create_database_connection(**db_config)
     cursor = connection.cursor()
 
 

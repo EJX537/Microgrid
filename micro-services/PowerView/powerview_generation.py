@@ -41,7 +41,8 @@ db_config = {
     "database": db_name
 }
 
-outage_timer = 0
+outage_timer = 0     #keeps track of time for outages
+API_call_timer = 302 #In seconds, how frequently to do the API call. **Should be higher than 301**
 
 def create_powerview_config_settings_table(table_name, retry_interval=3, max_retries=10):
     connection = None
@@ -161,13 +162,13 @@ def get_and_insert_data():
 
 
     #outage detection
-    outage_threshold = 30                                   #outage threshold is how long an outage should be detected before notifying
+    outage_threshold = 30                                   #In minutes, outage threshold is how long an outage should be detected before notifying
     global outage_timer                                     #keeps track of time
     if (not all_data['gridTo'] and not all_data['toGrid']):
-        outage_timer += 5                                   #This number should be updated based on how frequently you get data (5 minutes minimum for PowerView)
+        outage_timer += API_call_timer // 60                #how much time has passed
         if (outage_timer >= outage_threshold):
             outage_message = f"Outage longer than {outage_threshold} minutes detected"
-            print('Outage longer than 30 minutes detected')
+            print(outage_message)
     else:
         outage_timer = 0
 
@@ -302,4 +303,4 @@ if __name__ == "__main__":
     create_powerview_config_settings_table('powerview_config_settings_table')
     while(1):
         get_and_insert_data()
-        time.sleep(302) #<< This value should be higher than 300 because the API requires at least 5 minutes to update
+        time.sleep(API_call_timer) #<< This value should be higher than 300 because the API requires at least 5 minutes to update

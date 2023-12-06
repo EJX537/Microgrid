@@ -1,7 +1,10 @@
-interface DataSteam {
-	currentWatt: number;
-	projectedWatt: number;
-	onGrid: boolean;
+interface DataStream {
+	pac: number;
+	toGrid: boolean;
+	gridTo: boolean;
+	soc: number;
+	battPower: number;
+	gridOrMeterPower: number;
 }
 
 interface DataRequest_Once {
@@ -14,4 +17,4 @@ interface Config {
 	animationSpeed: number;
 }
 
-export type { DataSteam, DataRequest_Once, Config };
+export type { DataStream, DataRequest_Once, Config };

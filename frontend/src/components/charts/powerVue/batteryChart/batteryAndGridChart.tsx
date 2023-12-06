@@ -7,14 +7,8 @@ import BatteryCapacitySVG from './batteryCapacitySVG';
 import battery from '../../../../assets/battery.svg';
 import timer from '../../../../assets/timer.svg';
 
-import { Config, DataRequest_Once, DataSteam } from './batteryChartTypes';
+import { Config, DataRequest_Once, DataStream } from './batteryChartTypes';
 import { useMicrogrid } from '../../../../context/useMicrogridContext';
-
-const mockDataStream: DataSteam = {
-	currentWatt: 13189,
-	projectedWatt: 10000,
-	onGrid: true,
-};
 
 const mockData: DataRequest_Once = {
 	capacity: 15000,
@@ -27,6 +21,7 @@ type TooltipInfo = {
 	[key: string]: string;
 };
 
+
 const tooltipInfo: TooltipInfo = {
 	'warning': 'The yellow when battery is at __% capacity',
 	'danger': 'The red when battery is at __% capacity',
@@ -35,8 +30,10 @@ const tooltipInfo: TooltipInfo = {
 
 const BatteryChart = () => {
 	const parentRef = useRef<HTMLDivElement | null>(null);
+	const eventSourceRef = useRef<EventSource | null>(null);
 	const { config, setConfig } = useMicrogrid();
-	const [configState, setConfigState] = useState({} as Config);
+	const [configState, setConfigState] = useState(config.batteryChartConfigs);
+	const [dataStream, setDataSteam] = useState<DataStream>({} as DataStream);
 	const [showConfig, setShowConfig] = useState(false);
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 	const [showAlert, setShowAlert] = useState({ content: '', show: false });
@@ -48,6 +45,16 @@ const BatteryChart = () => {
 			});
 		}
 	}, [parentRef]);
+
+	useEffect(() => {
+		if (!eventSourceRef.current) {
+			eventSourceRef.current = new EventSource('http://localhost:8080/powerview');
+			eventSourceRef.current.onmessage = (e) => {
+				const data = JSON.parse(e.data);
+				setDataSteam(data);
+			};
+		}
+	}, []);
 
 	const handleSave = () => {
 		const isValid = Object.values(configState).every((value) => value !== undefined && value !== null);
@@ -79,7 +86,7 @@ const BatteryChart = () => {
 			</div>
 			<div className='border-t border-black h-0.5 my-2' />
 			<div className='px-2 pt-2 h-full max-h-[350px]' ref={parentRef}>
-				<BatteryCapacitySVG data={mockDataStream} height={dimensions.height} width={dimensions.width} capacity={mockData.capacity} config={config.batteryChartConfigs} />
+				<BatteryCapacitySVG data={dataStream} height={dimensions.height} width={dimensions.width} capacity={mockData.capacity} config={config.batteryChartConfigs} />
 			</div>
 			<div className='px-2 flex justify-evenly gap-2'>
 				<div className='flex items-center gap-2'>

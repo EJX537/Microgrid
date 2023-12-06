@@ -5,6 +5,7 @@ import { Widget, WidgetComponent } from '../../interfaces/JSXTypes';
 import { BatteryChart } from '../../components';
 import WaterTankWidget from '../../components/widget/waterTank';
 import HVACWidget from '../../components/widget/hvac';
+import GenerationChart from '../../components/charts/powerVue/energyGeneration/overviewEnergyChart';
 
 // Dashboard is grid composed of 12 columns.
 const Dashboard = () => {

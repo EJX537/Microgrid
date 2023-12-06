@@ -19,7 +19,7 @@ Plant Realtime (3.2.3) tracks general energy statistics about the plant.
 
 Plant Flow (3.2.4) tracks the flow of energy throughout the Microgrid.
 
-For more deatils on the API, Read >> ***E-linter CSP Platform Open API Manual_V211004_sunsynk.pdf*** in the directory
+For more details on the API, Read >> ***E-linter CSP Platform Open API Manual_V211004_sunsynk.pdf*** in the directory
 ```
 
 To change how frequently the program calls the API, change the time.sleep() value in #main. **Remember that the API updates once every 5 minutes**

@@ -8,17 +8,17 @@ const dashboardConfigMock = {
 	chartCarouselConfigs: [
 		{
 			name: 'Kitchen',
-			source: 'L1_S1',
+			source: 'S1_L1',
 			period: '30 seconds',
 		} as eGaugeConfig,
 		{
 			name: 'HVAC',
-			source: 'L1_S7',
+			source: 'S7_L1',
 			period: '30 seconds',
 		} as eGaugeConfig,
 		{
 			name: 'WATER',
-			source: 'L1_S9',
+			source: 'S9_L1',
 			period: '1 minute',
 		} as eGaugeConfig,
 	],

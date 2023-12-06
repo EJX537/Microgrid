@@ -1,4 +1,4 @@
-This program takes data from PowerView and puts it into the MySQL Database once every 5 minutes and 2 seconds. The API updates once every 5 minutes and ~0.8 seconds.
+This program takes data from PowerView and puts it into the MySQL Database once every 5 minutes and 2 seconds. It also tracks grid outages. The API updates once every 5 minutes and ~0.8 seconds.
 
 ```
 Usage: python3 powerview_generation.py <User/Email> <Password> <Using Docker true/false>
@@ -23,6 +23,8 @@ For more details on the API, Read >> ***E-linter CSP Platform Open API Manual_V2
 ```
 
 To change how frequently the program calls the API, change the time.sleep() value in #main. **Remember that the API updates once every 5 minutes**
+
+To change the outage detection parameters, change the outage_threshold variable.
 
 To change what database change the following variable values in the file.
 ```

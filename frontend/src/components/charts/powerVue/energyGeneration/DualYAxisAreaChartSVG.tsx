@@ -214,11 +214,11 @@ const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = ({ width, he
 				.attr('stroke-width', 1)
 				.attr('stroke-dasharray', '5,5');
 
-			div.transition()
+			div?.transition()
 				.duration(200)
 				.style('opacity', .9);
 
-			div.html(`
+			div?.html(`
 				<p>Time: ${formatTime(closestData.dateTime)}</p>
 				<p class='text-[${colorScale('battery')}]'>Battery: ${((closestData.watt / capacity) * 100).toFixed(2)}%</p>
 				${filteredDataOther.map((d: DataTypeWattHour) => `<p style="color:${colorScale(d.source)}">${d.source}: ${d.watt} W</p>`).join('')}`)
@@ -229,11 +229,11 @@ const DualYAxisAreaChartSVG: React.FC<DualYAxisAreaChartSVGProps> = ({ width, he
 		const pointerleft = () => {
 			svg.selectAll('.vertical-line').remove(); // Remove all lines with class 'vertical-line'
 			dot.attr('display', 'none');
-			div.transition()
+			div?.transition()
 				.duration(500)
 				.style('opacity', 0);
 
-			div.style('left', (-1000) + 'px')
+			div?.style('left', (-1000) + 'px')
 				.style('top', (-1000) + 'px');
 		};
 

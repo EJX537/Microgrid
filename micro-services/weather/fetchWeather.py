@@ -4,6 +4,7 @@ import time
 import mysql.connector
 
 def getWeather(latitude, longitude):
+		print("Fetching weather data...")
 		# Make a GET request to the National Weather Service API
 		response = requests.get(
 				f"https://api.weather.gov/gridpoints/MTR/{latitude},{longitude}/forecast",
@@ -12,10 +13,9 @@ def getWeather(latitude, longitude):
 
 		# Parse the response content to a JSON object
 		data = response.json()
-		print(data)
 		# Return weather data
+		print("Weather data fetched.")
 		return data
-
 
 def job(latitude, longitude):
 		# Get current weather data
@@ -46,6 +46,7 @@ def job(latitude, longitude):
 				# Append the dictionary to the result list
 				result_list.append(period_dict)
 
+		print("Storing weather data...")
 		# Store data into database
 		# Connect to MySQL
 		conn = mysql.connector.connect(
@@ -71,6 +72,7 @@ def job(latitude, longitude):
 		cursor.execute(create_table_query)
 
 		# Insert data into the table
+		print("Weather data stored.")
 		insert_query = """
 		INSERT INTO weather_data (startTime, temperature, shortForecast, icon) VALUES (%s, %s, %s, %s)
 		"""
@@ -92,16 +94,15 @@ def job(latitude, longitude):
 		# Close the cursor and connection
 		cursor.close()
 		conn.close()
-
+		print("Weather service finished.")
 		return
-
 
 def main():
 		# Define location of the residence, using gridpoints
 		latitude = "93"
 		longitude = "67"
   
-		getWeather(latitude, longitude)
+		job(latitude, longitude)
   
 		# Schedule job every 12 hours
 		schedule.every(12).hours.do(lambda: job(latitude, longitude))
@@ -112,4 +113,5 @@ def main():
 
 
 if __name__ == "__main__":
-		main()
+  print("Starting weather service...")
+  main() 

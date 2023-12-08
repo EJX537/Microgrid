@@ -1,17 +1,11 @@
-# Docker
-## To run use the following command:
-```bash
-docker-compose up
-```
-## If there is an error you can try to delete the image for frontend and rebuild it
-
-# [[Frontend Documentation]]
+# Frontend Documentation
 
 ## Table of Contents
-1. [Introduction](Introduction)
-2. [How to run]
-3. [Structure Layout](Layout)
-4. [Known bugs](Known bugs)
+1. Introduction
+2. How to run
+3. Structure Layout
+4. Known bugs
+
 ## Introduction
 The Frontend is built on React.js and TypeScript. Styling is done mainly with Tailwind. The reason Ant Design is in the project is because the initial plan was to use Ant Charts but its no longer used. Ant Design is still used in some parts but very minimally.
 
